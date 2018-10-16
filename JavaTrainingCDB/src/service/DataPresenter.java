@@ -4,9 +4,6 @@ import persistence.DatabaseAccessor;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,24 +12,41 @@ import model.Company;
 public class DataPresenter {
 	private DatabaseAccessor dba = new DatabaseAccessor();
 	
-	
-	
-	
-	public List<Computer> getComputerList(){
+	public List<Computer> getComputers(){
 		List<Computer> result = new ArrayList<Computer>();
 		ResultSet rs = dba.getAllComputers();
 		try {
 			while(rs.next()) {
-				System.out.println(rs.getRow());
 				Computer computer = new Computer();
-				computer.setId(rs.getInt(1));
-				computer.setName(rs.getString(2));; 
-				computer.setIntroduced(rs.getDate(3)
-						.toInstant()
-						.atZone(ZoneId.of("CET"))
-						.toLocalDateTime());
-				computer.setDiscontinued((rs.getDate(4).toInstant().atZone(ZoneId.of("CET")).toLocalDateTime()));
-				computer.setCompany(getCompanyById(rs.getInt(5)));
+				
+				computer.setId(rs.getInt(1)); 
+				if (rs.wasNull()) {computer.setId(0);}
+				computer.setName(rs.getString(2)); 
+				if (rs.wasNull()) {computer.setName(null);}
+				
+				java.sql.Date introduced = rs.getDate(3);
+				if (rs.wasNull()) {
+					computer.setIntroduced(null);
+				}
+				else {
+					computer.setIntroduced(introduced);
+				}
+				
+				java.sql.Date discontinued = rs.getDate(4);
+				if (rs.wasNull()) {
+					computer.setDiscontinued(null);
+				}
+				else {
+					computer.setDiscontinued(discontinued);
+				}
+				
+				Integer idCompany = rs.getInt(5);
+				if (rs.wasNull()) {
+					computer.setCompany(null);
+				}
+				else {
+					computer.setCompany(getCompanyById(idCompany));
+				}
 				result.add(computer);
 			}
 		} catch (SQLException e) {
@@ -42,6 +56,23 @@ public class DataPresenter {
 		}
 		return result;
 	}
+	
+	public List<Company> getCompanies(){
+		List<Company> result = new ArrayList<Company>();
+		ResultSet rs = dba.getAllCompanies();
+		try {
+			while(rs.next()) {
+				Company company = new Company(rs.getInt(1),rs.getString(2));
+				result.add(company);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		return result;
+	}
+	
 	public Company getCompanyById(int id) {
 		ResultSet rs = dba.getCompanybyId(id);
 		try {

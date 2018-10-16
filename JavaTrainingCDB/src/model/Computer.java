@@ -1,7 +1,7 @@
 package model;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.sql.Date;
 
 
 public class Computer implements Serializable {
@@ -13,15 +13,35 @@ public class Computer implements Serializable {
 	//not null unique
 	private int id;
 	
-	private Company company;
-	
 	//not null
 	private String name;
 	
-	private LocalDateTime introduced;
+	private Date introduced;
 	
-	private LocalDateTime discontinued;
+	private Date discontinued;
 
+	private Company company;
+	
+	public String toString() {
+		
+		StringBuffer def = new StringBuffer();
+		def.append("{id="+id);
+		if(name != null) {
+			def.append(", name="+name);
+		}
+		if(introduced != null) {
+			def.append(", introduced="+introduced);
+		}
+		if(discontinued != null) {
+			def.append(", discontinued="+discontinued);
+		}
+		if(company != null) {
+			def.append(", company="+company.getName());
+		}
+		def.append("}");
+		return def.toString();
+	}
+	
 	public int getId() {
 		return id;
 	}
@@ -46,19 +66,19 @@ public class Computer implements Serializable {
 		this.name = name;
 	}
 
-	public LocalDateTime getIntroduced() {
+	public Date getIntroduced() {
 		return introduced;
 	}
 
-	public void setIntroduced(LocalDateTime introduced) {
+	public void setIntroduced(Date introduced) {
 		this.introduced = introduced;
 	}
 
-	public LocalDateTime getDiscontinued() {
+	public Date getDiscontinued() {
 		return discontinued;
 	}
 
-	public void setDiscontinued(LocalDateTime discontinued) {
+	public void setDiscontinued(Date discontinued) {
 		this.discontinued = discontinued;
 	}
 	
