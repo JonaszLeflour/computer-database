@@ -18,14 +18,14 @@ public class DatabaseAccessor {
 	
     private Connection con = null;
     
-    public enum ComputerField{
+    public static enum ComputerField{
     	name,
     	introduced,
     	discontinued,
     	company_id
     }
     
-    public enum CompanyField{
+    public static enum CompanyField{
     	name
     }
 	
@@ -48,7 +48,7 @@ public class DatabaseAccessor {
 		this.password = password; 
 	}
 	
-	public ResultSet executeRequest(String SQL) {
+	public ResultSet executeQuery(String SQL) {
 		try{
         	Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(SQL);
@@ -59,27 +59,37 @@ public class DatabaseAccessor {
             e.printStackTrace();
             return null;
         }
-		
+	}
+	
+	public void executeUpdate(String SQL) {
+		try{
+        	Statement stmt = con.createStatement();
+        	stmt.executeUpdate(SQL);
+        }
+        // Handle any errors that may have occurred.
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
 	}
 	
 	public ResultSet getAllComputers(){
-        return executeRequest("SELECT * FROM computer");
+        return executeQuery("SELECT * FROM computer");
     }
 	
 	public ResultSet getAllCompanies(){
-        return executeRequest("SELECT * FROM company");
+        return executeQuery("SELECT * FROM company");
     }
 	
 	public ResultSet getCompanybyId(int id){
-        return executeRequest("SELECT * FROM company WHERE id="+id);
+        return executeQuery("SELECT * FROM company WHERE id="+id);
     }
 	
 	public ResultSet getComputerById(int id) {
-		return executeRequest("SELECT * FROM computer WHERE id="+id);
+		return executeQuery("SELECT * FROM computer WHERE id="+id);
 	}
 	
 	public ResultSet getComputerByName(String name) {
-		return executeRequest("SELECT * FROM computer WHERE name='"+name+"'");
+		return executeQuery("SELECT * FROM computer WHERE name='"+name+"'");
 	}
 	
 	public void createComputer(Map<ComputerField,String>columns) {
@@ -99,7 +109,14 @@ public class DatabaseAccessor {
 				requestBuf_p2.append("(");
 			}
 			requestBuf.append(entry.getKey());
-			requestBuf_p2.append(entry.getValue());
+			//cast datetime if field is date like so : CAST('YYYY-MM-DD' AS DATETIME)
+			if(entry.getKey().equals(ComputerField.introduced) || entry.getKey().equals(ComputerField.discontinued)) {
+				requestBuf_p2.append("CAST('").append(entry.getValue()).append("' AS DATETIME)");
+			}
+			else {
+				requestBuf_p2.append(entry.getValue());
+			}
+			
 			
 			firstField = false;
 		}
@@ -108,11 +125,11 @@ public class DatabaseAccessor {
 			requestBuf_p2.append(")");
 		}
 		requestBuf.append(requestBuf_p2);
-		executeRequest(requestBuf.toString());
+		executeQuery(requestBuf.toString());
 	}
 	
 	public void deleteComputerByName(String name) {
-		executeRequest("DELETE FROM computer WHERE name = '"+name+"'");
+		executeUpdate("DELETE FROM computer WHERE name = '"+name+"'");
 	}
 	
 	public void updateComputerById(int id, Map<ComputerField,String>updatedColumns) {
@@ -124,11 +141,20 @@ public class DatabaseAccessor {
 			if(!firstField) {
 				request.append(", ");
 			}
-			request.append(entry.getKey()+"="+entry.getValue());
+			request.append(entry.getKey()).append("=");
 			
+			//cast datetime if field is date like so : CAST('YYYY-MM-DD' AS DATETIME)
+			if(entry.getKey().equals(ComputerField.introduced) || entry.getKey().equals(ComputerField.discontinued)) {
+				request.append("CAST('").append(entry.getValue()).append("' AS DATETIME)");
+			}
+			else {
+				request.append(entry.getValue());
+			}
 			firstField = false;
 		}
 		request.append(" WHERE id = "+id);
-		executeRequest(request.toString());
+		executeUpdate(request.toString());
 	}
+	
+	
 }

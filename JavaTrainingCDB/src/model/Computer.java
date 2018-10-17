@@ -1,7 +1,7 @@
 package model;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.time.LocalDate;
 
 
 public class Computer implements Serializable {
@@ -16,11 +16,24 @@ public class Computer implements Serializable {
 	//not null
 	private String name;
 	
-	private Date introduced;
+	private LocalDate introduced;
 	
-	private Date discontinued;
+	private LocalDate discontinued;
 
 	private Company company;
+	
+	//constructor from database
+	
+	public Computer() {
+	}
+	
+	public Computer(int id, String name, LocalDate introduced, LocalDate discontinued, Company company) {
+		this.id = id;
+		this.name = name;
+		this.introduced = introduced;
+		this.discontinued = discontinued;
+		this.company = company;
+	}
 	
 	public String toString() {
 		
@@ -45,9 +58,9 @@ public class Computer implements Serializable {
 	public int getId() {
 		return id;
 	}
-
+	
 	public void setId(int id) {
-		this.id = id;
+		this.id =id;
 	}
 
 	public Company getCompany() {
@@ -66,19 +79,19 @@ public class Computer implements Serializable {
 		this.name = name;
 	}
 
-	public Date getIntroduced() {
+	public LocalDate getIntroduced() {
 		return introduced;
 	}
 
-	public void setIntroduced(Date introduced) {
+	public void setIntroduced(LocalDate introduced) {
 		this.introduced = introduced;
 	}
 
-	public Date getDiscontinued() {
+	public LocalDate getDiscontinued() {
 		return discontinued;
 	}
 
-	public void setDiscontinued(Date discontinued) {
+	public void setDiscontinued(LocalDate discontinued) {
 		this.discontinued = discontinued;
 	}
 	
