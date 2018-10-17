@@ -2,12 +2,13 @@ package ui;
 
 import java.util.List;
 import java.util.Map;
+import java.util.EnumMap;
 import java.util.Scanner;
 
 import service.DataPresenter;
 import model.Company;
 import model.Computer;
-import persistence.DatabaseAccessor.ComputerField;
+import persistence.DatabaseAccessor;
 
 public class ConsoleUserInterface implements UserInterface {
 	Scanner scan = new Scanner(System.in);
@@ -25,10 +26,10 @@ public class ConsoleUserInterface implements UserInterface {
 			System.out.println("Select option :");
 			System.out.println("1 - List computers");
 			System.out.println("2 - List companies");
-			System.out.println("3 - Show computer");
+			System.out.println("3 - Show computer (name)");
 			System.out.println("4 - Update computer infos");
 			System.out.println("5 - Add computer");
-			System.out.println("6 - Delete computer");
+			System.out.println("6 - Delete computer (id)");
 			System.out.println("0 - Exit");
 
 			String choice = scan.nextLine();
@@ -58,7 +59,6 @@ public class ConsoleUserInterface implements UserInterface {
 				System.out.println("Invalid option");
 				break;
 			}
-
 		}
 		System.out.println("Bye");
 	}
@@ -258,42 +258,65 @@ public class ConsoleUserInterface implements UserInterface {
 
 	private void showComputer() {
 		System.out.println("Show computer");
-		while(true) {
+		while (true) {
 			System.out.println("Enter computer name (or nothing to exit) :");
 			String name = new String();
 			name = scan.nextLine();
-			if(name.isEmpty()) {
+			if (name.isEmpty()) {
 				return;
 			}
 			List<Computer> foundComputers = dp.getComputersByName(name);
-			if(foundComputers.isEmpty()) {
-				System.out.println(name+" not found");
-			}else {
-				for(Computer computer : foundComputers) {
+			if (foundComputers.isEmpty()) {
+				System.out.println(name + " not found");
+			} else {
+				for (Computer computer : foundComputers) {
 					System.out.println(computer.toString());
 				}
 			}
 		}
 	}
 
-	
-	
-	private Map<ComputerField,String> createComputerParamters(){
-		return null;
-		
-	}
-	
 	private void addComputer() {
+		Map<DatabaseAccessor.ComputerField, String> params = new EnumMap<DatabaseAccessor.ComputerField, String>(
+				DatabaseAccessor.ComputerField.class);
+		String val;
 		System.out.println("Add computer");
+		for (DatabaseAccessor.ComputerField field : DatabaseAccessor.ComputerField.values()) {
+			System.out.println("Enter " + field + " : ");
+			val = scan.nextLine();
+			if (!val.isEmpty()) {
+				params.put(field, val);
+			}
+		}
+		dp.addComputer(params);
 	}
-	
-	
+
 	private void updateComputer() {
 		System.out.println("Update computer infos");
+		Map<DatabaseAccessor.ComputerField, String> params = new EnumMap<DatabaseAccessor.ComputerField, String>(
+				DatabaseAccessor.ComputerField.class);
+		String val;
+		System.out.println("Add computer");
+		System.out.println("Enter id (mandatory) : ");
+		int id = scan.nextInt();
+		scan.nextLine();
+		
+		for (DatabaseAccessor.ComputerField field : DatabaseAccessor.ComputerField.values()) {
+			System.out.println("Enter " + field + " (or nothing to leave as is) : ");
+			val = scan.nextLine();
+			if (!val.isEmpty()) {
+				params.put(field, val);
+			}
+		}
+		dp.updateComputerById(id, params);
 	}
 
 	private void deleteComputer() {
 		System.out.println("Delete computer");
+		System.out.println("Enter id");
+		int id = scan.nextInt();
+		scan.nextLine();
+		dp.removeComputeById(id);
 	}
 
 }

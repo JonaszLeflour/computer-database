@@ -144,6 +144,10 @@ public class DataPresenter {
 		addComputer(fields);
 	}
 	
+	public void removeComputeById(int id) {
+		dba.deleteComputerById(id);
+	}
+	
 	public void removeComputeByName(String name) {
 		dba.deleteComputerByName(name);
 	}
