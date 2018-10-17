@@ -113,6 +113,9 @@ public class DatabaseAccessor {
 			if(entry.getKey().equals(ComputerField.introduced) || entry.getKey().equals(ComputerField.discontinued)) {
 				requestBuf_p2.append("CAST('").append(entry.getValue()).append("' AS DATETIME)");
 			}
+			else if(entry.getKey().equals(ComputerField.name)) {
+				requestBuf_p2.append("'").append(entry.getValue()).append("'");
+			}
 			else {
 				requestBuf_p2.append(entry.getValue());
 			}
@@ -125,7 +128,8 @@ public class DatabaseAccessor {
 			requestBuf_p2.append(")");
 		}
 		requestBuf.append(requestBuf_p2);
-		executeQuery(requestBuf.toString());
+		System.out.println(requestBuf.toString());
+		executeUpdate(requestBuf.toString());
 	}
 	
 	public void deleteComputerByName(String name) {
@@ -146,6 +150,9 @@ public class DatabaseAccessor {
 			//cast datetime if field is date like so : CAST('YYYY-MM-DD' AS DATETIME)
 			if(entry.getKey().equals(ComputerField.introduced) || entry.getKey().equals(ComputerField.discontinued)) {
 				request.append("CAST('").append(entry.getValue()).append("' AS DATETIME)");
+			}
+			else if(entry.getKey().equals(ComputerField.name)) {
+				request.append("'").append(entry.getValue()).append("'");
 			}
 			else {
 				request.append(entry.getValue());

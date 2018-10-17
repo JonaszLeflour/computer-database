@@ -128,7 +128,7 @@ public class DataPresenter {
 	}
 	
 	public void addComputer(Map<DatabaseAccessor.ComputerField,String> updatedFields) {
-		
+		dba.createComputer(updatedFields);
 	}
 	
 	public void addComputer(Computer computer) {
@@ -140,7 +140,7 @@ public class DataPresenter {
 		if(computer.getDiscontinued() != null){fields.put(DatabaseAccessor.ComputerField.discontinued, computer.getDiscontinued().toString());}
 		if((computer.getName() != null)&&(!computer.getName().isEmpty()) ){fields.put(DatabaseAccessor.ComputerField.name, computer.getName());}
 		
-		System.out.println(fields);
+		
 		addComputer(fields);
 	}
 	
