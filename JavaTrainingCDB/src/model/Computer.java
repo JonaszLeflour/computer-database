@@ -1,13 +1,13 @@
+
+package model;
+
+import java.io.Serializable;
+import java.time.LocalDate;
 /** 
  * 
  * @author Jonasz Leflour
  * @version %I%
  */
-package model;
-
-import java.io.Serializable;
-import java.time.LocalDate;
-
 public class Computer implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -25,9 +25,19 @@ public class Computer implements Serializable {
 	
 	//constructor from database
 	
+	/**
+	 * 
+	 */
 	public Computer() {
 	}
 	
+	/**
+	 * @param id Computer id in database
+	 * @param name Computer name
+	 * @param introduced Date of introduction
+	 * @param discontinued Date of discontinuation
+	 * @param company Manufacturer
+	 */
 	public Computer(int id, String name, LocalDate introduced, LocalDate discontinued, Company company) {
 		this.id = id;
 		this.name = name;
@@ -56,42 +66,72 @@ public class Computer implements Serializable {
 		return def.toString();
 	}
 	
+	/**
+	 * @return Computer id in database
+	 */
 	public int getId() {
 		return id;
 	}
 	
+	/**
+	 * @param id Computer id in database
+	 */
 	public void setId(int id) {
 		this.id =id;
 	}
 
+	/**
+	 * @return Computer manufacturer or null if none specified
+	 */
 	public Company getCompany() {
 		return company;
 	}
 
+	/**
+	 * @param company Computer manufacturer 
+	 */
 	public void setCompany(Company company) {
 		this.company = company;
 	}
 
+	/**
+	 * @return Computer name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * @param name Computer name
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * @return Introduction date or null if none specified
+	 */
 	public LocalDate getIntroduced() {
 		return introduced;
 	}
 
+	/**
+	 * @param introduced Introduction date
+	 */
 	public void setIntroduced(LocalDate introduced) {
 		this.introduced = introduced;
 	}
 
+	/**
+	 * @return Discontinuation date
+	 */
 	public LocalDate getDiscontinued() {
 		return discontinued;
 	}
 
+	/**
+	 * @param discontinued
+	 */
 	public void setDiscontinued(LocalDate discontinued) {
 		this.discontinued = discontinued;
 	}

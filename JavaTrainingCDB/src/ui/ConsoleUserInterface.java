@@ -1,8 +1,3 @@
-/**
- *  
- * @author Jonasz Leflour
- * @version %I%
- */
 package ui;
 
 import java.util.List;
@@ -13,14 +8,22 @@ import java.util.Scanner;
 import service.DataPresenter;
 import model.Company;
 import model.Computer;
-import persistence.DatabaseAccessor;
+import model.ComputerField;
 
-public class ConsoleUserInterface implements UserInterface {
+/**
+ * @author Jonasz Leflour
+ * @version %I%
+ */
+public final class ConsoleUserInterface implements UserInterface {
 	Scanner scan = new Scanner(System.in);
-	DataPresenter dp = new DataPresenter();
-
-	public ConsoleUserInterface() {
-
+	DataPresenter dp;
+	
+	/**
+	 * implementation of DataPresenter provided at creation
+	 * @param dp
+	 */
+	public ConsoleUserInterface(DataPresenter dp) {
+		this.dp = dp;
 	}
 
 	@Override
@@ -282,11 +285,11 @@ public class ConsoleUserInterface implements UserInterface {
 	}
 
 	private void addComputer() {
-		Map<DatabaseAccessor.ComputerField, String> params = new EnumMap<DatabaseAccessor.ComputerField, String>(
-				DatabaseAccessor.ComputerField.class);
+		Map<ComputerField, String> params = new EnumMap<ComputerField, String>(
+				ComputerField.class);
 		String val;
 		System.out.println("Add computer");
-		for (DatabaseAccessor.ComputerField field : DatabaseAccessor.ComputerField.values()) {
+		for (ComputerField field : ComputerField.values()) {
 			System.out.println("Enter " + field + " : ");
 			val = scan.nextLine();
 			if (!val.isEmpty()) {
@@ -298,15 +301,15 @@ public class ConsoleUserInterface implements UserInterface {
 
 	private void updateComputer() {
 		System.out.println("Update computer infos");
-		Map<DatabaseAccessor.ComputerField, String> params = new EnumMap<DatabaseAccessor.ComputerField, String>(
-				DatabaseAccessor.ComputerField.class);
+		Map<ComputerField, String> params = new EnumMap<ComputerField, String>(
+				ComputerField.class);
 		String val;
 		System.out.println("Add computer");
 		System.out.println("Enter id (mandatory) : ");
 		int id = scan.nextInt();
 		scan.nextLine();
 
-		for (DatabaseAccessor.ComputerField field : DatabaseAccessor.ComputerField.values()) {
+		for (ComputerField field : ComputerField.values()) {
 			System.out.println("Enter " + field + " (or nothing to leave as is) : ");
 			val = scan.nextLine();
 			if (!val.isEmpty()) {
@@ -321,7 +324,7 @@ public class ConsoleUserInterface implements UserInterface {
 		System.out.println("Enter id");
 		int id = scan.nextInt();
 		scan.nextLine();
-		dp.removeComputeById(id);
+		dp.removeComputerById(id);
 	}
 
 }

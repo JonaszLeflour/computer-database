@@ -1,8 +1,3 @@
-/**
- * 
- * @author Jonasz Leflour
- * @version %I%
- */
 package persistence;
 
 import java.security.InvalidParameterException;
@@ -12,7 +7,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
+import model.ComputerField;
 
+/**
+ * 
+ * Connects to the database and executes sql statements to return information or to update the database.
+ * @author Jonasz Leflour
+ * @version %I%
+ *
+ */
 public class DatabaseAccessor {
 	private String URL = "jdbc:mysql://localhost:3306/computer-database-db"
 			+ "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=CET&useSSL=false";
@@ -21,14 +24,9 @@ public class DatabaseAccessor {
 
 	private Connection con = null;
 
-	public static enum ComputerField {
-		name, introduced, discontinued, company_id
-	}
-
-	public static enum CompanyField {
-		name
-	}
-
+	/**
+	 * Tries to connect to database on create
+	 */
 	public DatabaseAccessor() {
 		try {
 			reconnect(user, password);
@@ -37,6 +35,11 @@ public class DatabaseAccessor {
 		}
 	}
 
+	/**
+	 * @param user
+	 * @param password
+	 * @throws SQLException
+	 */
 	public void reconnect(String user, String password) throws SQLException {
 		if (con != null) {
 			con.close();
@@ -53,6 +56,10 @@ public class DatabaseAccessor {
 		
 	}
 
+	/**
+	 * @param SQL
+	 * @return query results
+	 */
 	public ResultSet executeQuery(String SQL) {
 		try {
 			Statement stmt = con.createStatement();
@@ -66,6 +73,9 @@ public class DatabaseAccessor {
 		}
 	}
 
+	/**
+	 * @param SQL
+	 */
 	public void executeUpdate(String SQL) {
 		try {
 			Statement stmt = con.createStatement();
@@ -78,26 +88,49 @@ public class DatabaseAccessor {
 		}
 	}
 
+	/**
+	 * @return all computers from the database as a ResultSet
+	 */
 	public ResultSet getAllComputers() {
 		return executeQuery("SELECT * FROM computer");
 	}
 
+	/**
+	 * @return all companies from the database as a ResultSet
+	 */
 	public ResultSet getAllCompanies() {
 		return executeQuery("SELECT * FROM company");
 	}
 
+	/**
+	 * @param id id of company
+	 * @return single row of the company table with the specified id, if exists
+	 */
 	public ResultSet getCompanybyId(int id) {
 		return executeQuery("SELECT * FROM company WHERE id=" + id);
 	}
 
+	/**
+	 * @param id
+	 * @return single row of the computer table with the specified id, if exists
+	 */
 	public ResultSet getComputerById(int id) {
 		return executeQuery("SELECT * FROM computer WHERE id=" + id);
 	}
 
+	
+	/**
+	 * @param name
+	 * @return all rows of the computer table with the specified name, if any 
+	 */
 	public ResultSet getComputerByName(String name) {
 		return executeQuery("SELECT * FROM computer WHERE name='" + name + "'");
 	}
 
+	/**
+	 * @param columns field : value
+	 * @throws InvalidParameterException if empty map or no name specified
+	 */
 	public void createComputer(Map<ComputerField, String> columns) throws InvalidParameterException{
 		if(columns.isEmpty()) {
 			throw new InvalidParameterException("No updated fields");
@@ -142,14 +175,26 @@ public class DatabaseAccessor {
 		executeUpdate(requestBuf.toString());
 	}
 
+	/**
+	 * deletes all computers in table with specified name
+	 * @param name 
+	 */
 	public void deleteComputerByName(String name) {
 		executeUpdate("DELETE FROM computer WHERE name = '" + name + "'");
 	}
 	
+	/**
+	 * @param id
+	 */
 	public void deleteComputerById(int id) {
 		executeUpdate("DELETE FROM computer WHERE id ="+id);
 	}
 
+	/**
+	 * @param id id of computer to update 
+	 * @param updatedColumns columns to update with their new value
+	 * @throws InvalidParameterException if no updated fields or field "name" is left blank
+	 */
 	public void updateComputerById(int id, Map<ComputerField, String> updatedColumns) throws InvalidParameterException{
 		if(updatedColumns.isEmpty()) {
 			throw new InvalidParameterException("No updated fields");
