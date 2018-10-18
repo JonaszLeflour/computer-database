@@ -1,3 +1,8 @@
+/**
+ *  
+ * @author Jonasz Leflour
+ * @version %I%
+ */
 package service;
 import model.Computer;
 import persistence.DatabaseAccessor;

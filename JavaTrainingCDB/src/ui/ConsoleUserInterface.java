@@ -1,3 +1,8 @@
+/**
+ *  
+ * @author Jonasz Leflour
+ * @version %I%
+ */
 package ui;
 
 import java.util.List;
@@ -300,7 +305,7 @@ public class ConsoleUserInterface implements UserInterface {
 		System.out.println("Enter id (mandatory) : ");
 		int id = scan.nextInt();
 		scan.nextLine();
-		
+
 		for (DatabaseAccessor.ComputerField field : DatabaseAccessor.ComputerField.values()) {
 			System.out.println("Enter " + field + " (or nothing to leave as is) : ");
 			val = scan.nextLine();

@@ -1,3 +1,8 @@
+/** 
+ * 
+ * @author Jonasz Leflour
+ * @version %I%
+ */
 package test;
 
 import persistence.DatabaseAccessor;

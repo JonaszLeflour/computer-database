@@ -1,5 +1,9 @@
+/**
+ *  
+ * @author Jonasz Leflour
+ * @version %I%
+ */
 package model;
-
 import java.io.Serializable;
 
 

@@ -1,13 +1,14 @@
+/** 
+ * 
+ * @author Jonasz Leflour
+ * @version %I%
+ */
 package model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 
-
 public class Computer implements Serializable {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	//not null unique
