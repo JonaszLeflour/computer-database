@@ -3,7 +3,7 @@ import java.io.Serializable;
 
 
 /**
- * @author root
+ * @author Jonasz Leflour
  * @version %I%
  * 
  */
