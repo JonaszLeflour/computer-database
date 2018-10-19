@@ -1,5 +1,5 @@
 
-package model;
+package com.excilys.cdb.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;

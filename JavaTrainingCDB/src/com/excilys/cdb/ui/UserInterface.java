@@ -1,4 +1,4 @@
-package ui;
+package com.excilys.cdb.ui;
 
 /**
  * @author Jonasz Leflour

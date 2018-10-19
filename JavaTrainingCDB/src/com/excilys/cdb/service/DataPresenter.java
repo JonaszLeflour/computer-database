@@ -1,9 +1,9 @@
-package service;
+package com.excilys.cdb.service;
 
 import java.util.List;
 
-import model.Company;
-import model.Computer;
+import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.Computer;
 
 /**
  * Presents data as list of objects and issues request to change the databse

@@ -1,12 +1,12 @@
-package ui;
+package com.excilys.cdb.ui;
 
 import java.util.List;
 import java.time.LocalDate;
 import java.util.Scanner;
 
-import service.DataPresenter;
-import model.Company;
-import model.Computer;
+import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.service.DataPresenter;
 
 /**
  * @author Jonasz Leflour

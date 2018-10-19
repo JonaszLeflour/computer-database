@@ -1,5 +1,9 @@
-import ui.ConsoleUserInterface;
-import service.SQLDataPresenter;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import com.excilys.cdb.service.DataPresenter;
+import com.excilys.cdb.service.SQLDataPresenter;
+import com.excilys.cdb.ui.ConsoleUserInterface;
 /**
  * Program main entry point
  * @author Jonasz Leflour
@@ -13,6 +17,18 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new ConsoleUserInterface(new SQLDataPresenter()).mainLoop(args);
+		DataPresenter dp = null;
+		try {
+			dp = new SQLDataPresenter();
+			new ConsoleUserInterface(dp).mainLoop(args);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 	}
 }

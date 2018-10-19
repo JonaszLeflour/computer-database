@@ -1,12 +1,14 @@
 
-package service;
+package com.excilys.cdb.service;
 
-import model.Computer;
-import persistence.DatabaseAccessor;
-import persistence.ObjectNotFoundException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
-import model.Company;
+import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.persistence.DatabaseAccessor;
+import com.excilys.cdb.persistence.ObjectNotFoundException;
 
 /**
  * 
@@ -15,7 +17,15 @@ import model.Company;
  * 
  */
 public class SQLDataPresenter implements DataPresenter{
-	private DatabaseAccessor dba = DatabaseAccessor.GetDatabaseAccessor();
+	private DatabaseAccessor dba = null;
+	
+	/**
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public SQLDataPresenter() throws FileNotFoundException, IOException {
+		dba = DatabaseAccessor.GetDatabaseAccessor();
+	}
 
 	@Override
 	public List<Computer> getComputers() {

@@ -1,5 +1,8 @@
-package persistence;
+package com.excilys.cdb.persistence;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.sql.Connection;
 import java.sql.Date;
@@ -11,10 +14,10 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
-
-import model.Company;
-import model.Computer;
+import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.Computer;
 
 /**
  * 
@@ -36,18 +39,20 @@ public class DatabaseAccessor {
 	/**
 	 * Tries to connect to database on create
 	 */
-	private DatabaseAccessor() {
-		try {
-			setupDatabase(user, password);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+	private DatabaseAccessor() throws FileNotFoundException,IOException{
+		Properties prop = new Properties();
+		prop.load(new FileInputStream("config.properties"));
+		URL = prop.getProperty("database");
+		user = prop.getProperty("user");
+		password = prop.getProperty("password");
 	}
 	
 	/**
 	 * @return Singleton of DatabaseAccessor 
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
 	 */
-	public static DatabaseAccessor GetDatabaseAccessor() {
+	public static DatabaseAccessor GetDatabaseAccessor() throws FileNotFoundException, IOException {
 		if(dba == null) {
 			dba = new DatabaseAccessor();
 		}
