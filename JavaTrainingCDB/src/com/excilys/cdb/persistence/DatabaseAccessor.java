@@ -362,7 +362,7 @@ public class DatabaseAccessor {
 				s.setNull(3, Types.DATE);
 			}
 			if (computer.getCompany() != null) {
-				s.setInt(4, computer.getCompany().getId());
+				s.setLong(4, computer.getCompany().getId());
 			} else {
 				s.setNull(4, Types.BIGINT);
 			}

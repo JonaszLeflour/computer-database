@@ -11,7 +11,7 @@ import java.time.LocalDate;
 public class Computer implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private int id;
+	private long id;
 	
 	private String name;
 	
@@ -36,7 +36,7 @@ public class Computer implements Serializable {
 	 * @param discontinued Date of discontinuation
 	 * @param company Manufacturer
 	 */
-	public Computer(int id, String name, LocalDate introduced, LocalDate discontinued, Company company) {
+	public Computer(long id, String name, LocalDate introduced, LocalDate discontinued, Company company) {
 		this.id = id;
 		this.name = name;
 		this.introduced = introduced;
@@ -67,14 +67,14 @@ public class Computer implements Serializable {
 	/**
 	 * @return Computer id in database
 	 */
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 	
 	/**
 	 * @param id Computer id in database
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id =id;
 	}
 
@@ -151,7 +151,7 @@ public class Computer implements Serializable {
 	 *
 	 */
 	public static class Builder{
-		private int id;
+		private long id;
 		
 		private String name;
 		
@@ -165,7 +165,7 @@ public class Computer implements Serializable {
 		 * @param id
 		 * @return this
 		 */
-		public Builder id(int id) {
+		public Builder id(long id) {
 			this.id = id;
 			return this;
 		}

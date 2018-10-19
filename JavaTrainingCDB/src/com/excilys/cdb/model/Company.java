@@ -11,7 +11,7 @@ public class Company implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	//not null unique
-	private int id;
+	private long id;
 	
 	private String name;
 
@@ -19,7 +19,7 @@ public class Company implements Serializable {
 	 * @param id company id in database
 	 * @param name company name
 	 */
-	public Company(int id, String name) {
+	public Company(long id, String name) {
 		this.id = id;
 		this.name = name;
 	}
@@ -31,14 +31,14 @@ public class Company implements Serializable {
 	/**
 	 * @return id of company in database
 	 */
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id of company in database
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
