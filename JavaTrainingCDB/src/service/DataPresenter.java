@@ -1,11 +1,9 @@
 package service;
 
 import java.util.List;
-import java.util.Map;
 
 import model.Company;
 import model.Computer;
-import model.ComputerField;
 
 /**
  * Presents data as list of objects and issues request to change the databse
@@ -42,15 +40,9 @@ public interface DataPresenter {
 	public Company getCompanyById(int id);
 
 	/**
-	 * @param id id of the computer to update
-	 * @param updatedFields fields to update with their new value
+	 * @param computer computer to update with new values
 	 */
-	public void updateComputerById(int id, Map<ComputerField, String> updatedFields);
-
-	/**
-	 * @param updatedFields fields of the added computer
-	 */
-	public void addComputer(Map<ComputerField, String> updatedFields);
+	public void updateComputer(Computer computer);
 
 	/**
 	 * @param computer data of the computer to add

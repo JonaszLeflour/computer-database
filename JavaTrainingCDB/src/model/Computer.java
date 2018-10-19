@@ -11,10 +11,8 @@ import java.time.LocalDate;
 public class Computer implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	//not null unique
 	private int id;
 	
-	//not null
 	private String name;
 	
 	private LocalDate introduced;
@@ -136,6 +134,79 @@ public class Computer implements Serializable {
 		this.discontinued = discontinued;
 	}
 	
+	/**
+	 * @param b 
+	 */
+	public Computer(Builder b) {
+		id = b.id;
+		name = b.name;
+		introduced = b.introduced;
+		discontinued = b.discontinued;
+		company = b.company;
+	}
+	
+	/**
+	 * Builder pattern
+	 * @author Jonasz Leflour
+	 *
+	 */
+	public static class Builder{
+		private int id;
+		
+		private String name;
+		
+		private LocalDate introduced;
+		
+		private LocalDate discontinued;
+
+		private Company company;
+		
+		/**
+		 * @param id
+		 * @return this
+		 */
+		public Builder id(int id) {
+			this.id = id;
+			return this;
+		}
+		
+		/**
+		 * @param name
+		 * @return this
+		 */
+		public Builder name(String name) {
+			this.name = name;
+			return this;
+		}
+		
+		/**
+		 * @param introduced
+		 * @return this
+		 */
+		public Builder introduced(LocalDate introduced) {
+			this.introduced = introduced;
+			return this;
+		}
+		
+		/**
+		 * @param discontinued
+		 * @return this
+		 */
+		public Builder discontinued(LocalDate discontinued) {
+			this.discontinued = discontinued;
+			return this;
+		}
+		
+		/**
+		 * @param company
+		 * @return this
+		 */
+		public Builder company(Company company) {
+			this.company = company;
+			return this;
+		}
+		
+	}
 
 	
 }

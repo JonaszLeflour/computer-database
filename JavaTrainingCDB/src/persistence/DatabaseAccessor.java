@@ -2,37 +2,56 @@ package persistence;
 
 import java.security.InvalidParameterException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
-import model.ComputerField;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+
+
+import model.Company;
+import model.Computer;
 
 /**
  * 
- * Connects to the database and executes sql statements to return information or to update the database.
+ * Connects to the database and executes sql statements to return information or
+ * to update the database.
+ * 
  * @author Jonasz Leflour
  * @version %I%
  *
  */
 public class DatabaseAccessor {
+	private static DatabaseAccessor dba = null;
+	
 	private String URL = "jdbc:mysql://localhost:3306/computer-database-db"
 			+ "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=CET&useSSL=false";
 	private String user = "admincdb";
 	private String password = "qwerty1234";
 
-	private Connection con = null;
-
 	/**
 	 * Tries to connect to database on create
 	 */
-	public DatabaseAccessor() {
+	private DatabaseAccessor() {
 		try {
-			reconnect(user, password);
+			setupDatabase(user, password);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * @return Singleton of DatabaseAccessor 
+	 */
+	public static DatabaseAccessor GetDatabaseAccessor() {
+		if(dba == null) {
+			dba = new DatabaseAccessor();
+		}
+		return dba;
 	}
 
 	/**
@@ -40,191 +59,452 @@ public class DatabaseAccessor {
 	 * @param password
 	 * @throws SQLException
 	 */
-	public void reconnect(String user, String password) throws SQLException {
+	public void setupDatabase(String user, String password) throws SQLException {
+		Connection con = DriverManager.getConnection(URL, user, password);
 		if (con != null) {
 			con.close();
 		}
 		con = DriverManager.getConnection(URL, user, password);
 		this.user = user;
 		this.password = password;
-		
+
 		Statement s = con.createStatement();
-		s.execute("ALTER TABLE computer "
-				+ "ADD CONSTRAINT check_dates check (introduced < discontinued)");
+		s.execute("ALTER TABLE computer " + "ADD CONSTRAINT check_dates check (introduced < discontinued)");
 		s.executeUpdate("DELETE FROM computer WHERE name IS NULL");
 		s.execute("ALTER TABLE computer MODIFY name VARCHAR(255) NOT NULL");
-		
+		s.close();
+
 	}
 
-	/**
-	 * @param SQL
-	 * @return query results
-	 */
-	public ResultSet executeQuery(String SQL) {
+	private Computer createComputerWithResultSetRow(ResultSet rs) throws EmptyResultSetException {
+		Computer computer = new Computer();
 		try {
-			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery(SQL);
-			return rs;
+			int id = rs.getInt(1);
+			if (rs.wasNull()) {
+				throw new EmptyResultSetException();
+			}
+			computer.setId(id);
+			
+			String name = rs.getString(2);
+			if (!rs.wasNull()) {
+				computer.setName(name);
+			}
+
+			Date introduced = rs.getDate(3);
+			if (!rs.wasNull()) {
+				computer.setIntroduced(introduced.toLocalDate());
+			}
+
+			Date discontinued = rs.getDate(4);
+			if (!rs.wasNull()) {
+				computer.setDiscontinued(discontinued.toLocalDate());
+			}
+
+			Integer idCompany = rs.getInt(5);
+			if (!rs.wasNull()) {
+				computer.setCompany(getCompanybyId(idCompany));
+			}
+		} catch (SQLException e) {
+			new EmptyResultSetException();
+		} catch (ObjectNotFoundException e) {
+			computer.setCompany(null);
 		}
-		// Handle any errors that may have occurred.
-		catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
+		return computer;
 	}
 
-	/**
-	 * @param SQL
-	 */
-	public void executeUpdate(String SQL) {
+	private Company createCompanyWithResultSetRow(ResultSet rs) throws EmptyResultSetException {
 		try {
-			Statement stmt = con.createStatement();
-			stmt.executeUpdate(SQL);
-		}
-		// Handle any errors that may have occurred.
-		catch (SQLException e) {
-			System.err.println("Error : invalid request");
-			e.printStackTrace();
+			int id = rs.getInt(1);
+			if (rs.wasNull()) {
+				throw new EmptyResultSetException();
+			}
+			String name = rs.getString(2);
+			if (rs.wasNull()) {
+				throw new EmptyResultSetException();
+			}
+			return new Company(id, name);
+		} catch (SQLException e) {
+			throw new EmptyResultSetException();
 		}
 	}
 
 	/**
 	 * @return all computers from the database as a ResultSet
+	 * @throws SQLException
 	 */
-	public ResultSet getAllComputers() {
-		return executeQuery("SELECT * FROM computer");
+	public List<Computer> getAllComputers() {
+		List<Computer> computers = new ArrayList<>();
+		Connection con = null;
+		Statement s = null;
+		ResultSet rs = null;
+
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			s = con.createStatement();
+			rs = s.executeQuery("SELECT * FROM computer");
+
+			while (rs.next()) {
+				computers.add(this.createComputerWithResultSetRow(rs));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (EmptyResultSetException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return computers;
 	}
 
 	/**
 	 * @return all companies from the database as a ResultSet
+	 * @throws SQLException
 	 */
-	public ResultSet getAllCompanies() {
-		return executeQuery("SELECT * FROM company");
+	public List<Company> getAllCompanies() {
+		List<Company> companies = new ArrayList<>();
+		Connection con = null;
+		Statement s = null;
+		ResultSet rs = null;
+
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			s = con.createStatement();
+			rs = s.executeQuery("SELECT * FROM company");
+
+			while (rs.next()) {
+				companies.add(this.createCompanyWithResultSetRow(rs));
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (EmptyResultSetException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return companies;
 	}
 
 	/**
 	 * @param id id of company
 	 * @return single row of the company table with the specified id, if exists
+	 * @throws ObjectNotFoundException
 	 */
-	public ResultSet getCompanybyId(int id) {
-		return executeQuery("SELECT * FROM company WHERE id=" + id);
+	public Company getCompanybyId(int id) throws ObjectNotFoundException {
+		Company company = null;
+		Connection con = null;
+		Statement s = null;
+		ResultSet rs = null;
+
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			s = con.createStatement();
+			rs = s.executeQuery("SELECT * FROM company WHERE id=" + id);
+			rs.next();
+			company = this.createCompanyWithResultSetRow(rs);
+		} catch (SQLException e) {
+			throw new ObjectNotFoundException();
+		} catch (EmptyResultSetException e) {
+			throw new ObjectNotFoundException();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return company;
 	}
 
 	/**
 	 * @param id
 	 * @return single row of the computer table with the specified id, if exists
+	 * @throws ObjectNotFoundException
 	 */
-	public ResultSet getComputerById(int id) {
-		return executeQuery("SELECT * FROM computer WHERE id=" + id);
+	public Computer getComputerById(int id) throws ObjectNotFoundException {
+
+		Computer computer = null;
+		Connection con = null;
+		Statement s = null;
+		ResultSet rs = null;
+
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			s = con.createStatement();
+			rs = s.executeQuery("SELECT * FROM computer WHERE id=" + id);
+			rs.next();
+			computer = this.createComputerWithResultSetRow(rs);
+		} catch (SQLException e) {
+			throw new ObjectNotFoundException();
+		} catch (EmptyResultSetException e) {
+			throw new ObjectNotFoundException();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return computer;
 	}
 
-	
 	/**
 	 * @param name
-	 * @return all rows of the computer table with the specified name, if any 
+	 * @return all rows of the computer table with the specified name, if any
 	 */
-	public ResultSet getComputerByName(String name) {
-		return executeQuery("SELECT * FROM computer WHERE name='" + name + "'");
+	public List<Computer> getComputerByName(String name) {
+		List<Computer> computers = new ArrayList<>();
+		Connection con = null;
+		PreparedStatement s = null;
+		ResultSet rs = null;
+
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			s = con.prepareStatement("SELECT * FROM computer WHERE name=?");
+			s.setString(1, name);
+
+			rs = s.executeQuery();
+
+			while (rs.next()) {
+				computers.add(this.createComputerWithResultSetRow(rs));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (EmptyResultSetException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return computers;
 	}
 
 	/**
-	 * @param columns field : value
-	 * @throws InvalidParameterException if empty map or no name specified
+	 * @param computer
+	 * @throws InvalidParameterException
 	 */
-	public void createComputer(Map<ComputerField, String> columns) throws InvalidParameterException{
-		if(columns.isEmpty()) {
-			throw new InvalidParameterException("No updated fields");
-		}
-		if(columns.get(ComputerField.name)!=null && columns.get(ComputerField.name).isEmpty()) {
-			throw new InvalidParameterException("Name is empty");
-		}
-		
-		
-		StringBuffer requestBuf = new StringBuffer();
-		StringBuffer requestBuf_p2 = new StringBuffer();
-		requestBuf.append("INSERT INTO computer ");
-		requestBuf_p2.append(" VALUES ");
+	public void createComputer(Computer computer) throws InvalidParameterException {
 
-		boolean firstField = true;
-		for (Map.Entry<ComputerField, String> entry : columns.entrySet()) {
-			if (!firstField) {
-				requestBuf.append(",");
-				requestBuf_p2.append(",");
+		Connection con = null;
+		PreparedStatement s = null;
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			s = con.prepareStatement(
+					"INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?)");
+			s.setString(1, computer.getName());
+			if (computer.getIntroduced() != null) {
+				s.setDate(2, Date.valueOf(computer.getIntroduced()));
 			} else {
-				requestBuf.append("(");
-				requestBuf_p2.append("(");
+				s.setNull(2, Types.DATE);
 			}
-			requestBuf.append(entry.getKey());
-			// cast datetime if field is date like so : CAST('YYYY-MM-DD' AS DATETIME)
-			if (entry.getKey().equals(ComputerField.introduced) || entry.getKey().equals(ComputerField.discontinued)) {
-				requestBuf_p2.append("CAST('").append(entry.getValue()).append("' AS DATETIME)");
-			} else if (entry.getKey().equals(ComputerField.name)) {
-				requestBuf_p2.append("'").append(entry.getValue()).append("'");
+			if (computer.getDiscontinued() != null) {
+				s.setDate(3, Date.valueOf(computer.getDiscontinued()));
 			} else {
-				requestBuf_p2.append(entry.getValue());
+				s.setNull(3, Types.DATE);
 			}
-
-			firstField = false;
+			if (computer.getCompany() != null) {
+				s.setInt(4, computer.getCompany().getId());
+			} else {
+				s.setNull(4, Types.BIGINT);
+			}
+			s.executeUpdate();
+		} catch (SQLException e) {
+			throw new InvalidParameterException();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
-		if (!firstField) {
-			requestBuf.append(")");
-			requestBuf_p2.append(")");
-		}
-		requestBuf.append(requestBuf_p2);
-		System.out.println(requestBuf.toString());
-		executeUpdate(requestBuf.toString());
 	}
 
 	/**
 	 * deletes all computers in table with specified name
-	 * @param name 
+	 * 
+	 * @param name
 	 */
 	public void deleteComputerByName(String name) {
-		executeUpdate("DELETE FROM computer WHERE name = '" + name + "'");
+		Connection con = null;
+		PreparedStatement s = null;
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			s = con.prepareStatement("DELETE FROM computer WHERE name = ?");
+			s.setString(1, name);
+			s.executeUpdate();
+		} catch (SQLException e) {
+			throw new InvalidParameterException();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
-	
+
 	/**
 	 * @param id
 	 */
-	public void deleteComputerById(int id) {
-		executeUpdate("DELETE FROM computer WHERE id ="+id);
+	public void deleteComputerById(long id) {
+		Connection con = null;
+		PreparedStatement s = null;
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			s = con.prepareStatement("DELETE FROM computer WHERE id = ?");
+			s.setLong(1, id);
+			s.executeUpdate();
+		} catch (SQLException e) {
+			throw new InvalidParameterException();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
-	 * @param id id of computer to update 
-	 * @param updatedColumns columns to update with their new value
-	 * @throws InvalidParameterException if no updated fields or field "name" is left blank
+	 * @param computer to update
+	 * @throws InvalidParameterException if no updated fields or field "name" is
+	 *                                   left blank
 	 */
-	public void updateComputerById(int id, Map<ComputerField, String> updatedColumns) throws InvalidParameterException{
-		if(updatedColumns.isEmpty()) {
-			throw new InvalidParameterException("No updated fields");
+	public void updateComputer(Computer computer) throws InvalidParameterException {
+		if (computer.getId() == 0) {
+			throw new InvalidParameterException("Invalid Id");
 		}
-		if(updatedColumns.get(ComputerField.name)!=null && updatedColumns.get(ComputerField.name).isEmpty()) {
-			throw new InvalidParameterException("Name is empty");
-		}
-		
-		StringBuffer request = new StringBuffer();
-		request.append("UPDATE computer SET ");
 
-		boolean firstField = true;
-		for (Map.Entry<ComputerField, String> entry : updatedColumns.entrySet()) {
-			if (!firstField) {
-				request.append(", ");
+		Connection con = null;
+		PreparedStatement s = null;
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			String sql = "UPDATE computer";
+			if(computer.getName() != null) {
+				sql+=" SET name=?,";
 			}
-			request.append(entry.getKey()).append("=");
-
-			// cast datetime if field is date like so : CAST('YYYY-MM-DD' AS DATETIME)
-			if (entry.getKey().equals(ComputerField.introduced) || entry.getKey().equals(ComputerField.discontinued)) {
-				request.append("CAST('").append(entry.getValue()).append("' AS DATETIME)");
-			} else if (entry.getKey().equals(ComputerField.name)) {
-				request.append("'").append(entry.getValue()).append("'");
-			} else {
-				request.append(entry.getValue());
+			
+			if(computer.getIntroduced() != null) { 
+				sql+= " SET introduced=?,";
 			}
-			firstField = false;
+			if(computer.getDiscontinued() != null) { 
+				sql+= " SET discontinued=?,";
+			}
+			if(computer.getCompany() != null) { 
+				sql+= " SET company_id=?,";
+			}
+			sql += " WHERE id=?";
+			
+			
+			s = con.prepareStatement(sql);
+			int i = 1;
+			if(computer.getName() != null) {
+				s.setString(i, computer.getName());
+				i++;
+			}
+			
+			if(computer.getIntroduced() != null) { 
+				s.setDate(i, Date.valueOf(computer.getIntroduced()));
+				i++;
+			}
+			if(computer.getDiscontinued() != null) { 
+				s.setDate(i, Date.valueOf(computer.getDiscontinued()));
+				i++;
+			}
+			
+			if(computer.getCompany() != null) { 
+				s.setLong(i, computer.getCompany().getId());
+				i++;
+			}
+			
+			s.setLong(i, computer.getId());
+			
+			
+			s.executeUpdate();
+		} catch (SQLException e) {
+			throw new InvalidParameterException();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
-		request.append(" WHERE id = " + id);
-		executeUpdate(request.toString());
 	}
 
 }

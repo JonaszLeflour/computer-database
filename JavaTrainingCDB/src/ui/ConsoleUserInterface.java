@@ -1,14 +1,12 @@
 package ui;
 
 import java.util.List;
-import java.util.Map;
-import java.util.EnumMap;
+import java.time.LocalDate;
 import java.util.Scanner;
 
 import service.DataPresenter;
 import model.Company;
 import model.Computer;
-import model.ComputerField;
 
 /**
  * @author Jonasz Leflour
@@ -285,38 +283,79 @@ public final class ConsoleUserInterface implements UserInterface {
 	}
 
 	private void addComputer() {
-		Map<ComputerField, String> params = new EnumMap<ComputerField, String>(
-				ComputerField.class);
+		Computer.Builder computerBuilder = new Computer.Builder();
+		
 		String val;
 		System.out.println("Add computer");
-		for (ComputerField field : ComputerField.values()) {
-			System.out.println("Enter " + field + " : ");
-			val = scan.nextLine();
-			if (!val.isEmpty()) {
-				params.put(field, val);
-			}
+		
+		System.out.println("Enter name : ");
+		val = scan.nextLine();
+		if (!val.isEmpty()) {
+			computerBuilder.name(val);
 		}
-		dp.addComputer(params);
+		
+		System.out.println("Enter introduction date (yyyy-mm-dd format) : ");
+		val = scan.nextLine();
+		if (!val.isEmpty()) {
+			computerBuilder.introduced(LocalDate.parse(val));
+		}
+		
+		System.out.println("Enter discontinuation date (yyyy-mm-dd format) : ");
+		val = scan.nextLine();
+		if (!val.isEmpty()) {
+			computerBuilder.discontinued((LocalDate.parse(val)));
+		}
+		
+		System.out.println("Enter company id : ");
+		val = scan.nextLine();
+		if (!val.isEmpty()) {
+			computerBuilder.company(new Company(Integer.parseInt(val),""));
+		}
+		
+		Computer computer = new Computer(computerBuilder);
+		dp.addComputer(computer);
 	}
 
 	private void updateComputer() {
-		System.out.println("Update computer infos");
-		Map<ComputerField, String> params = new EnumMap<ComputerField, String>(
-				ComputerField.class);
+		Computer.Builder computerBuilder = new Computer.Builder();	
 		String val;
-		System.out.println("Add computer");
+		System.out.println("Upate computer");
+	
+		System.out.println("Enter introduction date (blank for no update) : ");
+		System.out.println("Enter Company id (blank for no update) : ");
+		
 		System.out.println("Enter id (mandatory) : ");
-		int id = scan.nextInt();
-		scan.nextLine();
-
-		for (ComputerField field : ComputerField.values()) {
-			System.out.println("Enter " + field + " (or nothing to leave as is) : ");
-			val = scan.nextLine();
-			if (!val.isEmpty()) {
-				params.put(field, val);
-			}
+		val = scan.nextLine();
+		if (!val.isEmpty()) {
+			computerBuilder.id(Integer.parseInt(val));
 		}
-		dp.updateComputerById(id, params);
+		
+		System.out.println("Enter name (blank for no update) : ");
+		val = scan.nextLine();
+		if (!val.isEmpty()) {
+			computerBuilder.name(val);
+		}
+		
+		System.out.println("Enter introduction date (yyyy-mm-dd format) (blank for no update) : ");
+		val = scan.nextLine();
+		if (!val.isEmpty()) {
+			computerBuilder.introduced(LocalDate.parse(val));
+		}
+		
+		System.out.println("Enter discontinuation date (yyyy-mm-dd format) (blank for no update) : ");
+		val = scan.nextLine();
+		if (!val.isEmpty()) {
+			computerBuilder.discontinued((LocalDate.parse(val)));
+		}
+		
+		System.out.println("Enter company id (blank for no update) : ");
+		val = scan.nextLine();
+		if (!val.isEmpty()) {
+			computerBuilder.company(new Company(Integer.parseInt(val),""));
+		}
+		
+		Computer computer = new Computer(computerBuilder);
+		dp.updateComputer(computer);
 	}
 
 	private void deleteComputer() {
