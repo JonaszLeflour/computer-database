@@ -58,28 +58,6 @@ public class DatabaseAccessor {
 		return dba;
 	}
 
-	/**
-	 * @param user
-	 * @param password
-	 * @throws SQLException
-	 */
-	public void setupDatabase(String user, String password) throws SQLException {
-		Connection con = DriverManager.getConnection(URL, user, password);
-		if (con != null) {
-			con.close();
-		}
-		con = DriverManager.getConnection(URL, user, password);
-		this.user = user;
-		this.password = password;
-
-		Statement s = con.createStatement();
-		s.execute("ALTER TABLE computer " + "ADD CONSTRAINT check_dates check (introduced < discontinued)");
-		s.executeUpdate("DELETE FROM computer WHERE name IS NULL");
-		s.execute("ALTER TABLE computer MODIFY name VARCHAR(255) NOT NULL");
-		s.close();
-
-	}
-
 	private Computer createComputerWithResultSetRow(ResultSet rs) throws EmptyResultSetException {
 		Computer computer = new Computer();
 		try {
