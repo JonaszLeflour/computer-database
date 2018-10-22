@@ -31,10 +31,9 @@ import com.excilys.cdb.model.Computer;
 public class DatabaseAccessor {
 	private static DatabaseAccessor dba = null;
 	
-	private String URL = "jdbc:mysql://localhost:3306/computer-database-db"
-			+ "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=CET&useSSL=false";
-	private String user = "admincdb";
-	private String password = "qwerty1234";
+	private String URL = null;
+	private String user = null;
+	private String password = null;
 
 	/**
 	 * Tries to connect to database on create
