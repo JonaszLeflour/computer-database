@@ -8,20 +8,39 @@ import junit.framework.TestCase;
  *
  */
 public class DatabaseAccessorTest extends TestCase {
-
+	private DatabaseAccessor dba;
+	
+	
 	protected void setUp() throws Exception {
 		super.setUp();
+		try{
+			dba = DatabaseAccessor.GetDatabaseAccessor();
+			
+		}catch(Exception e) {
+			fail("Uncatched exception occured");
+		}
+		assert(dba != null);
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		dba = null;
 	}
 
+	/**
+	 * GetDatabaseAccessor test : test if singleton
+	 */
 	public void testGetDatabaseAccessor() {
-		fail("Not yet implemented");
+		DatabaseAccessor dba2 = null;
+		try {
+			dba2 = DatabaseAccessor.GetDatabaseAccessor();
+		} catch (Exception e) {
+			fail(e.toString());
+		}
+		assert(dba == dba2);
 	}
 
-	public void testSetupDatabase() {
+	/*public void testSetupDatabase() {
 		fail("Not yet implemented");
 	}
 
@@ -59,6 +78,6 @@ public class DatabaseAccessorTest extends TestCase {
 
 	public void testUpdateComputer() {
 		fail("Not yet implemented");
-	}
+	}*/
 
 }
