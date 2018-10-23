@@ -2,6 +2,7 @@ package com.excilys.cdb;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.service.DataPresenter;
 import com.excilys.cdb.service.SQLDataPresenter;
 import com.excilys.cdb.ui.ConsoleUserInterface;
@@ -26,6 +27,9 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DatabaseErrorException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

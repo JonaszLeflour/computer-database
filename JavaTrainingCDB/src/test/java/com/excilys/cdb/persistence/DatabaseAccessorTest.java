@@ -1,144 +1,312 @@
 package com.excilys.cdb.persistence;
 
+import static org.junit.Assert.*;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
-import com.excilys.cdb.model.Company;
-import com.excilys.cdb.model.Computer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+import com.excilys.cdb.model.*;
+import com.excilys.cdb.persistence.InvalidParameterException;
 
 /**
  * @author Jonasz Leflour
  * 
  *
  */
-public class DatabaseAccessorTest extends TestCase {
+
+public class DatabaseAccessorTest{
 	private DatabaseAccessor dba;
-	
-	
-	protected void setUp() throws Exception {
-		super.setUp();
-		try{
-			dba = DatabaseAccessor.GetDatabaseAccessor();
-			
-		}catch(Exception e) {
-			fail("Uncatched exception occured");
-		}
-		assert(dba != null);
+
+	/**
+	 * @throws Exception
+	 */
+	@Before
+	public void setUp() throws Exception {
+		dba = DatabaseAccessor.GetDatabaseAccessor();
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	/**
+	 * @throws Exception
+	 */
+	@After
+	public void tearDown() throws Exception {
 		dba = null;
 	}
-
+	
 	/**
 	 * GetDatabaseAccessor test : test if singleton
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
+	 * @throws DatabaseErrorException 
 	 */
-	public void testGetDatabaseAccessor() {
+	@Test
+	public void testGetDatabaseAccessor() throws FileNotFoundException, IOException, DatabaseErrorException {
 		DatabaseAccessor dba2 = null;
-		try {
-			dba2 = DatabaseAccessor.GetDatabaseAccessor();
-		} catch (Exception e) {
-			fail(e.toString());
-		}
-		assert(dba == dba2);
+		dba2 = DatabaseAccessor.GetDatabaseAccessor();
+		assertEquals(dba2,dba);
 	}
 
 	/**
 	 * Tests that the list object is not null
 	 */
+	@Test
 	public void testGetAllComputers() {
 		List<Computer> computers = dba.getAllComputers();
-		assert(computers != dba);
+		assertNotNull(computers);
 	}
 
 	/**
 	 * Tests that the list object is not null
 	 */
+	@Test
 	public void testGetAllCompanies() {
-		List<Company> computers = dba.getAllCompanies();
-		assert(computers != dba);
+		List<Company> companies = dba.getAllCompanies();
+		assertNotNull(companies);
 	}
 
 	/**
 	 * expected results of getCompanyById
+	 * @throws ObjectNotFoundException 
 	 */
-	public void testGetCompanybyId() {
+	@Test
+	public void testGetCompanybyId() throws ObjectNotFoundException {
 		Company company1 = null;
 		Company company2 = null;
 		boolean excpectedException = false;
+
+		company1 = dba.getCompanybyId(1);
 		
-		try {
-			company1 = dba.getCompanybyId(1);
-		} catch (ObjectNotFoundException e) {
-			fail(e.toString());
-		}
-		assert(company1 != null);
+		assertNull(company1);
 		try {
 			company2 = dba.getCompanybyId(0);
 		} catch (ObjectNotFoundException e) {
 			excpectedException = true;
 		}
-		assert(excpectedException);
-		assert(company2 == null);
+		assertTrue(excpectedException);
+		assertNull(company2);
 	}
 
 	/**
 	 * expected results of getComputerById
+	 * @throws DatabaseErrorException 
+	 * @throws ObjectNotFoundException 
 	 */
-	public void testGetComputerById() {
+	@Test
+	public void testGetComputerById() throws ObjectNotFoundException, DatabaseErrorException {
 		Computer computer1 = null;
 		Computer computer2 = null;
 		boolean excpectedException = false;
-		
-		try {
-			computer1 = dba.getComputerById(1);
-		} catch (ObjectNotFoundException e) {
-			fail(e.toString());
-		}
-		assert(computer1 != null);
+
+		computer1 = dba.getComputerById(1);
+
+		assertNotNull(computer1);
 		try {
 			computer2 = dba.getComputerById(0);
 		} catch (ObjectNotFoundException e) {
 			excpectedException = true;
 		}
-		assert(excpectedException);
-		assert(computer2 == null);
+		assertTrue(excpectedException);
+		assertNull(computer2);
 	}
 
 	/**
 	 * expected results of getComputerByName
+	 * @throws DatabaseErrorException 
 	 */
-	public void testGetComputerByName() {
+	@Test
+	public void testGetComputerByName() throws DatabaseErrorException {
 		String realComputerName = "CM-2a", fakeComputerName = "LOL C PAS DANS LA DB";
 		List<Computer> computers = null;
 		computers = dba.getComputerByName(realComputerName);
-		assert(computers != null);
-		assert(computers.size() == 1);
-		assertEquals(computers.get(0).getName(),realComputerName);
-		
+		assertNotNull(computers);
+		assertEquals(1,computers.size());
+		assertEquals(realComputerName,computers.get(0).getName());
+
 		computers = null;
 		computers = dba.getComputerByName(fakeComputerName);
-		assert(computers != null);
-		assert(computers.isEmpty());
+		assertNotNull(computers);
+		assertTrue(computers.isEmpty());
+
+	}
+
+	/**
+	 * @throws DatabaseErrorException 
+	 * @throws InvalidParameterException 
+	 * 
+	 */
+	@Test
+	public void testCreateComputer() throws DatabaseErrorException, InvalidParameterException {
+		boolean expectedFailure1 = false;
+		boolean expectedFailure2 = false;
+		boolean expectedFailure3 = false;
+
+		LocalDate now = LocalDate.now();
+		LocalDate previously = LocalDate.now().minusWeeks(2);
+
+		String validName = "Test Valid Name.";
+		String invalidName = "";
+
+		try {
+			dba.createComputer(new Computer());
+		} catch (InvalidParameterException e) {
+			expectedFailure1 = true;
+		}
+		assertTrue(expectedFailure1);
+
+		try {
+			dba.createComputer(new Computer(new Computer.Builder().name(invalidName)));
+		} catch (InvalidParameterException e) {
+			expectedFailure2 = true;
+		}
+		assertTrue(expectedFailure2);
+
+		try {
+			dba.createComputer(
+					new Computer(new Computer.Builder().name(validName).introduced(now).discontinued(previously)));
+		} catch (InvalidParameterException e) {
+			expectedFailure3 = true;
+		}
+		assertTrue(expectedFailure3);
+
 		
+		dba.createComputer(new Computer(new Computer.Builder().name(validName).introduced(previously).discontinued(now)));
+		dba.deleteComputerByName(validName);
 	}
 
-	/*public void testCreateComputer() {
-		fail("Not yet implemented");
+	/**
+	 * @throws DatabaseErrorException 
+	 * @throws InvalidParameterException 
+	 * 
+	 */
+	@Test
+	public void testDeleteComputerByName() throws DatabaseErrorException, InvalidParameterException {
+		boolean expectedFailure = false;
+
+		String validName = "ValidName";
+		String invalidName = "nO SucH cOmPuTER In THiS dATaBAse";
+
+		try {
+			dba.createComputer(new Computer(new Computer.Builder().name(validName)));
+		} catch (InvalidParameterException e1) {
+			e1.printStackTrace();
+		} catch (DatabaseErrorException e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+			dba.deleteComputerByName(invalidName);
+		} catch (InvalidParameterException e) {
+			expectedFailure = true;
+		}
+		assertTrue(expectedFailure);
+
+		dba.deleteComputerByName(validName);
+
 	}
 
-	public void testDeleteComputerByName() {
-		fail("Not yet implemented");
+	/**
+	 * @throws DatabaseErrorException 
+	 * @throws ObjectNotFoundException 
+	 * @throws InvalidParameterException 
+	 * 
+	 */
+	@Test
+	public void testDeleteComputerById() throws ObjectNotFoundException, DatabaseErrorException, InvalidParameterException {
+		Computer computer = null;
+		int id = 0;
+		int invalidId = 0;
+
+		if (dba.getAllComputers().size() <= 0) {
+			return;
+		}
+		// get one computer
+		while (computer == null) {
+			id++;
+			computer = dba.getComputerById(id);
+		}
+		dba.deleteComputerById(invalidId);
+
+		dba.deleteComputerById(computer.getId());
+
+		// restore db
+		dba.createComputer(computer);
 	}
 
-	public void testDeleteComputerById() {
-		fail("Not yet implemented");
-	}
+	/**
+	 * @throws DatabaseErrorException 
+	 * @throws ObjectNotFoundException 
+	 * @throws InvalidParameterException 
+	 * 
+	 */
+	@Test
+	public void testUpdateComputer() throws ObjectNotFoundException, DatabaseErrorException, InvalidParameterException {
+		String origName = "Valid Computer";
+		String newName = "new name";
 
-	public void testUpdateComputer() {
-		fail("Not yet implemented");
-	}*/
+		boolean expectedFailure1 = false;
+		boolean expectedFailure2 = false;
+		boolean expectedFailure3 = false;
+
+		Computer nullComputer = null;
+		Computer nullName = null;
+		Computer emptyName = null;
+		Computer incoherentDates = null;
+		Computer validComputer = null;
+		Computer returnedComputer = null;
+
+		LocalDate now = LocalDate.now();
+		LocalDate previously = LocalDate.now().minusWeeks(2);
+
+		Computer dbComputer = new Computer(new Computer.Builder().name(origName).introduced(now));
+
+		dba.createComputer(dbComputer);
+		dbComputer = dba.getComputerByName(origName).get(0);
+		assertNotNull(dbComputer);
+		
+		nullName = new Computer(new Computer.Builder().id(dbComputer.getId()).introduced(previously));
+		nullName.setName(null);
+		emptyName = new Computer(new Computer.Builder().id(dbComputer.getId()));
+		emptyName.setName("");
+		incoherentDates = new Computer(
+				new Computer.Builder().id(dbComputer.getId()).introduced(now).discontinued(previously));
+		validComputer = new Computer(new Computer.Builder().name(newName).id(dbComputer.getId()).introduced(now)
+				.discontinued(previously));
+
+		try {
+			dba.updateComputer(nullComputer);
+		} catch (InvalidParameterException e) {
+			expectedFailure1 = true;
+		}
+		assertTrue(expectedFailure1);
+
+		// ok with no name : no update
+		dba.updateComputer(nullName);
+
+		try {
+			dba.updateComputer(emptyName);
+		} catch (InvalidParameterException e) {
+			expectedFailure2 = true;
+		}
+		assertTrue(expectedFailure2);
+
+		try {
+			dba.updateComputer(incoherentDates);
+		} catch (InvalidParameterException e) {
+			expectedFailure3 = true;
+		}
+		assertTrue(expectedFailure3);
+		dba.updateComputer(validComputer);
+		returnedComputer = dba.getComputerById(dbComputer.getId());
+		
+		assert(validComputer.equals(returnedComputer));
+		dba.deleteComputerById(validComputer.getId());
+
+	}
 
 }

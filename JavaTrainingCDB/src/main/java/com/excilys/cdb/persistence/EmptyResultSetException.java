@@ -5,10 +5,11 @@ package com.excilys.cdb.persistence;
  *
  */
 public class EmptyResultSetException extends Exception {
-
+	private static final long serialVersionUID = 1L;
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	
+	public EmptyResultSetException() {
+		super("Query yielded no results");
+	}
 }

@@ -6,6 +6,9 @@ import java.util.Scanner;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.persistence.DatabaseErrorException;
+import com.excilys.cdb.persistence.InvalidParameterException;
+import com.excilys.cdb.persistence.ObjectNotFoundException;
 import com.excilys.cdb.service.DataPresenter;
 
 /**
@@ -271,7 +274,13 @@ public final class ConsoleUserInterface implements UserInterface {
 			if (name.isEmpty()) {
 				return;
 			}
-			List<Computer> foundComputers = dp.getComputersByName(name);
+			List<Computer> foundComputers = null;
+			try {
+				foundComputers = dp.getComputersByName(name);
+			} catch (DatabaseErrorException e) {
+				System.out.println("Error in database, couldn't query for "+name);
+				return;
+			}
 			if (foundComputers.isEmpty()) {
 				System.out.println(name + " not found");
 			} else {
@@ -313,7 +322,13 @@ public final class ConsoleUserInterface implements UserInterface {
 		}
 		
 		Computer computer = new Computer(computerBuilder);
-		dp.addComputer(computer);
+		try {
+			dp.addComputer(computer);
+		} catch (DatabaseErrorException e) {
+			System.out.println("Error in database, couldn't add "+computer.toString());
+		} catch (InvalidParameterException e) {
+			System.out.println("Invalid parameters, couldn't add "+computer.toString());
+		}
 	}
 
 	private void updateComputer() {
@@ -355,7 +370,13 @@ public final class ConsoleUserInterface implements UserInterface {
 		}
 		
 		Computer computer = new Computer(computerBuilder);
-		dp.updateComputer(computer);
+		try {
+			dp.updateComputer(computer);
+		} catch (InvalidParameterException e) {
+			System.out.println("Invalid parameters, couldn't update computer with id="+computer.getId()+" with new values");
+		} catch (DatabaseErrorException e) {
+			System.out.println("Error in database, couldn't update");
+		}
 	}
 
 	private void deleteComputer() {
@@ -363,7 +384,13 @@ public final class ConsoleUserInterface implements UserInterface {
 		System.out.println("Enter id");
 		int id = scan.nextInt();
 		scan.nextLine();
-		dp.removeComputerById(id);
+		try {
+			dp.removeComputerById(id);
+		} catch (DatabaseErrorException e) {
+			System.out.println("Error in database, couldn't update");
+		} catch (ObjectNotFoundException e) {
+			System.out.println("Error : couldn't find computer with id="+id);
+		}
 	}
 
 }
