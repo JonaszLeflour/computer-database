@@ -82,7 +82,7 @@ public class DatabaseAccessorTest{
 
 		company1 = dba.getCompanybyId(1);
 		
-		assertNull(company1);
+		assertNotNull(company1);
 		try {
 			company2 = dba.getCompanybyId(0);
 		} catch (ObjectNotFoundException e) {
@@ -103,14 +103,17 @@ public class DatabaseAccessorTest{
 		Computer computer2 = null;
 		boolean excpectedException = false;
 
-		computer1 = dba.getComputerById(1);
+		computer1 = dba.getComputerById(10);
 
 		assertNotNull(computer1);
+		assertNotNull(computer1.getName());
+		assertEquals(false,computer1.getName().isEmpty());
 		try {
 			computer2 = dba.getComputerById(0);
 		} catch (ObjectNotFoundException e) {
 			excpectedException = true;
 		}
+		
 		assertTrue(excpectedException);
 		assertNull(computer2);
 	}
@@ -225,10 +228,15 @@ public class DatabaseAccessorTest{
 		if (dba.getAllComputers().size() <= 0) {
 			return;
 		}
-		// get one computer
+		// get one valid computer
 		while (computer == null) {
 			id++;
-			computer = dba.getComputerById(id);
+			try {
+				computer = dba.getComputerById(id);
+			}catch(ObjectNotFoundException e) {
+				
+			}
+			
 		}
 		dba.deleteComputerById(invalidId);
 

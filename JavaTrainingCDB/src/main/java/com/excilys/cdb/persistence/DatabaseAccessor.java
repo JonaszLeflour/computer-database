@@ -274,7 +274,7 @@ public class DatabaseAccessor {
 				throw new DatabaseErrorException();
 			}
 		}
-		if(computer == null) {
+		if(computer == null || computer.getId() == 0 || computer.getName() == null ||  computer.getName().isEmpty()) {
 			throw new ObjectNotFoundException();
 		}
 		return computer;
