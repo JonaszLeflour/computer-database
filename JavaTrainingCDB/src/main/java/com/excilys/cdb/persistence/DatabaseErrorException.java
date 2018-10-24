@@ -12,4 +12,10 @@ public class DatabaseErrorException extends Exception {
 	public DatabaseErrorException() {
 		super("Something wrong happened while using the database");
 	}
+	/**
+	 * @param string error message
+	 */
+	public DatabaseErrorException(String string) {
+		// TODO Auto-generated constructor stub
+	}
 }

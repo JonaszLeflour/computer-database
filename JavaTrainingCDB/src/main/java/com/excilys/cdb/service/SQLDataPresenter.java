@@ -75,7 +75,7 @@ public class SQLDataPresenter implements DataPresenter{
 	}
 	
 	@Override
-	public void removeComputersByName(String name) throws DatabaseErrorException, InvalidParameterException {
+	public void removeComputersByName(String name) throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException {
 		dba.deleteComputerByName(name);
 	}
 }

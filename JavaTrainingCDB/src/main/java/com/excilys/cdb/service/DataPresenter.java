@@ -73,6 +73,7 @@ public interface DataPresenter {
 	 * @param name name shared by all computer to remove
 	 * @throws DatabaseErrorException 
 	 * @throws InvalidParameterException 
+	 * @throws ObjectNotFoundException 
 	 */
-	public void removeComputersByName(String name) throws DatabaseErrorException, InvalidParameterException;
+	public void removeComputersByName(String name) throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException;
 }

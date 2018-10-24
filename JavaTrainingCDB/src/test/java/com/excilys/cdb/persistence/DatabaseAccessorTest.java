@@ -102,8 +102,10 @@ public class DatabaseAccessorTest{
 		Computer computer1 = null;
 		Computer computer2 = null;
 		boolean excpectedException = false;
-
-		computer1 = dba.getComputerById(10);
+		
+		long validId = dba.getComputerByName("CM-2a").get(0).getId();
+		
+		computer1 = dba.getComputerById(validId);
 
 		assertNotNull(computer1);
 		assertNotNull(computer1.getName());
@@ -141,10 +143,11 @@ public class DatabaseAccessorTest{
 	/**
 	 * @throws DatabaseErrorException 
 	 * @throws InvalidParameterException 
+	 * @throws ObjectNotFoundException 
 	 * 
 	 */
 	@Test
-	public void testCreateComputer() throws DatabaseErrorException, InvalidParameterException {
+	public void testCreateComputer() throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException {
 		boolean expectedFailure1 = false;
 		boolean expectedFailure2 = false;
 		boolean expectedFailure3 = false;
@@ -185,29 +188,44 @@ public class DatabaseAccessorTest{
 	/**
 	 * @throws DatabaseErrorException 
 	 * @throws InvalidParameterException 
+	 * @throws ObjectNotFoundException 
 	 * 
 	 */
 	@Test
-	public void testDeleteComputerByName() throws DatabaseErrorException, InvalidParameterException {
-		boolean expectedFailure = false;
+	public void testDeleteComputerByName() throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException {
+		boolean expectedFailure1 = false;
+		boolean expectedFailure2 = false;
+		boolean expectedFailure3 = false;
 
 		String validName = "ValidName";
-		String invalidName = "nO SucH cOmPuTER In THiS dATaBAse";
+		String notExistsName = "nO SucH cOmPuTER In THiS dATaBAse";
+		String nullName = null;
+		String emptyName = "";
+
+		
+		dba.createComputer(new Computer(new Computer.Builder().name(validName)));
+		
 
 		try {
-			dba.createComputer(new Computer(new Computer.Builder().name(validName)));
-		} catch (InvalidParameterException e1) {
-			e1.printStackTrace();
-		} catch (DatabaseErrorException e1) {
-			e1.printStackTrace();
+			dba.deleteComputerByName(notExistsName);
+		} catch (ObjectNotFoundException e) {
+			expectedFailure1 = true;
 		}
-
+		assertTrue(expectedFailure1);
+		
 		try {
-			dba.deleteComputerByName(invalidName);
+			dba.deleteComputerByName(nullName);
 		} catch (InvalidParameterException e) {
-			expectedFailure = true;
+			expectedFailure2 = true;
 		}
-		assertTrue(expectedFailure);
+		assertTrue(expectedFailure2);
+		
+		try {
+			dba.deleteComputerByName(emptyName);
+		} catch (InvalidParameterException e) {
+			expectedFailure3 = true;
+		}
+		assertTrue(expectedFailure3);
 
 		dba.deleteComputerByName(validName);
 
@@ -221,13 +239,11 @@ public class DatabaseAccessorTest{
 	 */
 	@Test
 	public void testDeleteComputerById() throws ObjectNotFoundException, DatabaseErrorException, InvalidParameterException {
+		boolean expectedError = false;
+		
 		Computer computer = null;
 		int id = 0;
 		int invalidId = 0;
-
-		if (dba.getAllComputers().size() <= 0) {
-			return;
-		}
 		// get one valid computer
 		while (computer == null) {
 			id++;
@@ -238,7 +254,13 @@ public class DatabaseAccessorTest{
 			}
 			
 		}
-		dba.deleteComputerById(invalidId);
+		
+		try {
+			dba.deleteComputerById(invalidId);
+		}catch(ObjectNotFoundException e) {
+			expectedError = true;
+		}
+		assertTrue(expectedError);
 
 		dba.deleteComputerById(computer.getId());
 
@@ -254,12 +276,15 @@ public class DatabaseAccessorTest{
 	 */
 	@Test
 	public void testUpdateComputer() throws ObjectNotFoundException, DatabaseErrorException, InvalidParameterException {
-		String origName = "Valid Computer";
-		String newName = "new name";
-
 		boolean expectedFailure1 = false;
 		boolean expectedFailure2 = false;
 		boolean expectedFailure3 = false;
+		
+		String origName = "Valid Computer";
+		String newName = "new name";
+		
+		LocalDate now = LocalDate.now();
+		LocalDate previously = LocalDate.now().minusWeeks(2);
 
 		Computer nullComputer = null;
 		Computer nullName = null;
@@ -267,9 +292,6 @@ public class DatabaseAccessorTest{
 		Computer incoherentDates = null;
 		Computer validComputer = null;
 		Computer returnedComputer = null;
-
-		LocalDate now = LocalDate.now();
-		LocalDate previously = LocalDate.now().minusWeeks(2);
 
 		Computer dbComputer = new Computer(new Computer.Builder().name(origName).introduced(now));
 
@@ -283,8 +305,8 @@ public class DatabaseAccessorTest{
 		emptyName.setName("");
 		incoherentDates = new Computer(
 				new Computer.Builder().id(dbComputer.getId()).introduced(now).discontinued(previously));
-		validComputer = new Computer(new Computer.Builder().name(newName).id(dbComputer.getId()).introduced(now)
-				.discontinued(previously));
+		validComputer = new Computer(new Computer.Builder().name(newName).id(dbComputer.getId()).introduced(previously)
+				.discontinued(now));
 
 		try {
 			dba.updateComputer(nullComputer);
@@ -312,7 +334,10 @@ public class DatabaseAccessorTest{
 		dba.updateComputer(validComputer);
 		returnedComputer = dba.getComputerById(dbComputer.getId());
 		
-		assert(validComputer.equals(returnedComputer));
+		assertEquals(returnedComputer.getName(),validComputer.getName());
+		assertEquals(returnedComputer.getIntroduced(),validComputer.getIntroduced());
+		assertEquals(returnedComputer.getDiscontinued(),validComputer.getDiscontinued());
+		
 		dba.deleteComputerById(validComputer.getId());
 
 	}

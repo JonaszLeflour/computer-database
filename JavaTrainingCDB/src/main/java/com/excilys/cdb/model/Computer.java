@@ -21,7 +21,55 @@ public class Computer implements Serializable {
 
 	private Company company;
 	
+	/**
+	 * @param c other computer
+	 * @return true if this equals c, false if not
+	 */
 	//constructor from database
+	public boolean equals(Computer c) {
+		if(c == null) {
+			return false;
+		}
+		
+		if(id != c.id ) {
+			return false;
+		}
+		
+		if(introduced != null) {
+			if(!c.introduced.equals(c.introduced)) {
+				return false;
+			}
+		}else if(c.introduced != null) {
+			return false;
+		}
+		
+		if(discontinued != null) {
+			if(!c.discontinued.equals(c.discontinued)) {
+				return false;
+			}
+		}else if(c.discontinued != null) {
+			return false;
+		}
+		
+		if(name != null) {
+			if(!c.name.equals(c.name)) {
+				return false;
+			}
+		}else if(c.name != null) {
+			return false;
+		}
+		
+		if(company != null) {
+			if(c.company.getId() != company.getId()) {
+				return false;
+			}
+		}else if(c.company != null) {
+			return false;
+		}
+		
+		return false;
+		
+	}
 	
 	/**
 	 * 

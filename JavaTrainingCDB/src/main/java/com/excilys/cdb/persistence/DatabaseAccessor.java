@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -43,8 +44,6 @@ public class DatabaseAccessor {
 		URL = prop.getProperty("database");
 		user = prop.getProperty("user");
 		password = prop.getProperty("password");
-		
-		deleteComputerById(0);
 	}
 	
 	/**
@@ -328,13 +327,18 @@ public class DatabaseAccessor {
 	 * @throws DatabaseErrorException 
 	 */
 	public void createComputer(Computer computer) throws InvalidParameterException,DatabaseErrorException {
-		if(computer == null || computer.getName()== null || computer.getName().equals("") ) {
-			throw new InvalidParameterException();
+		if(computer == null) {
+			throw new InvalidParameterException("Computer is null");
 			
+		}else if(computer.getName()== null) {
+			throw new InvalidParameterException("Computer name is null");
+			
+		}else if(computer.getName().equals("")) {
+			throw new InvalidParameterException("Computer name is empty");
 		}
 		if((computer.getIntroduced() != null && computer.getDiscontinued() != null )
 				&& computer.getIntroduced().isAfter(computer.getDiscontinued())) {
-			throw new InvalidParameterException();
+			throw new InvalidParameterException("Incoherent introduced and discontinued dates");
 		}
 		Connection con = null;
 		PreparedStatement s = null;
@@ -360,7 +364,7 @@ public class DatabaseAccessor {
 			}
 			s.executeUpdate();
 		} catch (SQLException e) {
-			throw new InvalidParameterException();
+			throw new DatabaseErrorException(e.toString());
 		} finally {
 			try {
 				if (con != null) {
@@ -380,46 +384,24 @@ public class DatabaseAccessor {
 	 * 
 	 * @param name
 	 * @throws InvalidParameterException 
+	 * @throws ObjectNotFoundException 
 	 * @throws DatabaseErrorException 
 	 */
-	public void deleteComputerByName(String name) throws InvalidParameterException, DatabaseErrorException{
+	public void deleteComputerByName(String name) throws InvalidParameterException, ObjectNotFoundException, DatabaseErrorException{
+		if(name == null) {
+			throw new InvalidParameterException("Name provided is null");
+		}else if (name.isEmpty()){
+			throw new InvalidParameterException("Name provided is empty");
+		}
+		
 		Connection con = null;
 		PreparedStatement s = null;
+		int ret = 0;
 		try {
 			con = DriverManager.getConnection(URL, user, password);
 			s = con.prepareStatement("DELETE FROM computer WHERE name = ?");
 			s.setString(1, name);
-			s.executeUpdate();
-		} catch (SQLException e) {
-			throw new InvalidParameterException();
-		} finally {
-			try {
-				if (con != null) {
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
-		}
-
-	}
-
-	/**
-	 * @param id
-	 * @throws ObjectNotFoundException 
-	 * @throws DatabaseErrorException 
-	 */
-	public void deleteComputerById(long id) throws DatabaseErrorException{
-		Connection con = null;
-		PreparedStatement s = null;
-		try {
-			con = DriverManager.getConnection(URL, user, password);
-			s = con.prepareStatement("DELETE FROM computer WHERE id = ?");
-			s.setLong(1, id);
-			s.executeUpdate();
+			ret = s.executeUpdate();
 		} catch (SQLException e) {
 			throw new DatabaseErrorException();
 		} finally {
@@ -434,6 +416,43 @@ public class DatabaseAccessor {
 				throw new DatabaseErrorException();
 			}
 		}
+		if(ret == 0) {
+			throw new ObjectNotFoundException();
+		}
+
+	}
+
+	/**
+	 * @param id
+	 * @throws ObjectNotFoundException 
+	 * @throws DatabaseErrorException 
+	 */
+	public void deleteComputerById(long id) throws DatabaseErrorException, ObjectNotFoundException{
+		Connection con = null;
+		PreparedStatement s = null;
+		int status = 0;
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			s = con.prepareStatement("DELETE FROM computer WHERE id = ?");
+			s.setLong(1, id);
+			status = s.executeUpdate();
+		} catch (SQLException e) {
+			throw new DatabaseErrorException();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+			} catch (SQLException e) {
+				throw new DatabaseErrorException();
+			}
+			if(status == 0) {
+				throw new ObjectNotFoundException();
+			}
+		}
 	}
 
 	/**
@@ -443,42 +462,73 @@ public class DatabaseAccessor {
 	 * @throws DatabaseErrorException 
 	 */
 	public void updateComputer(Computer computer) throws InvalidParameterException,DatabaseErrorException {
-		if (computer == null || computer.getId() == 0) {
-			throw new InvalidParameterException();
+		if (computer == null) {
+			throw new InvalidParameterException("Computer object is null");
+		}else if(computer.getName()!=null && computer.getName().isEmpty()) {
+			throw new InvalidParameterException("Computer name cannot be empty");
 		}
+		
+		if(computer.getId() == 0){
+			throw new InvalidParameterException("Computer id isn't provided");
+		}
+		Computer oldComputer = null;
+		try {
+			oldComputer = getComputerById(computer.getId());
+		} catch (ObjectNotFoundException e1) {
+			throw new InvalidParameterException("Computer id doesn't exist in database");
+		}
+		LocalDate newIntroduced = computer.getIntroduced();
+		LocalDate newDiscontinued = computer.getDiscontinued();
+		if(newIntroduced == null) {
+			newIntroduced = oldComputer.getIntroduced();
+		}
+		if(newDiscontinued == null) {
+			newDiscontinued = oldComputer.getDiscontinued();
+		}
+		if(newIntroduced != null && newDiscontinued != null) {
+			if(newIntroduced.isAfter(newDiscontinued)) {
+				throw new InvalidParameterException("Invalid dates");
+			}
+		}
+		
 
 		Connection con = null;
 		PreparedStatement s = null;
-		boolean noParameters = true;
+		boolean hasParameters = false;
 		try {
 			con = DriverManager.getConnection(URL, user, password);
+			
 			String sql = "UPDATE computer SET";
 			if(computer.getName() != null) {
 				sql+="  name=? ";
-				noParameters = false;
+				hasParameters = true;
 			}	
 			if(computer.getIntroduced() != null) {
-				if(!noParameters) {
+				if(hasParameters) {
 					sql+=",";
 				}
 				sql+= " introduced=?";
+				hasParameters = true;
+				
 			}
 			if(computer.getDiscontinued() != null) { 
-				if(!noParameters) {
+				if(hasParameters) {
 					sql+=",";
 				}
 				sql+= " discontinued=?";
+				hasParameters = true;
 			}
 			if(computer.getCompany() != null) { 
-				if(!noParameters) {
+				if(hasParameters) {
 					sql+=",";
 				}
 				sql+= " company_id=?";
+				hasParameters = true;
 			}
 			
-			if(noParameters) {
+			if(!hasParameters) {
 				con.close();
-				throw new InvalidParameterException();
+				throw new InvalidParameterException("No updated parameters provided");
 			}
 			sql += " WHERE id=?";
 			
@@ -509,7 +559,7 @@ public class DatabaseAccessor {
 			
 			s.executeUpdate();
 		} catch (SQLException e) {
-			throw new InvalidParameterException();
+			throw new DatabaseErrorException();
 		} finally {
 			try {
 				if (con != null) {

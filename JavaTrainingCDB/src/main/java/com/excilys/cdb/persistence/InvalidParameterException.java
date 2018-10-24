@@ -6,11 +6,11 @@ package com.excilys.cdb.persistence;
  */
 public class InvalidParameterException extends Exception {
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
-	 * 
+	 * @param string Error message
 	 */
-	public InvalidParameterException(){
-		super("Cannot use this computer (wrong id, empty name or incoherent dates)");
+	public InvalidParameterException(String string) {
+		super(string);
 	}
 }
