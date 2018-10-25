@@ -4,9 +4,16 @@
 <title>Computer Database</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap -->
-<link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
-<link href="../css/font-awesome.css" rel="stylesheet" media="screen">
-<link href="../css/main.css" rel="stylesheet" media="screen">
+<style>
+<jsp:include page="/WEB-INF/css/bootstrap.min.css"/>
+<jsp:include page="/WEB-INF/css/font-awesome.css"/>
+<jsp:include page="/WEB-INF/css/main.css"/>
+</style>
+<!-- 
+<link href="${pageContext.request.contextPath}/../css/bootstrap.min.css" rel="stylesheet" media="screen">
+<link href="${pageContext.request.contextPath}/../css/font-awesome.css" rel="stylesheet" media="screen">
+<link href="${pageContext.request.contextPath}/../css/main.css" rel="stylesheet" media="screen">
+ -->
 </head>
 <body>
     <header class="navbar navbar-inverse navbar-fixed-top">
@@ -20,7 +27,7 @@
             <div class="row">
                 <div class="col-xs-8 col-xs-offset-2 box">
                     <h1>Add Computer</h1>
-                    <form action="addComputer" method="POST">
+                    <form action="addcomputer" method="POST">
                         <fieldset>
                             <div class="form-group">
                                 <label for="computerName">Computer name</label>
@@ -44,7 +51,7 @@
                         <div class="actions pull-right">
                             <input type="submit" value="Add" class="btn btn-primary">
                             or
-                            <a href="dashboard.html" class="btn btn-default">Cancel</a>
+                            <a href="/dashboard" class="btn btn-default">Cancel</a>
                         </div>
                     </form>
                 </div>
