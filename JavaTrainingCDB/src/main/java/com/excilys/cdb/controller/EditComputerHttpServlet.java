@@ -10,16 +10,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet implementation class AddComputerHttpServlet
+ * Servlet implementation class EditComputerHttpServlet
  */
-@WebServlet("/addcomputer")
-public class AddComputerHttpServlet extends HttpServlet {
+@WebServlet("/editcomputer")
+public class EditComputerHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public AddComputerHttpServlet() {
+    public EditComputerHttpServlet() {
         super();
     }
 
@@ -28,7 +28,7 @@ public class AddComputerHttpServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		RequestDispatcher dispatcher = getServletContext()
-                .getRequestDispatcher("/WEB-INF/views/addComputer.jsp");
+                .getRequestDispatcher("/WEB-INF/views/editComputer.jsp");
         dispatcher.forward(request, response);
 	}
 
