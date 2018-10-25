@@ -20,7 +20,7 @@ import com.excilys.cdb.persistence.InvalidParameterException;
  *
  */
 
-public class DatabaseAccessorTest{
+public class DatabaseAccessorTest {
 	private DatabaseAccessor dba;
 
 	/**
@@ -38,18 +38,19 @@ public class DatabaseAccessorTest{
 	public void tearDown() throws Exception {
 		dba = null;
 	}
-	
+
 	/**
 	 * GetDatabaseAccessor test : test if singleton
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
-	 * @throws DatabaseErrorException 
+	 * 
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 * @throws DatabaseErrorException
 	 */
 	@Test
 	public void testGetDatabaseAccessor() throws FileNotFoundException, IOException, DatabaseErrorException {
 		DatabaseAccessor dba2 = null;
 		dba2 = DatabaseAccessor.GetDatabaseAccessor();
-		assertEquals(dba2,dba);
+		assertEquals(dba2, dba);
 	}
 
 	/**
@@ -72,7 +73,8 @@ public class DatabaseAccessorTest{
 
 	/**
 	 * expected results of getCompanyById
-	 * @throws ObjectNotFoundException 
+	 * 
+	 * @throws ObjectNotFoundException
 	 */
 	@Test
 	public void testGetCompanybyId() throws ObjectNotFoundException {
@@ -81,7 +83,7 @@ public class DatabaseAccessorTest{
 		boolean excpectedException = false;
 
 		company1 = dba.getCompanybyId(1);
-		
+
 		assertNotNull(company1);
 		try {
 			company2 = dba.getCompanybyId(0);
@@ -94,35 +96,37 @@ public class DatabaseAccessorTest{
 
 	/**
 	 * expected results of getComputerById
-	 * @throws DatabaseErrorException 
-	 * @throws ObjectNotFoundException 
+	 * 
+	 * @throws DatabaseErrorException
+	 * @throws ObjectNotFoundException
 	 */
 	@Test
 	public void testGetComputerById() throws ObjectNotFoundException, DatabaseErrorException {
 		Computer computer1 = null;
 		Computer computer2 = null;
 		boolean excpectedException = false;
-		
+
 		long validId = dba.getComputerByName("CM-2a").get(0).getId();
-		
+
 		computer1 = dba.getComputerById(validId);
 
 		assertNotNull(computer1);
 		assertNotNull(computer1.getName());
-		assertEquals(false,computer1.getName().isEmpty());
+		assertEquals(false, computer1.getName().isEmpty());
 		try {
 			computer2 = dba.getComputerById(0);
 		} catch (ObjectNotFoundException e) {
 			excpectedException = true;
 		}
-		
+
 		assertTrue(excpectedException);
 		assertNull(computer2);
 	}
 
 	/**
 	 * expected results of getComputerByName
-	 * @throws DatabaseErrorException 
+	 * 
+	 * @throws DatabaseErrorException
 	 */
 	@Test
 	public void testGetComputerByName() throws DatabaseErrorException {
@@ -130,8 +134,8 @@ public class DatabaseAccessorTest{
 		List<Computer> computers = null;
 		computers = dba.getComputerByName(realComputerName);
 		assertNotNull(computers);
-		assertEquals(1,computers.size());
-		assertEquals(realComputerName,computers.get(0).getName());
+		assertEquals(1, computers.size());
+		assertEquals(realComputerName, computers.get(0).getName());
 
 		computers = null;
 		computers = dba.getComputerByName(fakeComputerName);
@@ -141,9 +145,9 @@ public class DatabaseAccessorTest{
 	}
 
 	/**
-	 * @throws DatabaseErrorException 
-	 * @throws InvalidParameterException 
-	 * @throws ObjectNotFoundException 
+	 * @throws DatabaseErrorException
+	 * @throws InvalidParameterException
+	 * @throws ObjectNotFoundException
 	 * 
 	 */
 	@Test
@@ -180,19 +184,20 @@ public class DatabaseAccessorTest{
 		}
 		assertTrue(expectedFailure3);
 
-		
-		dba.createComputer(new Computer(new Computer.Builder().name(validName).introduced(previously).discontinued(now)));
+		dba.createComputer(
+				new Computer(new Computer.Builder().name(validName).introduced(previously).discontinued(now)));
 		dba.deleteComputerByName(validName);
 	}
 
 	/**
-	 * @throws DatabaseErrorException 
-	 * @throws InvalidParameterException 
-	 * @throws ObjectNotFoundException 
+	 * @throws DatabaseErrorException
+	 * @throws InvalidParameterException
+	 * @throws ObjectNotFoundException
 	 * 
 	 */
 	@Test
-	public void testDeleteComputerByName() throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException {
+	public void testDeleteComputerByName()
+			throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException {
 		boolean expectedFailure1 = false;
 		boolean expectedFailure2 = false;
 		boolean expectedFailure3 = false;
@@ -202,9 +207,7 @@ public class DatabaseAccessorTest{
 		String nullName = null;
 		String emptyName = "";
 
-		
 		dba.createComputer(new Computer(new Computer.Builder().name(validName)));
-		
 
 		try {
 			dba.deleteComputerByName(notExistsName);
@@ -212,14 +215,14 @@ public class DatabaseAccessorTest{
 			expectedFailure1 = true;
 		}
 		assertTrue(expectedFailure1);
-		
+
 		try {
 			dba.deleteComputerByName(nullName);
 		} catch (InvalidParameterException e) {
 			expectedFailure2 = true;
 		}
 		assertTrue(expectedFailure2);
-		
+
 		try {
 			dba.deleteComputerByName(emptyName);
 		} catch (InvalidParameterException e) {
@@ -232,15 +235,16 @@ public class DatabaseAccessorTest{
 	}
 
 	/**
-	 * @throws DatabaseErrorException 
-	 * @throws ObjectNotFoundException 
-	 * @throws InvalidParameterException 
+	 * @throws DatabaseErrorException
+	 * @throws ObjectNotFoundException
+	 * @throws InvalidParameterException
 	 * 
 	 */
 	@Test
-	public void testDeleteComputerById() throws ObjectNotFoundException, DatabaseErrorException, InvalidParameterException {
+	public void testDeleteComputerById()
+			throws ObjectNotFoundException, DatabaseErrorException, InvalidParameterException {
 		boolean expectedError = false;
-		
+
 		Computer computer = null;
 		int id = 0;
 		int invalidId = 0;
@@ -249,15 +253,15 @@ public class DatabaseAccessorTest{
 			id++;
 			try {
 				computer = dba.getComputerById(id);
-			}catch(ObjectNotFoundException e) {
-				
+			} catch (ObjectNotFoundException e) {
+
 			}
-			
+
 		}
-		
+
 		try {
 			dba.deleteComputerById(invalidId);
-		}catch(ObjectNotFoundException e) {
+		} catch (ObjectNotFoundException e) {
 			expectedError = true;
 		}
 		assertTrue(expectedError);
@@ -269,9 +273,9 @@ public class DatabaseAccessorTest{
 	}
 
 	/**
-	 * @throws DatabaseErrorException 
-	 * @throws ObjectNotFoundException 
-	 * @throws InvalidParameterException 
+	 * @throws DatabaseErrorException
+	 * @throws ObjectNotFoundException
+	 * @throws InvalidParameterException
 	 * 
 	 */
 	@Test
@@ -279,10 +283,10 @@ public class DatabaseAccessorTest{
 		boolean expectedFailure1 = false;
 		boolean expectedFailure2 = false;
 		boolean expectedFailure3 = false;
-		
+
 		String origName = "Valid Computer";
 		String newName = "new name";
-		
+
 		LocalDate now = LocalDate.now();
 		LocalDate previously = LocalDate.now().minusWeeks(2);
 
@@ -298,15 +302,15 @@ public class DatabaseAccessorTest{
 		dba.createComputer(dbComputer);
 		dbComputer = dba.getComputerByName(origName).get(0);
 		assertNotNull(dbComputer);
-		
+
 		nullName = new Computer(new Computer.Builder().id(dbComputer.getId()).introduced(previously));
 		nullName.setName(null);
 		emptyName = new Computer(new Computer.Builder().id(dbComputer.getId()));
 		emptyName.setName("");
 		incoherentDates = new Computer(
 				new Computer.Builder().id(dbComputer.getId()).introduced(now).discontinued(previously));
-		validComputer = new Computer(new Computer.Builder().name(newName).id(dbComputer.getId()).introduced(previously)
-				.discontinued(now));
+		validComputer = new Computer(
+				new Computer.Builder().name(newName).id(dbComputer.getId()).introduced(previously).discontinued(now));
 
 		try {
 			dba.updateComputer(nullComputer);
@@ -333,11 +337,11 @@ public class DatabaseAccessorTest{
 		assertTrue(expectedFailure3);
 		dba.updateComputer(validComputer);
 		returnedComputer = dba.getComputerById(dbComputer.getId());
-		
-		assertEquals(returnedComputer.getName(),validComputer.getName());
-		assertEquals(returnedComputer.getIntroduced(),validComputer.getIntroduced());
-		assertEquals(returnedComputer.getDiscontinued(),validComputer.getDiscontinued());
-		
+
+		assertEquals(returnedComputer.getName(), validComputer.getName());
+		assertEquals(returnedComputer.getIntroduced(), validComputer.getIntroduced());
+		assertEquals(returnedComputer.getDiscontinued(), validComputer.getDiscontinued());
+
 		dba.deleteComputerById(validComputer.getId());
 
 	}
