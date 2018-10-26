@@ -4,10 +4,16 @@
 <title>Computer Database</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap -->
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <style>
-<jsp:include page="/WEB-INF/css/bootstrap.min.css"/>
-<jsp:include page="/WEB-INF/css/font-awesome.css"/>
-<jsp:include page="/WEB-INF/css/main.css"/>
+<c:import url="/WEB-INF/css/bootstrap.min.css"/>
+<c:import url="/WEB-INF/css/font-awesome.css"/>
+<c:import url="/WEB-INF/css/main.css"/>
 </style>
 </head>
 <body>

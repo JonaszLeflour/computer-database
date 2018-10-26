@@ -170,7 +170,12 @@ public final class ConsoleUserInterface implements UserInterface {
 	}
 
 	private void listCompanies() {
-		List<Company> companies = dp.getCompanies();
+		List<Company> companies = null;
+		try {
+			companies = dp.getCompanies();
+		} catch (DatabaseErrorException e) {
+			System.out.println("Error : couldn't connect to database");
+		}
 		int pageSize = 10;
 		int currentPage = 0;
 		int nbPages = (int) Math.ceil(companies.size() / (double) pageSize);

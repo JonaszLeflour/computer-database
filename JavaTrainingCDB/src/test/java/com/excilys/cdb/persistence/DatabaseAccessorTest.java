@@ -64,9 +64,10 @@ public class DatabaseAccessorTest {
 
 	/**
 	 * Tests that the list object is not null
+	 * @throws DatabaseErrorException 
 	 */
 	@Test
-	public void testGetAllCompanies() {
+	public void testGetAllCompanies() throws DatabaseErrorException{
 		List<Company> companies = dba.getAllCompanies();
 		assertNotNull(companies);
 	}

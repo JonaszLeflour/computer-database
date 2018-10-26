@@ -48,7 +48,7 @@ public class SQLDataPresenter implements DataPresenter{
 	}
 
 	@Override
-	public List<Company> getCompanies() {
+	public List<Company> getCompanies() throws DatabaseErrorException{
 		List<Company> result = dba.getAllCompanies();
 		return result;
 	}

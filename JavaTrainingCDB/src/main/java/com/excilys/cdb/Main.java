@@ -24,13 +24,10 @@ public class Main {
 			dp = new SQLDataPresenter();
 			new ConsoleUserInterface(dp).mainLoop(args);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (DatabaseErrorException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

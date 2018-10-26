@@ -37,8 +37,9 @@ public interface DataPresenter {
 
 	/**
 	 * @return all companies
+	 * @throws DatabaseErrorException 
 	 */
-	public List<Company> getCompanies();
+	public List<Company> getCompanies() throws DatabaseErrorException;
 
 	/**
 	 * @param id

@@ -10,16 +10,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet implementation class ErrorHttpServlet
+ * Servlet implementation class Error500HttpServlet
  */
-@WebServlet("/404")
-public class Error404HttpServlet extends HttpServlet {
+@WebServlet("/500")
+public class Error500HttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public Error404HttpServlet() {
+    public Error500HttpServlet() {
         super();
     }
 
@@ -28,7 +28,7 @@ public class Error404HttpServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		RequestDispatcher dispatcher = getServletContext()
-                .getRequestDispatcher("/WEB-INF/views/404.jsp");
+                .getRequestDispatcher("/WEB-INF/views/500.jsp");
         dispatcher.forward(request, response);
 	}
 

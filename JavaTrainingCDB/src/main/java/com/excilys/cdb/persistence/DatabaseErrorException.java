@@ -16,6 +16,6 @@ public class DatabaseErrorException extends Exception {
 	 * @param string error message
 	 */
 	public DatabaseErrorException(String string) {
-		// TODO Auto-generated constructor stub
+		super(string);
 	}
 }

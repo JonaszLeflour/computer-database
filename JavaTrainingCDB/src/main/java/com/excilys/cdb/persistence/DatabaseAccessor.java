@@ -155,9 +155,10 @@ public class DatabaseAccessor {
 
 	/**
 	 * @return all companies from the database as a ResultSet
+	 * @throws DatabaseErrorException 
 	 * @throws SQLException
 	 */
-	public List<Company> getAllCompanies() {
+	public List<Company> getAllCompanies() throws DatabaseErrorException{
 		List<Company> companies = new ArrayList<>();
 		Connection con = null;
 		Statement s = null;
@@ -173,8 +174,7 @@ public class DatabaseAccessor {
 			}
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DatabaseErrorException();
 		} catch (EmptyResultSetException e) {
 			e.printStackTrace();
 		} finally {
@@ -189,7 +189,7 @@ public class DatabaseAccessor {
 					rs.close();
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				throw new DatabaseErrorException();
 			}
 		}
 		return companies;
