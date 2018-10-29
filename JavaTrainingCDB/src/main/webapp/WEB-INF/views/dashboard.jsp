@@ -84,18 +84,19 @@
                 </thead>
                 <!-- Browse attribute computers -->
                 <tbody id="results">
-                    <tr>
+                	<c:forEach varStatus="loopCounter" items="${page}" var="computerResult">
+                	<tr>
                         <td class="editMode">
                             <input type="checkbox" name="cb" class="cb" value="0">
                         </td>
                         <td>
-                            <a href="/editcomputer" onclick="">MacBook Pro</a>
+                            <a href='/editcomputer?id=${param["computerResult.id"]}' onclick="">${computerResult.name}</a>
                         </td>
-                        <td>2006-01-10</td>
-                        <td></td>
-                        <td>Apple Inc.</td>
-
+                        <td>${computerResult.introduced}</td>
+                        <td>${computerResult.discontinued}</td>
+                        <td>${computerResult.company}</td>
                     </tr>
+		            </c:forEach>
                 </tbody>
             </table>
         </div>
@@ -122,7 +123,7 @@
         </ul>
 	
 		</div>
-        <div class="btn-group btn-group-sm pull-right" role="group" >
+        <div class="btn-group btn-group-sm pull-right" role="group">
             <button type="button" class="btn btn-default">10</button>
             <button type="button" class="btn btn-default">50</button>
             <button type="button" class="btn btn-default">100</button>

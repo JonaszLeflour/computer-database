@@ -28,7 +28,7 @@ public final class ConsoleUserInterface implements UserInterface {
 	}
 
 	@Override
-	public void mainLoop(String[] args) {
+	public void mainLoop(String[] args) throws DatabaseErrorException {
 		boolean looping = true;
 
 		while (looping) {
@@ -72,7 +72,7 @@ public final class ConsoleUserInterface implements UserInterface {
 		System.out.println("Bye");
 	}
 
-	private void listComputers() {
+	private void listComputers() throws DatabaseErrorException {
 		List<Computer> computers = dp.getComputers();
 		int pageSize = 10;
 		int currentPage = 0;

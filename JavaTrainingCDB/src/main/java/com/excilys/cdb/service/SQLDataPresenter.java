@@ -25,13 +25,14 @@ public class SQLDataPresenter implements DataPresenter{
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 * @throws DatabaseErrorException 
+	 * @throws ClassNotFoundException 
 	 */
-	public SQLDataPresenter() throws FileNotFoundException, IOException, DatabaseErrorException {
+	public SQLDataPresenter() throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
 		dba = DatabaseAccessor.GetDatabaseAccessor();
 	}
 
 	@Override
-	public List<Computer> getComputers() {
+	public List<Computer> getComputers() throws DatabaseErrorException {
 		List<Computer> result = dba.getAllComputers();
 		return result;
 	}

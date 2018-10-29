@@ -1,8 +1,8 @@
 package com.excilys.cdb.persistence;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -30,17 +30,25 @@ import com.excilys.cdb.model.Computer;
  */
 public class DatabaseAccessor {
 	private static DatabaseAccessor dba = null;
+	private static String propertiesURL = "config.properties";
 	
 	private String URL = null;
 	private String user = null;
 	private String password = null;
-
+	
 	/**
 	 * Tries to connect to database on create
+	 * @throws ClassNotFoundException 
 	 */
-	private DatabaseAccessor() throws FileNotFoundException,IOException, DatabaseErrorException{
+	private DatabaseAccessor() throws FileNotFoundException,IOException, DatabaseErrorException, ClassNotFoundException{
 		Properties prop = new Properties();
-		prop.load(new FileInputStream("config.properties"));
+		Class.forName("com.mysql.cj.jdbc.Driver");
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		InputStream input = classLoader.getResourceAsStream(propertiesURL);
+		if(input == null) {
+			throw new FileNotFoundException();
+		}
+		prop.load(input);
 		URL = prop.getProperty("database");
 		user = prop.getProperty("user");
 		password = prop.getProperty("password");
@@ -51,8 +59,9 @@ public class DatabaseAccessor {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 * @throws DatabaseErrorException 
+	 * @throws ClassNotFoundException 
 	 */
-	public static DatabaseAccessor GetDatabaseAccessor() throws FileNotFoundException, IOException, DatabaseErrorException {
+	public static DatabaseAccessor GetDatabaseAccessor() throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
 		if(dba == null) {
 			dba = new DatabaseAccessor();
 		}
@@ -114,9 +123,10 @@ public class DatabaseAccessor {
 
 	/**
 	 * @return all computers from the database as a ResultSet
+	 * @throws DatabaseErrorException 
 	 * @throws SQLException
 	 */
-	public List<Computer> getAllComputers() {
+	public List<Computer> getAllComputers() throws DatabaseErrorException{
 		List<Computer> computers = new ArrayList<>();
 		Connection con = null;
 		Statement s = null;
@@ -132,9 +142,9 @@ public class DatabaseAccessor {
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DatabaseErrorException("Error occured during data query");
 		} catch (EmptyResultSetException e) {
-			e.printStackTrace();
+			return computers;
 		} finally {
 			try {
 				if (con != null) {

@@ -45,9 +45,10 @@ public class DatabaseAccessorTest {
 	 * @throws IOException
 	 * @throws FileNotFoundException
 	 * @throws DatabaseErrorException
+	 * @throws ClassNotFoundException 
 	 */
 	@Test
-	public void testGetDatabaseAccessor() throws FileNotFoundException, IOException, DatabaseErrorException {
+	public void testGetDatabaseAccessor() throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
 		DatabaseAccessor dba2 = null;
 		dba2 = DatabaseAccessor.GetDatabaseAccessor();
 		assertEquals(dba2, dba);
@@ -55,9 +56,10 @@ public class DatabaseAccessorTest {
 
 	/**
 	 * Tests that the list object is not null
+	 * @throws DatabaseErrorException 
 	 */
 	@Test
-	public void testGetAllComputers() {
+	public void testGetAllComputers() throws DatabaseErrorException {
 		List<Computer> computers = dba.getAllComputers();
 		assertNotNull(computers);
 	}

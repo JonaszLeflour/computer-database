@@ -17,8 +17,9 @@ public class Main {
 	/**
 	 * Creates user interface object
 	 * @param args
+	 * @throws ClassNotFoundException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ClassNotFoundException {
 		DataPresenter dp = null;
 		try {
 			dp = new SQLDataPresenter();

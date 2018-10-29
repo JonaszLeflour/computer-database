@@ -16,8 +16,9 @@ import com.excilys.cdb.persistence.ObjectNotFoundException;
 public interface DataPresenter {
 	/**
 	 * @return all computers
+	 * @throws DatabaseErrorException 
 	 */
-	public List<Computer> getComputers();
+	public List<Computer> getComputers() throws DatabaseErrorException;
 
 	/**
 	 * @param id
