@@ -46,9 +46,7 @@ public class DashboardHttpServlet extends HttpServlet {
 			page = Integer.parseInt(request.getParameter("page").toString());
 		}
 		try {
-			/*if(request.getAttribute("reset") != null) {
-				requestResults = new Pager<DaoComputer>(dao.getAllComputers());
-			}*/if(request.getParameter("search") != null) {
+			if(request.getParameter("search") != null) {
 				requestResults = new Pager<DaoComputer>(dao.getComputersByName(request.getParameter("search").toString()));
 				System.out.println(requestResults.getNbElements());
 			}
@@ -56,8 +54,9 @@ public class DashboardHttpServlet extends HttpServlet {
 			throw new ServletException("Error with database connexion");
 		}
 		request.setAttribute("nbcomputers",requestResults.getNbElements());
-		request.setAttribute("page",requestResults.getPage(page-1));		
-		request.setAttribute("pagesNumber", requestResults.getNumberOfPages());
+		request.setAttribute("page",requestResults.getPage(page-1));
+		request.setAttribute("currentPage",page);
+		request.setAttribute("nbPages", requestResults.getNumberOfPages());
         dispatcher.forward(request, response);
 	}
 
