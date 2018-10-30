@@ -31,6 +31,13 @@ public class Pager<E>{
 	}
 	
 	/**
+	 * @return size of provided list
+	 */
+	public int getNbElements() {
+		return list.size();
+	}
+	
+	/**
 	 * @return Number of pages given the current pageSize
 	 */
 	public int getNumberOfPages() {

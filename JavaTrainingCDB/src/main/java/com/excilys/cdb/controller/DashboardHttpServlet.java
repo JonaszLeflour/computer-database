@@ -1,6 +1,5 @@
 package com.excilys.cdb.controller;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.servlet.RequestDispatcher;
@@ -23,35 +22,45 @@ public class DashboardHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     private DaoProvider dao;
     private Pager<DaoComputer> requestResults;
-	
     
-    
-    /**
-     * @throws DatabaseErrorException 
-     * @throws IOException 
-     * @throws FileNotFoundException 
-     * @throws ClassNotFoundException 
-     * @see HttpServlet#HttpServlet()
-     */
-    public DashboardHttpServlet() throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
-        super();
-		dao = new CachedDaoProvider();
-        requestResults = new Pager<DaoComputer>(dao.getAllComputers());
+    @Override
+    public void init() throws ServletException {
+    	super.init();
+    	try {
+			dao = new CachedDaoProvider();
+			requestResults = new Pager<DaoComputer>(dao.getAllComputers());
+		} catch (ClassNotFoundException | IOException | DatabaseErrorException e) {
+			throw new ServletException(e.toString()); 
+		}
+        
     }
-
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		int page = 1;
-		
 		RequestDispatcher dispatcher = getServletContext()
                 .getRequestDispatcher("/WEB-INF/views/dashboard.jsp");
+		
 		if(request.getAttribute("page") != null) {
 			page = Integer.parseInt(request.getAttribute("page").toString());
 		}
-		request.setAttribute("page",requestResults.getPage(page));
-		request.setAttribute("maxpages", requestResults.getNumberOfPages());
+		try {
+			/*if(request.getAttribute("reset") != null) {
+				requestResults = new Pager<DaoComputer>(dao.getAllComputers());
+			}*/if(request.getAttribute("search") != null) {
+				requestResults = new Pager<DaoComputer>(dao.getComputersByName(request.getAttribute("search").toString()));
+				System.out.println(requestResults.getNbElements());
+			}
+		} catch (DatabaseErrorException e) {
+			throw new ServletException("Error with database connexion");
+		}
+		request.setAttribute("nbcomputers",requestResults.getNbElements());
+		request.setAttribute("page",requestResults.getPage(page));		
+		request.setAttribute("pagesNumber", requestResults.getNumberOfPages());
+		response.setDateHeader("Expires", 0);
+		response.setHeader("Cache-control", "no-store, no-cache, must-revalidate");
+		response.setHeader("Pragma", "no-cache");
         dispatcher.forward(request, response);
 	}
 

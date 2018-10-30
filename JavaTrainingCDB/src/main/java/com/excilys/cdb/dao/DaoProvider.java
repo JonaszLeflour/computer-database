@@ -36,4 +36,10 @@ public interface DaoProvider {
 	 * @throws DatabaseErrorException 
 	 */
 	public void addComputer(Computer c) throws DatabaseErrorException, InvalidParameterException;
+	
+	/**
+	 * @return all companies in database
+	 * @throws DatabaseErrorException
+	 */
+	public List<DaoCompany> getAllCompanies() throws DatabaseErrorException;
 }

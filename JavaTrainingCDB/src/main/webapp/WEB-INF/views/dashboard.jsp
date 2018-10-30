@@ -21,18 +21,18 @@
 <body>
     <header class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="/dashboard"> Application - Computer Database </a>
+            <a class="navbar-brand" href="dashboard"> Application - Computer Database </a>
         </div>
     </header>
 
     <section id="main">
         <div class="container">
             <h1 id="homeTitle">
-                121 Computers found
+                ${nbcomputers} Computer(s) found
             </h1>
             <div id="actions" class="form-horizontal">
                 <div class="pull-left">
-                    <form id="searchForm" action="#" method="GET" class="form-inline">
+                    <form id="searchForm" action="dashboard" method="GET" class="form-inline">
 
                         <input type="search" id="searchbox" name="search" class="form-control" placeholder="Search name" />
                         <input type="submit" id="searchsubmit" value="Filter by name"
@@ -90,7 +90,7 @@
                             <input type="checkbox" name="cb" class="cb" value="0">
                         </td>
                         <td>
-                            <a href='/editcomputer?id=${param["computerResult.id"]}' onclick="">${computerResult.name}</a>
+                            <a href='editcomputer?id=${param["computerResult.id"]}' onclick="">${computerResult.name}</a>
                         </td>
                         <td>${computerResult.introduced}</td>
                         <td>${computerResult.discontinued}</td>

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.InvalidParameterException;
@@ -41,6 +42,14 @@ public class CachedDaoProvider implements DaoProvider{
 		daoC.setCompany(c.getCompany()!=null ? c.getCompany().getName().toString() : "");
 		return daoC;
 	}
+	
+	private DaoCompany companytoDaoCompany(Company c) {
+		DaoCompany daoC = new DaoCompany();
+		daoC.setId(String.valueOf(c.getId()));
+		daoC.setName(c.getName()!=null ? c.getName() : "");
+		return daoC;
+	}
+	
 	private void reloadAllComputers() throws DatabaseErrorException {
 		allComputers.clear();
 		for(Computer c :dp.getComputers()) {
@@ -95,6 +104,15 @@ public class CachedDaoProvider implements DaoProvider{
 	 */
 	public void updateCache() {
 		obsoleteData = true;
+	}
+
+	@Override
+	public List<DaoCompany> getAllCompanies() throws DatabaseErrorException {
+		List<DaoCompany> result = new ArrayList<>();
+		for(Company c : this.dp.getCompanies()) {
+			result.add(this.companytoDaoCompany(c));
+		}
+		return result;
 	}
 	
 
