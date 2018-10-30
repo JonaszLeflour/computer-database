@@ -90,7 +90,7 @@
                             <input type="checkbox" name="cb" class="cb" value="0">
                         </td>
                         <td>
-                            <a href='editcomputer?id=${param["computerResult.id"]}' onclick="">${computerResult.name}</a>
+                            <a href='editcomputer?id=${computerResult.id}'>${computerResult.name}</a>
                         </td>
                         <td>${computerResult.introduced}</td>
                         <td>${computerResult.discontinued}</td>

@@ -16,6 +16,8 @@ import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.InvalidParameterException;
+import com.excilys.cdb.service.DataPresenter;
+import com.excilys.cdb.service.SQLDataPresenter;
 
 /**
  * Servlet implementation class AddComputerHttpServlet
@@ -23,13 +25,14 @@ import com.excilys.cdb.persistence.InvalidParameterException;
 @WebServlet("/addcomputer")
 public class AddComputerHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+	private DataPresenter dp;
 	private DaoProvider dao;
 	
     @Override
     public void init() throws ServletException {
     	super.init();
     	try {
+			dp = new SQLDataPresenter();
 			dao = new CachedDaoProvider();
 		} catch (ClassNotFoundException | IOException | DatabaseErrorException e) {
 			throw new ServletException(e.toString()); 
@@ -42,15 +45,13 @@ public class AddComputerHttpServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		RequestDispatcher dispatcher = getServletContext()
-                .getRequestDispatcher("/WEB-INF/views/addComputer.jsp");
+				.getRequestDispatcher("/WEB-INF/views/addComputer.jsp");
+		
 		try {
 			request.setAttribute("companies", dao.getAllCompanies());
 		} catch (DatabaseErrorException e) {
 			throw new ServletException(e);
 		}
-		
-		
-		
         dispatcher.forward(request, response);
 	}
 
@@ -78,7 +79,7 @@ public class AddComputerHttpServlet extends HttpServlet {
 			newComputer.setCompany(new Company(companyId,""));
 		}
 		try {
-			dao.addComputer(newComputer);
+			dp.addComputer(newComputer);
 			request.setAttribute("RequestStatus","Ok");
 		} catch (DatabaseErrorException e) {
 			request.setAttribute("RequestStatus",e.toString());
