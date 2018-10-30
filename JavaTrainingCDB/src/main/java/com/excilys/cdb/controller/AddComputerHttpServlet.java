@@ -62,16 +62,17 @@ public class AddComputerHttpServlet extends HttpServlet {
 		
 		Computer newComputer = new Computer();
 		
-		if(request.getParameter("computername") != null) {
+		if(request.getParameter("computername") != null && !request.getParameter("computername").isEmpty()) {
 			newComputer.setName(request.getParameter("computername").toString());
 		}
-		if(request.getParameter("introduced") != null) {
+		if(request.getParameter("introduced") != null && !request.getParameter("introduced").isEmpty()) {
 			newComputer.setIntroduced(LocalDate.parse(request.getParameter("introduced").toString()));
 		}
-		if(request.getParameter("discontinued") != null) {
+		if(request.getParameter("discontinued") != null && !request.getParameter("discontinued").isEmpty()) {
 			newComputer.setDiscontinued(LocalDate.parse(request.getParameter("discontinued").toString()));
 		}
 		if(request.getParameter("companyId") != null 
+				&& !request.getParameter("companyId").isEmpty()
 				&& Integer.parseInt(request.getParameter("companyId").toString())>0 ){
 			long companyId =Integer.parseInt(request.getParameter("companyId").toString());
 			newComputer.setCompany(new Company(companyId,""));

@@ -28,8 +28,9 @@
             <div class="row">
                 <div class="col-xs-8 col-xs-offset-2 box">
                     <h1>Add Computer</h1>
-                    <form action="addcomputer" method="POST">
+                    <form action="addcomputer" method="POST" id="form">
                         <fieldset>
+                        
                             <div class="form-group">
                                 <label for="computerName">Computer name</label>
                                 <input type="text" class="form-control" name="computername" id="computername" placeholder="Computer name">
@@ -54,13 +55,43 @@
                         </fieldset>
                         <div class="actions pull-right">
                             <input type="submit" value="Add" class="btn btn-primary">
-                            or
-                            <a href="/dashboard" class="btn btn-default">Cancel</a>
+                            or 
+                            <a href="dashboard" class="btn btn-default">Cancel</a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </section>
+    <script type="text/javascript" >
+	    <c:import url="/WEB-INF/js/jquery.min.js"/>
+	    <c:import url="/WEB-INF/js/bootstrap.min.js"/>
+	    <c:import url="/WEB-INF/js/dashboard.js"/>
+	    <c:import url="/WEB-INF/js/validation.js"/>
+	    
+	    $.validator.addMethod("dateValid", function(value, element, params) {
+	    	if(value === '' || $(params).val() === ''){
+	    		return true
+	    	}
+	    	
+	    	if (!/Invalid|NaN/.test(new Date(value))) {
+	    		return new Date(value) > new Date($(params).val());
+	    	}
+	     	return isNaN(value) && isNaN($(params).val())
+	    			|| (Number(value) > Number($(params).val()));
+	    }, 'Erreur de saisie');
+	    
+	    $(document).ready(function(){
+			$("#form").validate({
+				rules: {
+					computername: {required: true},
+					discontinued: { dateValid: "#introduced",required : false }
+				},
+				messages: {
+						name: "Required Field"
+					}
+				});
+			});
+    </script>
 </body>
 </html>

@@ -130,9 +130,15 @@
         </div>
     </footer>
     
-<script><jsp:include page="/WEB-INF/js/jquery.min.js"/></script>
-<script><jsp:include page="/WEB-INF/js/bootstrap.min.js"/></script>
-<script><jsp:include page="/WEB-INF/js/dashboard.js"/></script>
+<script type="text/javascript" >
+	<jsp:include page="/WEB-INF/js/jquery.min.js"/>
+</script>
+<script type="text/javascript" >
+	<jsp:include page="/WEB-INF/js/bootstrap.min.js"/>
+</script>
+<script type="text/javascript" >
+	<jsp:include page="/WEB-INF/js/dashboard.js"/>
+</script>
 
 </body>
 </html>

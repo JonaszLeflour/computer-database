@@ -82,5 +82,18 @@
 			<artifactId>standard</artifactId>
 			<version>1.1.2</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.webjars/jquery -->
+		<dependency>
+		    <groupId>org.webjars</groupId>
+		    <artifactId>jquery</artifactId>
+		    <version>3.3.1-1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.webjars/jquery-validation -->
+		<dependency>
+		    <groupId>org.webjars</groupId>
+		    <artifactId>jquery-validation</artifactId>
+		    <version>1.15.1</version>
+		</dependency>
+		
 	</dependencies>
 </project>
