@@ -51,7 +51,7 @@ public class Pager<E>{
 	 * @return sublist sublist of page currentPage for pages of size pageSize 
 	 */
 	public List<E> getPage(int currentPage){
-		int start = currentPage * pageSize;
+		int start = Math.max(Math.min(currentPage * pageSize,list.size()),0);
 		int end = Math.min((currentPage + 1) * pageSize, list.size());
 		return list.subList(start, end);
 	}

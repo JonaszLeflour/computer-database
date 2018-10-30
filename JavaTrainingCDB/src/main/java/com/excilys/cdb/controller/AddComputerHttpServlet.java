@@ -62,18 +62,18 @@ public class AddComputerHttpServlet extends HttpServlet {
 		
 		Computer newComputer = new Computer();
 		
-		if(request.getAttribute("computername") != null) {
-			newComputer.setName(request.getAttribute("computername").toString());
+		if(request.getParameter("computername") != null) {
+			newComputer.setName(request.getParameter("computername").toString());
 		}
-		if(request.getAttribute("introduced") != null) {
-			newComputer.setIntroduced(LocalDate.parse(request.getAttribute("introduced").toString()));
+		if(request.getParameter("introduced") != null) {
+			newComputer.setIntroduced(LocalDate.parse(request.getParameter("introduced").toString()));
 		}
-		if(request.getAttribute("discontinued") != null) {
-			newComputer.setDiscontinued(LocalDate.parse(request.getAttribute("discontinued").toString()));
+		if(request.getParameter("discontinued") != null) {
+			newComputer.setDiscontinued(LocalDate.parse(request.getParameter("discontinued").toString()));
 		}
-		if(request.getAttribute("companyId") != null 
-				&& Integer.parseInt(request.getAttribute("companyId").toString())>0 ){
-			long companyId =Integer.parseInt(request.getAttribute("companyId").toString());
+		if(request.getParameter("companyId") != null 
+				&& Integer.parseInt(request.getParameter("companyId").toString())>0 ){
+			long companyId =Integer.parseInt(request.getParameter("companyId").toString());
 			newComputer.setCompany(new Company(companyId,""));
 		}
 		try {

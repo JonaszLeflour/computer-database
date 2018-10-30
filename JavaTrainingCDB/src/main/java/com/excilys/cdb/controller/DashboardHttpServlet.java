@@ -42,25 +42,22 @@ public class DashboardHttpServlet extends HttpServlet {
 		RequestDispatcher dispatcher = getServletContext()
                 .getRequestDispatcher("/WEB-INF/views/dashboard.jsp");
 		
-		if(request.getAttribute("page") != null) {
-			page = Integer.parseInt(request.getAttribute("page").toString());
+		if(request.getParameter("page") != null) {
+			page = Integer.parseInt(request.getParameter("page").toString());
 		}
 		try {
 			/*if(request.getAttribute("reset") != null) {
 				requestResults = new Pager<DaoComputer>(dao.getAllComputers());
-			}*/if(request.getAttribute("search") != null) {
-				requestResults = new Pager<DaoComputer>(dao.getComputersByName(request.getAttribute("search").toString()));
+			}*/if(request.getParameter("search") != null) {
+				requestResults = new Pager<DaoComputer>(dao.getComputersByName(request.getParameter("search").toString()));
 				System.out.println(requestResults.getNbElements());
 			}
 		} catch (DatabaseErrorException e) {
 			throw new ServletException("Error with database connexion");
 		}
 		request.setAttribute("nbcomputers",requestResults.getNbElements());
-		request.setAttribute("page",requestResults.getPage(page));		
+		request.setAttribute("page",requestResults.getPage(page-1));		
 		request.setAttribute("pagesNumber", requestResults.getNumberOfPages());
-		response.setDateHeader("Expires", 0);
-		response.setHeader("Cache-control", "no-store, no-cache, must-revalidate");
-		response.setHeader("Pragma", "no-cache");
         dispatcher.forward(request, response);
 	}
 
