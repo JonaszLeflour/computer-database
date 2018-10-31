@@ -1,10 +1,10 @@
-package com.excilys.cdb.dao;
+package com.excilys.cdb.dto;
 
 /**
  * @author JOnasz Leflour
  *
  */
-public class DaoCompany {
+public class DTOCompany {
 	private String name;
 	private String id;
 	/**

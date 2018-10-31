@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.excilys.cdb.dao.CachedDaoProvider;
-import com.excilys.cdb.dao.DaoComputer;
-import com.excilys.cdb.dao.DaoProvider;
+import com.excilys.cdb.dto.CachedDTOProvider;
+import com.excilys.cdb.dto.DTOComputer;
+import com.excilys.cdb.dto.DTOProvider;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 
 /**
@@ -20,15 +20,15 @@ import com.excilys.cdb.persistence.DatabaseErrorException;
 @WebServlet("/dashboard")
 public class DashboardHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-    private DaoProvider dao;
-    private Pager<DaoComputer> requestResults;
+    private DTOProvider dto;
+    private Pager<DTOComputer> requestResults;
     
     @Override
     public void init() throws ServletException {
     	super.init();
     	try {
-			dao = new CachedDaoProvider();
-			requestResults = new Pager<DaoComputer>(dao.getAllComputers());
+			dto = new CachedDTOProvider();
+			requestResults = new Pager<DTOComputer>(dto.getAllComputers());
 		} catch (ClassNotFoundException | IOException | DatabaseErrorException e) {
 			throw new ServletException(e.toString()); 
 		}
@@ -39,6 +39,7 @@ public class DashboardHttpServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		int page = 1;
+		((CachedDTOProvider)dto).updateCache();
 		RequestDispatcher dispatcher = getServletContext()
                 .getRequestDispatcher("/WEB-INF/views/dashboard.jsp");
 		
@@ -47,7 +48,7 @@ public class DashboardHttpServlet extends HttpServlet {
 		}
 		try {
 			if(request.getParameter("search") != null) {
-				requestResults = new Pager<DaoComputer>(dao.getComputersByName(request.getParameter("search").toString()));
+				requestResults = new Pager<DTOComputer>(dto.getComputersByName(request.getParameter("search").toString()));
 				System.out.println(requestResults.getNbElements());
 			}
 		} catch (DatabaseErrorException e) {

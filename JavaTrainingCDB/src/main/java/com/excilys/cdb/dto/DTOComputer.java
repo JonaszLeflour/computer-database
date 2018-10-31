@@ -1,10 +1,10 @@
-package com.excilys.cdb.dao;
+package com.excilys.cdb.dto;
 
 /**
  * @author Jonasz Leflour
  * 
  */
-public class DaoComputer {
+public class DTOComputer {
 	private String id ="";
 	private String name ="";
 	private String introduced="";
@@ -14,7 +14,7 @@ public class DaoComputer {
 	/**
 	 * 
 	 */
-	public DaoComputer() {
+	public DTOComputer() {
 	}
 
 	/**

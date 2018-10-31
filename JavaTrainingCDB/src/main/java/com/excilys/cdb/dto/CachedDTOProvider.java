@@ -1,4 +1,4 @@
-package com.excilys.cdb.dao;
+package com.excilys.cdb.dto;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,9 +16,9 @@ import com.excilys.cdb.service.SQLDataPresenter;
  * @author Jonasz Leflour
  *
  */
-public class CachedDaoProvider implements DaoProvider{
+public class CachedDTOProvider implements DTOProvider{
 	DataPresenter dp = null;
-	List<DaoComputer> allComputers = new ArrayList<DaoComputer>();
+	List<DTOComputer> allComputers = new ArrayList<DTOComputer>();
 	boolean obsoleteData = true;
 	
 	
@@ -29,12 +29,12 @@ public class CachedDaoProvider implements DaoProvider{
 	 * @throws ClassNotFoundException 
 	 * 
 	 */
-	public CachedDaoProvider() throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
+	public CachedDTOProvider() throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
 		dp = new SQLDataPresenter();
 	}
 	
-	private DaoComputer computertoDaoComputer(Computer c) {
-		DaoComputer daoC = new DaoComputer();
+	private DTOComputer computertoDaoComputer(Computer c) {
+		DTOComputer daoC = new DTOComputer();
 		daoC.setId(String.valueOf(c.getId()));
 		daoC.setName(c.getName()!=null ? c.getName() : "");
 		daoC.setIntroduced(c.getIntroduced()!=null ? c.getIntroduced().toString() : "");
@@ -43,8 +43,8 @@ public class CachedDaoProvider implements DaoProvider{
 		return daoC;
 	}
 	
-	private DaoCompany companytoDaoCompany(Company c) {
-		DaoCompany daoC = new DaoCompany();
+	private DTOCompany companytoDaoCompany(Company c) {
+		DTOCompany daoC = new DTOCompany();
 		daoC.setId(String.valueOf(c.getId()));
 		daoC.setName(c.getName()!=null ? c.getName() : "");
 		return daoC;
@@ -58,7 +58,7 @@ public class CachedDaoProvider implements DaoProvider{
 		obsoleteData = false;
 	}
 	
-	public List<DaoComputer> getAllComputers() throws DatabaseErrorException{
+	public List<DTOComputer> getAllComputers() throws DatabaseErrorException{
 		reloadAllComputers();
 		return allComputers;
 	}
@@ -70,15 +70,15 @@ public class CachedDaoProvider implements DaoProvider{
 	 */
 
 	@Override
-	public List<DaoComputer> getComputersByName(String nameFilter) throws DatabaseErrorException{
-		List<DaoComputer> resultsByName = new ArrayList<DaoComputer>();
+	public List<DTOComputer> getComputersByName(String nameFilter) throws DatabaseErrorException{
+		List<DTOComputer> resultsByName = new ArrayList<DTOComputer>();
 		if(obsoleteData) {
 			List<Computer> result = dp.getComputersByName(nameFilter);
 			for(Computer c : result) {
 				resultsByName.add(this.computertoDaoComputer(c));
 			}
 		}else {
-			for(DaoComputer c : allComputers) {
+			for(DTOComputer c : allComputers) {
 				if(nameFilter.equals(c.getName())) {
 					resultsByName.add(c);
 				}
@@ -107,8 +107,8 @@ public class CachedDaoProvider implements DaoProvider{
 	}
 
 	@Override
-	public List<DaoCompany> getAllCompanies() throws DatabaseErrorException {
-		List<DaoCompany> result = new ArrayList<>();
+	public List<DTOCompany> getAllCompanies() throws DatabaseErrorException {
+		List<DTOCompany> result = new ArrayList<>();
 		for(Company c : this.dp.getCompanies()) {
 			result.add(this.companytoDaoCompany(c));
 		}

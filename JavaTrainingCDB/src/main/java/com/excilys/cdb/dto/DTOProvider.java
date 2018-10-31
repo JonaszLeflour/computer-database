@@ -1,4 +1,4 @@
-package com.excilys.cdb.dao;
+package com.excilys.cdb.dto;
 
 import java.util.List;
 
@@ -10,18 +10,18 @@ import com.excilys.cdb.persistence.InvalidParameterException;
  * @author JonaszLeflour
  *
  */
-public interface DaoProvider {
+public interface DTOProvider {
 	/**
 	 * @return all computers in database
 	 * @throws DatabaseErrorException 
 	 */
-	public List<DaoComputer> getAllComputers() throws DatabaseErrorException;
+	public List<DTOComputer> getAllComputers() throws DatabaseErrorException;
 	/**
 	 * @param nameFilter
 	 * @return all computers matching filter
 	 * @throws DatabaseErrorException 
 	 */
-	public List<DaoComputer> getComputersByName(String nameFilter) throws DatabaseErrorException;
+	public List<DTOComputer> getComputersByName(String nameFilter) throws DatabaseErrorException;
 	
 	/**
 	 * @param c updated computer
@@ -41,5 +41,5 @@ public interface DaoProvider {
 	 * @return all companies in database
 	 * @throws DatabaseErrorException
 	 */
-	public List<DaoCompany> getAllCompanies() throws DatabaseErrorException;
+	public List<DTOCompany> getAllCompanies() throws DatabaseErrorException;
 }

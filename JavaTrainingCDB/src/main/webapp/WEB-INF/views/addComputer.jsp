@@ -63,12 +63,11 @@
             </div>
         </div>
     </section>
+    <script type="text/javascript" src='<c:url value="/js/jquery.min.js"/>'></script>
+    <script type="text/javascript" src='<c:url value="/js/bootstrap.min.js"/>'></script>
+    <script type="text/javascript" src='<c:url value="/js/dashboard.js"/>'></script>
+    <script type="text/javascript" src='<c:url value="/js/validation.js"/>'></script>
     <script type="text/javascript" >
-	    <c:import url="/WEB-INF/js/jquery.min.js"/>
-	    <c:import url="/WEB-INF/js/bootstrap.min.js"/>
-	    <c:import url="/WEB-INF/js/dashboard.js"/>
-	    <c:import url="/WEB-INF/js/validation.js"/>
-	    
 	    $.validator.addMethod("dateValid", function(value, element, params) {
 	    	if(value === '' || $(params).val() === ''){
 	    		return true
