@@ -8,6 +8,23 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>computer-database</name>
 	<description>JEE training project</description>
+	
+	<properties>
+		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+		<maven-compiler-plugin.configuration.source>1.8</maven-compiler-plugin.configuration.source>
+		<maven-compiler-plugin.configuration.target>1.8</maven-compiler-plugin.configuration.target>
+		<maven-war-plugin.version>3.2.2</maven-war-plugin.version>
+		
+		<junit.version>4.12</junit.version>
+		<mockito-all.version>1.9.5</mockito-all.version>
+		<slf4j-nop.version>1.7.25</slf4j-nop.version>
+		<mysql-connector-java.version>8.0.13</mysql-connector-java.version>
+		<javax.servlet-api.version>3.1.0</javax.servlet-api.version>
+		<jstl.version>1.2</jstl.version>
+		<standard.version>1.1.2</standard.version>
+	</properties>
+	
+	
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<testSourceDirectory>src/test/java </testSourceDirectory>
@@ -24,16 +41,16 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
+				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>${maven-compiler-plugin.configuration.source}</source>
+					<target>${maven-compiler-plugin.configuration.target}</target>
 				</configuration>
 			</plugin>
 			<plugin>
 	        <groupId>org.apache.maven.plugins</groupId>
 	        <artifactId>maven-war-plugin</artifactId>
-	        <version>3.2.2</version>
+	        <version>${maven-war-plugin.version}</version>
 	        <configuration>
 		        <archive>
 	            	<manifestFile>src/main/webapp/META-INF/MANIFEST.MF</manifestFile>
@@ -46,41 +63,41 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
-			<version>1.9.5</version>
+			<version>${mockito-all.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-nop</artifactId>
-			<version>1.7.25</version>
+			<version>${slf4j-nop.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.13</version>
+			<version>${mysql-connector-java.version}</version>
 		</dependency>
 		<dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
+            <version>${javax.servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jstl</groupId>
             <artifactId>jstl</artifactId>
-            <version>1.2</version>
+            <version>${jstl.version}</version>
         </dependency>
         <dependency>
 			<groupId>taglibs</groupId>
 			<artifactId>standard</artifactId>
-			<version>1.1.2</version>
+			<version>${standard.version}</version>
 		</dependency>
 	</dependencies>
 </project>
