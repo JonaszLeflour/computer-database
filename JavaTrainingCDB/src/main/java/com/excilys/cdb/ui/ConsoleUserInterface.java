@@ -381,6 +381,9 @@ public final class ConsoleUserInterface implements UserInterface {
 			System.out.println("Invalid parameters, couldn't update computer with id="+computer.getId()+" with new values");
 		} catch (DatabaseErrorException e) {
 			System.out.println("Error in database, couldn't update");
+		} catch (ObjectNotFoundException e) {
+			System.out.println("Couldn't find computer with this id");
+			e.printStackTrace();
 		}
 	}
 

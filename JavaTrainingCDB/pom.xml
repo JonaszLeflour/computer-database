@@ -22,6 +22,7 @@
 		<javax.servlet-api.version>3.1.0</javax.servlet-api.version>
 		<jstl.version>1.2</jstl.version>
 		<standard.version>1.1.2</standard.version>
+		<log4j.version>2.11.1</log4j.version>
 	</properties>
 	
 	
@@ -98,6 +99,12 @@
 			<groupId>taglibs</groupId>
 			<artifactId>standard</artifactId>
 			<version>${standard.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.logging.log4j</groupId>
+		  <artifactId>log4j</artifactId>
+		  <version>${log4j.version}</version>
+		  <type>pom</type>
 		</dependency>
 	</dependencies>
 </project>

@@ -49,7 +49,6 @@ public class DashboardHttpServlet extends HttpServlet {
 		try {
 			if(request.getParameter("search") != null) {
 				requestResults = new Pager<DTOComputer>(dto.getComputersByName(request.getParameter("search").toString()));
-				System.out.println(requestResults.getNbElements());
 			}
 		} catch (DatabaseErrorException e) {
 			throw new ServletException("Error with database connexion");

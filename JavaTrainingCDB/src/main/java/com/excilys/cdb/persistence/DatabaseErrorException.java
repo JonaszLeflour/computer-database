@@ -1,5 +1,7 @@
 package com.excilys.cdb.persistence;
 
+import java.sql.SQLException;
+
 /**
  * @author JonaszLeflour
  *
@@ -17,5 +19,11 @@ public class DatabaseErrorException extends Exception {
 	 */
 	public DatabaseErrorException(String string) {
 		super(string);
+	}
+	/**
+	 * @param e
+	 */
+	public DatabaseErrorException(SQLException e) {
+		super(e);
 	}
 }

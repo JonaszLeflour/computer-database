@@ -135,14 +135,14 @@ public class DatabaseAccessor {
 		try {
 			con = DriverManager.getConnection(URL, user, password);
 			s = con.createStatement();
-			rs = s.executeQuery("SELECT * FROM computer");
+			rs = s.executeQuery("SELECT id, name, introduced, discontinued, company_id FROM computer");
 
 			while (rs.next()) {
 				computers.add(this.createComputerWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
-			throw new DatabaseErrorException("Error occured during data query");
+			throw new DatabaseErrorException(e);
 		} catch (EmptyResultSetException e) {
 			return computers;
 		} finally {
@@ -177,7 +177,7 @@ public class DatabaseAccessor {
 		try {
 			con = DriverManager.getConnection(URL, user, password);
 			s = con.createStatement();
-			rs = s.executeQuery("SELECT * FROM company");
+			rs = s.executeQuery("SELECT id, name FROM company");
 
 			while (rs.next()) {
 				companies.add(this.createCompanyWithResultSetRow(rs));
@@ -219,7 +219,7 @@ public class DatabaseAccessor {
 		try {
 			con = DriverManager.getConnection(URL, user, password);
 			s = con.createStatement();
-			rs = s.executeQuery("SELECT * FROM company WHERE id=" + id);
+			rs = s.executeQuery("SELECT id, name FROM company WHERE id=" + id);
 			rs.next();
 			company = this.createCompanyWithResultSetRow(rs);
 		} catch (SQLException e) {
@@ -257,17 +257,17 @@ public class DatabaseAccessor {
 		PreparedStatement s = null;
 		ResultSet rs = null;
 
-		try {
+		try {//id name intro disc idcomp
 			con = DriverManager.getConnection(URL, user, password);
-			s = con.prepareStatement("SELECT * FROM computer WHERE id=?");
+			s = con.prepareStatement("SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id=?");
 			s.setLong(1, id);
 			rs = s.executeQuery();
 			rs.next();
 			computer = this.createComputerWithResultSetRow(rs);
 		} catch (SQLException e) {
-			throw new ObjectNotFoundException();
+			throw new DatabaseErrorException(e);
 		} catch (EmptyResultSetException e) {
-			throw new ObjectNotFoundException();
+			throw new ObjectNotFoundException("Couldn't find computer with id="+id);
 		} finally {
 			try {
 				if (con != null) {
@@ -302,8 +302,8 @@ public class DatabaseAccessor {
 
 		try {
 			con = DriverManager.getConnection(URL, user, password);
-			s = con.prepareStatement("SELECT * FROM computer WHERE name=?");
-			s.setString(1, name);
+			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE c.name LIKE ?");
+			s.setString(1, "%"+name+"%");
 
 			rs = s.executeQuery();
 
@@ -311,9 +311,12 @@ public class DatabaseAccessor {
 				computers.add(this.createComputerWithResultSetRow(rs));
 			}
 
-		} catch (SQLException | EmptyResultSetException e) {
-			throw new DatabaseErrorException(); 
-		}finally {
+		} catch (SQLException e) {
+			throw new DatabaseErrorException(e); 
+		} catch(EmptyResultSetException e) {
+			computers.clear();
+		}
+		finally {
 			try {
 				if (con != null) {
 					con.close();
@@ -467,11 +470,12 @@ public class DatabaseAccessor {
 
 	/**
 	 * @param computer to update
+	 * @throws ObjectNotFoundException 
 	 * @throws InvalidParameterException if no updated fields or field "name" is
 	 *                                   left blank
 	 * @throws DatabaseErrorException 
 	 */
-	public void updateComputer(Computer computer) throws InvalidParameterException,DatabaseErrorException {
+	public void updateComputer(Computer computer) throws InvalidParameterException,ObjectNotFoundException,DatabaseErrorException {
 		if (computer == null) {
 			throw new InvalidParameterException("Computer object is null");
 		}else if(computer.getName()!=null && computer.getName().isEmpty()) {
@@ -482,11 +486,7 @@ public class DatabaseAccessor {
 			throw new InvalidParameterException("Computer id isn't provided");
 		}
 		Computer oldComputer = null;
-		try {
-			oldComputer = getComputerById(computer.getId());
-		} catch (ObjectNotFoundException e1) {
-			throw new InvalidParameterException("Computer id doesn't exist in database");
-		}
+		oldComputer = getComputerById(computer.getId());
 		LocalDate newIntroduced = computer.getIntroduced();
 		LocalDate newDiscontinued = computer.getDiscontinued();
 		if(newIntroduced == null) {

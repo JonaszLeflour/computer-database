@@ -98,7 +98,7 @@ public class EditComputerHttpServlet extends HttpServlet {
 		}
 		try {
 			dp.updateComputer(newComputer);
-		} catch (DatabaseErrorException | InvalidParameterException e) {
+		} catch (ObjectNotFoundException |DatabaseErrorException | InvalidParameterException e) {
 			throw new ServletException(e);
 		}
 		response.sendRedirect("dashboard");

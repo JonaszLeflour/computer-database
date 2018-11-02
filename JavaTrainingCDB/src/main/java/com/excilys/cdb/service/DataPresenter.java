@@ -54,8 +54,9 @@ public interface DataPresenter {
 	 * @param computer computer to update with new values
 	 * @throws InvalidParameterException 
 	 * @throws DatabaseErrorException 
+	 * @throws ObjectNotFoundException 
 	 */
-	public void updateComputer(Computer computer) throws InvalidParameterException, DatabaseErrorException;
+	public void updateComputer(Computer computer) throws InvalidParameterException, DatabaseErrorException, ObjectNotFoundException;
 
 	/**
 	 * @param computer data of the computer to add
