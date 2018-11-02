@@ -144,6 +144,51 @@ public class DatabaseAccessor {
 		} catch (SQLException e) {
 			throw new DatabaseErrorException(e);
 		} catch (EmptyResultSetException e) {
+			computers.clear();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return computers;
+	}
+	
+	/**
+	 * @param offset 
+	 * @param lenght max size of the array (less if no more computers in database)
+	 * @return array of lenght or less computers
+	 * @throws DatabaseErrorException
+	 */
+	public List<Computer> getAllComputers(long offset, long lenght) throws DatabaseErrorException{
+		List<Computer> computers = new ArrayList<>();
+		Connection con = null;
+		PreparedStatement s = null;
+		ResultSet rs = null;
+
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			s = con.prepareStatement("SELECT id, name, introduced, discontinued, company_id FROM computer LIMIT ?, ?");
+			s.setLong(1, offset);
+			s.setLong(2, lenght);
+			rs = s.executeQuery();
+
+			while (rs.next()) {
+				computers.add(this.createComputerWithResultSetRow(rs));
+			}
+
+		} catch (SQLException e) {
+			throw new DatabaseErrorException(e);
+		} catch (EmptyResultSetException e) {
 			return computers;
 		} finally {
 			try {
@@ -333,6 +378,23 @@ public class DatabaseAccessor {
 		}
 		return computers;
 	}
+	
+	/**
+	 * @return number of computers in database
+	 * @throws DatabaseErrorException
+	 */
+	public long countComputers() throws DatabaseErrorException {
+		try {
+			Connection con = DriverManager.getConnection(URL, user, password);
+			ResultSet res = con.createStatement().executeQuery("SELECT COUNT(id) FROM computer");
+			res.next();
+			return res.getLong(1);
+		} catch (SQLException e) {
+			throw new DatabaseErrorException(e);
+		}
+	}
+	
+	
 
 	/**
 	 * @param computer
