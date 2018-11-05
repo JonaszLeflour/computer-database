@@ -26,7 +26,7 @@ public class Computer implements Serializable {
 	 * @return true if this equals c, false if not
 	 */
 	//constructor from database
-	public boolean equals(Computer c) {
+	public boolean sameAs(Computer c) {
 		if(c == null) {
 			return false;
 		}
@@ -254,6 +254,13 @@ public class Computer implements Serializable {
 			return this;
 		}
 		
+	}
+	
+	/**
+	 * @return building object that can be used to create computer objects
+	 */
+	public static Builder getBuilder() {
+		return new Builder();
 	}
 
 	

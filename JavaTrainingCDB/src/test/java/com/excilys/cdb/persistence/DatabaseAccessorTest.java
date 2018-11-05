@@ -99,6 +99,40 @@ public class DatabaseAccessorTest {
 		assertTrue(dba.countComputers()>0);
 	}
 	
+	/**
+	 * @throws DatabaseErrorException
+	 */
+	@Test
+	public void testCountComputersByName() throws DatabaseErrorException{
+		assertTrue(dba.countComputersByName("mac")>0);
+		assertEquals(0,dba.countComputersByName("This computer shouldn't be in the database"));
+	}
+	
+	/**
+	 * @throws DatabaseErrorException
+	 */
+	@Test
+	public void testGetComputersByName2() throws DatabaseErrorException{
+		boolean expectedFailure1 = false;
+		boolean expectedFailure2 = false;
+		
+		List<Computer> computers = dba.getComputersByName("mac",0,10);
+		try {
+			computers = dba.getAllComputers(-10,0);
+		} catch (DatabaseErrorException e) {
+			expectedFailure1 = true;
+		}
+		
+		try {
+			computers = dba.getAllComputers(0,-10);
+		} catch (DatabaseErrorException e) {
+			expectedFailure2 = true;
+		}
+		assertTrue(expectedFailure1);
+		assertTrue(expectedFailure2);
+		assertNotNull(computers);
+	}
+	
 
 	/**
 	 * Tests that the list object is not null

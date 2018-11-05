@@ -207,6 +207,55 @@ public class DatabaseAccessor {
 		}
 		return computers;
 	}
+	
+	/**
+	 * @param name 
+	 * @param offset 
+	 * @param lenght max size of the array (less if no more computers in database)
+	 * @return array of lenght or less computers
+	 * @throws DatabaseErrorException
+	 */
+	public List<Computer> getComputersByName(String name, long offset, long lenght) throws DatabaseErrorException{
+		List<Computer> computers = new ArrayList<>();
+		Connection con = null;
+		PreparedStatement s = null;
+		ResultSet rs = null;
+
+		try {
+			con = DriverManager.getConnection(URL, user, password);
+			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?) LIMIT ?, ?");
+			s.setString(1, "%"+name+"%");
+			s.setLong(2, offset);
+			s.setLong(3, lenght);
+			rs = s.executeQuery();
+
+			while (rs.next()) {
+				computers.add(this.createComputerWithResultSetRow(rs));
+			}
+
+		} catch (SQLException e) {
+			throw new DatabaseErrorException(e);
+		} catch (EmptyResultSetException e) {
+			computers.clear();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return computers;
+	}
+	
+	
 
 	/**
 	 * @return all companies from the database as a ResultSet
@@ -347,7 +396,7 @@ public class DatabaseAccessor {
 
 		try {
 			con = DriverManager.getConnection(URL, user, password);
-			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE c.name LIKE ?");
+			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
 			s.setString(1, "%"+name+"%");
 
 			rs = s.executeQuery();
@@ -394,6 +443,25 @@ public class DatabaseAccessor {
 		}
 	}
 	
+	/**
+	 * @param name name pattern of computers to count
+	 * @return number of computers in database
+	 * @throws DatabaseErrorException
+	 */
+	public long countComputersByName(String name) throws DatabaseErrorException {
+		try {
+			Connection con = DriverManager.getConnection(URL, user, password);
+			PreparedStatement s;
+			ResultSet res;
+			s= con.prepareStatement("SELECT COUNT(c.id) FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
+			s.setString(1, "%"+name+"%");
+			res = s.executeQuery();
+			res.next();
+			return res.getLong(1);
+		} catch (SQLException e) {
+			throw new DatabaseErrorException(e);
+		}
+	}
 	
 
 	/**
