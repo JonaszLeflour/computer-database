@@ -23,6 +23,8 @@ public class DashboardHttpServlet extends HttpServlet {
     private DTOProvider dto;
     private Pager<DTOComputer> requestResults;
     
+    private String currentSearch;
+    
     @Override
     public void init() throws ServletException {
     	super.init();
@@ -38,24 +40,34 @@ public class DashboardHttpServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-		int page = 1;
+		int currentPage;
+		boolean newSearch = false;
+		if(request.getParameter("search") != null) {
+			newSearch = true;
+			currentSearch = request.getParameter("search");
+		}
+		
+		
+		
 		((CachedDTOProvider)dto).updateCache();
 		RequestDispatcher dispatcher = getServletContext()
                 .getRequestDispatcher("/WEB-INF/views/dashboard.jsp");
 		
 		if(request.getParameter("page") != null) {
-			page = Integer.parseInt(request.getParameter("page").toString());
+			currentPage = Integer.parseInt(request.getParameter("page").toString());
+		}else {
+			currentPage = 1;
 		}
 		try {
-			if(request.getParameter("search") != null) {
-				requestResults = new Pager<DTOComputer>(dto.getComputersByName(request.getParameter("search").toString()));
+			if(newSearch) {
+				requestResults = new Pager<DTOComputer>(dto.getComputersByName(currentSearch));
 			}
 		} catch (DatabaseErrorException e) {
 			throw new ServletException("Error with database connexion");
 		}
 		request.setAttribute("nbcomputers",requestResults.getNbElements());
-		request.setAttribute("page",requestResults.getPage(page-1));
-		request.setAttribute("currentPage",page);
+		request.setAttribute("page",requestResults.getPage(currentPage-1));
+		request.setAttribute("currentPage",currentPage);
 		request.setAttribute("nbPages", requestResults.getNumberOfPages());
         dispatcher.forward(request, response);
 	}

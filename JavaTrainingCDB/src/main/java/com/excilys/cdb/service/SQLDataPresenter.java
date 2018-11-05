@@ -47,13 +47,29 @@ public class SQLDataPresenter implements DataPresenter{
 		List<Computer> result = dba.getComputerByName(name);
 		return result;
 	}
+	
+	@Override
+	public List<Computer> getComputersByName(String name, int offset, int length) throws DatabaseErrorException {
+		List<Computer> result = dba.getComputersByName(name, offset, length);
+		return result;
+	}
 
 	@Override
 	public List<Company> getCompanies() throws DatabaseErrorException{
 		List<Company> result = dba.getAllCompanies();
 		return result;
 	}
+	
+	@Override
+	public long countAllComputers() throws DatabaseErrorException {
+		return dba.countComputers();
+	}
 
+	@Override
+	public long countComputersByName(String name) throws DatabaseErrorException {
+		return dba.countComputersByName(name);
+	}
+	
 	@Override
 	public Company getCompanyById(int id) throws ObjectNotFoundException {
 		return dba.getCompanybyId(id);

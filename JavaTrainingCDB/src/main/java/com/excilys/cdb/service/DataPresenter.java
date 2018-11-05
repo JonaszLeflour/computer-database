@@ -79,4 +79,26 @@ public interface DataPresenter {
 	 * @throws ObjectNotFoundException 
 	 */
 	public void removeComputersByName(String name) throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException;
+
+	/**
+	 * @param name
+	 * @param offset
+	 * @param length
+	 * @return list of computer of max size length
+	 * @throws DatabaseErrorException
+	 */
+	List<Computer> getComputersByName(String name, int offset, int length) throws DatabaseErrorException;
+
+	/**
+	 * @return nomber of computers stored in database
+	 * @throws DatabaseErrorException
+	 */
+	long countAllComputers() throws DatabaseErrorException;
+
+	/**
+	 * @param name
+	 * @return number of computers in database whose name match the string parametre
+	 * @throws DatabaseErrorException 
+	 */
+	long countComputersByName(String name) throws DatabaseErrorException;
 }
