@@ -82,12 +82,12 @@ public interface DataPresenter {
 
 	/**
 	 * @param name
-	 * @param offset
-	 * @param length
+	 * @param l
+	 * @param pageSize
 	 * @return list of computer of max size length
 	 * @throws DatabaseErrorException
 	 */
-	List<Computer> getComputersByName(String name, int offset, int length) throws DatabaseErrorException;
+	List<Computer> getComputersByName(String name, long l, long pageSize) throws DatabaseErrorException;
 
 	/**
 	 * @return nomber of computers stored in database
@@ -103,10 +103,10 @@ public interface DataPresenter {
 	long countComputersByName(String name) throws DatabaseErrorException;
 
 	/**
-	 * @param l
+	 * @param offset
 	 * @param pageSize
 	 * @return subset of the complete computer list in database starting at offset and of max size lenght
 	 * @throws DatabaseErrorException
 	 */
-	List<Computer> getComputers(long l, long pageSize) throws DatabaseErrorException;
+	List<Computer> getComputers(long offset, long pageSize) throws DatabaseErrorException;
 }

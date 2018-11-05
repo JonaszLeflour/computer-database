@@ -2,36 +2,36 @@ package com.excilys.cdb.dto;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.DatabaseErrorException;
-import com.excilys.cdb.service.*;
+import com.excilys.cdb.service.SQLDataPresenter;
+import com.excilys.cdb.service.DataPresenter;
 
 /**
  * @author Jonasz Leflour
+ *
  */
-public class AllComputerRequestPager implements ComputerRequestPager {
-	long pageSize;
-	DataPresenter dp;
+public class NameComputerRequestPager implements ComputerRequestPager {
+	private long pageSize;
+	private String searchName;
+	private DataPresenter dp;
 	/**
-	 * @param pageSize 
+	 * @param name 
+	 * @param pageSize max number of resultats per page
 	 * @throws DatabaseErrorException 
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 * @throws FileNotFoundException 
-	 * @throws InvalidPageSizeError 
 	 * 
 	 */
-	public AllComputerRequestPager(long pageSize) throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException, InvalidPageSizeError{
-		if(pageSize <= 0) {
-			throw new InvalidPageSizeError("Page size must be strictly positive");
-		}
-		
+	
+	public NameComputerRequestPager(String name, long pageSize) throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException {
+		searchName = name;
 		this.pageSize = pageSize;
 		this.dp = new SQLDataPresenter();
-		
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class AllComputerRequestPager implements ComputerRequestPager {
 			throw new InvalidPageNumberException("Page number must be positive");
 		}
 		List<DTOComputer> list = new ArrayList<DTOComputer>();
-		for(Computer c : dp.getComputers(pageNumber*pageSize, pageSize)) {
+		for(Computer c : dp.getComputersByName(searchName,pageNumber*pageSize, pageSize)) {
 			list.add(CachedDTOProvider.computertoDaoComputer(c));
 		}
 		if(list.isEmpty() ) {
@@ -50,13 +50,14 @@ public class AllComputerRequestPager implements ComputerRequestPager {
 	}
 
 	@Override
-	public long getNbPages() throws DatabaseErrorException {
-		return (long)Math.ceil(dp.countAllComputers()/((double)pageSize));
+	public long getNbPages() throws DatabaseErrorException{
+		// TODO Auto-generated method stub
+		return (long)Math.ceil(dp.countComputersByName(searchName)/((double)pageSize));
 	}
 
 	@Override
 	public long getNbComputers() throws DatabaseErrorException {
-		return dp.countAllComputers();
+		return dp.countComputersByName(searchName);
 	}
 
 }

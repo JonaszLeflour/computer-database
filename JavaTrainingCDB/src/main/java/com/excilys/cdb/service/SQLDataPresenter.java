@@ -38,8 +38,8 @@ public class SQLDataPresenter implements DataPresenter{
 	}
 	
 	@Override
-	public List<Computer> getComputers(long offset, long lenght) throws DatabaseErrorException {
-		List<Computer> result = dba.getAllComputers();
+	public List<Computer> getComputers(long offset, long pageSize) throws DatabaseErrorException {
+		List<Computer> result = dba.getAllComputers(offset, pageSize);
 		return result;
 	}
 
@@ -55,7 +55,7 @@ public class SQLDataPresenter implements DataPresenter{
 	}
 	
 	@Override
-	public List<Computer> getComputersByName(String name, int offset, int length) throws DatabaseErrorException {
+	public List<Computer> getComputersByName(String name, long offset, long length) throws DatabaseErrorException {
 		List<Computer> result = dba.getComputersByName(name, offset, length);
 		return result;
 	}

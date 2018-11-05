@@ -88,6 +88,8 @@ public class DatabaseAccessorTest {
 		assertTrue(expectedFailure1);
 		assertTrue(expectedFailure2);
 		assertNotNull(computers);
+		assertTrue(computers.size() <= 10);
+		assertTrue(!computers.isEmpty());
 	}
 	
 	/**
@@ -116,7 +118,7 @@ public class DatabaseAccessorTest {
 		boolean expectedFailure1 = false;
 		boolean expectedFailure2 = false;
 		
-		List<Computer> computers = dba.getComputersByName("mac",0,10);
+		List<Computer> computers = dba.getComputersByName("Apple",0,10);
 		try {
 			computers = dba.getAllComputers(-10,0);
 		} catch (DatabaseErrorException e) {
@@ -131,6 +133,8 @@ public class DatabaseAccessorTest {
 		assertTrue(expectedFailure1);
 		assertTrue(expectedFailure2);
 		assertNotNull(computers);
+		assertTrue(computers.size() <= 10);
+		assertTrue(!computers.isEmpty());
 	}
 	
 
