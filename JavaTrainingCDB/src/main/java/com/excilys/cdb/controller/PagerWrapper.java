@@ -5,14 +5,14 @@ import java.util.List;
  * wrapper for lists to create paginized sublists
  * @param <E> element type of paged list
  */
-public class Pager<E>{
+public class PagerWrapper<E>{
 	private List<E> list;
 	private int pageSize = 10;
 	
 	/**
 	 * @param list list to page
 	 */
-	public Pager(List<E> list){
+	public PagerWrapper(List<E> list){
 		this.list = list;
 	}
 	

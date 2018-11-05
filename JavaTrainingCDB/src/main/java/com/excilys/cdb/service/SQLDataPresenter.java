@@ -36,6 +36,12 @@ public class SQLDataPresenter implements DataPresenter{
 		List<Computer> result = dba.getAllComputers();
 		return result;
 	}
+	
+	@Override
+	public List<Computer> getComputers(long offset, long lenght) throws DatabaseErrorException {
+		List<Computer> result = dba.getAllComputers();
+		return result;
+	}
 
 	@Override
 	public Computer getComputerById(int id) throws ObjectNotFoundException, DatabaseErrorException{

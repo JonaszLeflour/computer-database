@@ -33,7 +33,11 @@ public class CachedDTOProvider implements DTOProvider{
 		dp = new SQLDataPresenter();
 	}
 	
-	private DTOComputer computertoDaoComputer(Computer c) {
+	/**
+	 * @param c
+	 * @return DTO object version of c
+	 */
+	public static DTOComputer computertoDaoComputer(Computer c) {
 		DTOComputer daoC = new DTOComputer();
 		daoC.setId(String.valueOf(c.getId()));
 		daoC.setName(c.getName()!=null ? c.getName() : "");
@@ -43,7 +47,11 @@ public class CachedDTOProvider implements DTOProvider{
 		return daoC;
 	}
 	
-	private DTOCompany companytoDaoCompany(Company c) {
+	/**
+	 * @param c
+	 * @return DTO object version of c
+	 */
+	public static DTOCompany companytoDaoCompany(Company c) {
 		DTOCompany daoC = new DTOCompany();
 		daoC.setId(String.valueOf(c.getId()));
 		daoC.setName(c.getName()!=null ? c.getName() : "");
@@ -75,7 +83,7 @@ public class CachedDTOProvider implements DTOProvider{
 		if(obsoleteData) {
 			List<Computer> result = dp.getComputersByName(nameFilter);
 			for(Computer c : result) {
-				resultsByName.add(this.computertoDaoComputer(c));
+				resultsByName.add(computertoDaoComputer(c));
 			}
 		}else {
 			for(DTOComputer c : allComputers) {
@@ -110,10 +118,9 @@ public class CachedDTOProvider implements DTOProvider{
 	public List<DTOCompany> getAllCompanies() throws DatabaseErrorException {
 		List<DTOCompany> result = new ArrayList<>();
 		for(Company c : this.dp.getCompanies()) {
-			result.add(this.companytoDaoCompany(c));
+			result.add(companytoDaoCompany(c));
 		}
 		return result;
 	}
-	
 
 }

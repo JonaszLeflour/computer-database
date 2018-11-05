@@ -21,7 +21,7 @@ import com.excilys.cdb.persistence.DatabaseErrorException;
 public class DashboardHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     private DTOProvider dto;
-    private Pager<DTOComputer> requestResults;
+    private PagerWrapper<DTOComputer> requestResults;
     
     private String currentSearch;
     
@@ -30,7 +30,7 @@ public class DashboardHttpServlet extends HttpServlet {
     	super.init();
     	try {
 			dto = new CachedDTOProvider();
-			requestResults = new Pager<DTOComputer>(dto.getAllComputers());
+			requestResults = new PagerWrapper<DTOComputer>(dto.getAllComputers());
 		} catch (ClassNotFoundException | IOException | DatabaseErrorException e) {
 			throw new ServletException(e.toString()); 
 		}
@@ -60,7 +60,7 @@ public class DashboardHttpServlet extends HttpServlet {
 		}
 		try {
 			if(newSearch) {
-				requestResults = new Pager<DTOComputer>(dto.getComputersByName(currentSearch));
+				requestResults = new PagerWrapper<DTOComputer>(dto.getComputersByName(currentSearch));
 			}
 		} catch (DatabaseErrorException e) {
 			throw new ServletException("Error with database connexion");

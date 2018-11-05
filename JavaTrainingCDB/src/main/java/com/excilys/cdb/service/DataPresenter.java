@@ -101,4 +101,12 @@ public interface DataPresenter {
 	 * @throws DatabaseErrorException 
 	 */
 	long countComputersByName(String name) throws DatabaseErrorException;
+
+	/**
+	 * @param l
+	 * @param pageSize
+	 * @return subset of the complete computer list in database starting at offset and of max size lenght
+	 * @throws DatabaseErrorException
+	 */
+	List<Computer> getComputers(long l, long pageSize) throws DatabaseErrorException;
 }
