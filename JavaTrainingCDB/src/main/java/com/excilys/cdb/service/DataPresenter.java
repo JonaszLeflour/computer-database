@@ -109,4 +109,9 @@ public interface DataPresenter {
 	 * @throws DatabaseErrorException
 	 */
 	List<Computer> getComputers(long offset, long pageSize) throws DatabaseErrorException;
+	
+	/**
+	 * @param id
+	 */
+	void deleteCompanyById(long id);
 }

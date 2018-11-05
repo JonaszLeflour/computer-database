@@ -101,4 +101,10 @@ public class SQLDataPresenter implements DataPresenter{
 	public void removeComputersByName(String name) throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException {
 		dba.deleteComputerByName(name);
 	}
+
+	@Override
+	public void deleteCompanyById(long id) {
+		// TODO Auto-generated method stub
+		
+	}
 }

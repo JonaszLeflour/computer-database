@@ -1,11 +1,12 @@
 package com.excilys.cdb.persistence;
 
+
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,6 +19,8 @@ import java.util.Properties;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * 
@@ -36,6 +39,9 @@ public class DatabaseAccessor {
 	private String user = null;
 	private String password = null;
 	
+	private static HikariConfig config;
+    private static HikariDataSource ds;
+	
 	/**
 	 * Tries to connect to database on create
 	 * @throws ClassNotFoundException 
@@ -48,10 +54,28 @@ public class DatabaseAccessor {
 		if(input == null) {
 			throw new FileNotFoundException();
 		}
+		
+		
+
+		
+		
+		
+		
 		prop.load(input);
 		URL = prop.getProperty("database");
 		user = prop.getProperty("user");
 		password = prop.getProperty("password");
+		
+		config = new HikariConfig();
+		
+		config.setJdbcUrl(URL);
+        config.setUsername(user);
+        config.setPassword(password);
+        config.addDataSourceProperty( "cachePrepStmts" , "true" );
+        config.addDataSourceProperty( "prepStmtCacheSize" , "250" );
+        config.addDataSourceProperty( "prepStmtCacheSqlLimit" , "2048" );
+        ds = new HikariDataSource( config );
+		
 	}
 	
 	/**
@@ -133,7 +157,7 @@ public class DatabaseAccessor {
 		ResultSet rs = null;
 
 		try {
-			con = DriverManager.getConnection(URL, user, password);
+			con = ds.getConnection();
 			s = con.createStatement();
 			rs = s.executeQuery("SELECT id, name, introduced, discontinued, company_id FROM computer");
 
@@ -176,7 +200,7 @@ public class DatabaseAccessor {
 		ResultSet rs = null;
 
 		try {
-			con = DriverManager.getConnection(URL, user, password);
+			con = ds.getConnection();
 			s = con.prepareStatement("SELECT id, name, introduced, discontinued, company_id FROM computer LIMIT ?, ?");
 			s.setLong(1, offset);
 			s.setLong(2, lenght);
@@ -222,7 +246,7 @@ public class DatabaseAccessor {
 		ResultSet rs = null;
 
 		try {
-			con = DriverManager.getConnection(URL, user, password);
+			con = ds.getConnection();
 			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?) LIMIT ?, ?");
 			s.setString(1, "%"+name+"%");
 			s.setLong(2, offset);
@@ -269,7 +293,7 @@ public class DatabaseAccessor {
 		ResultSet rs = null;
 
 		try {
-			con = DriverManager.getConnection(URL, user, password);
+			con = ds.getConnection();
 			s = con.createStatement();
 			rs = s.executeQuery("SELECT id, name FROM company");
 
@@ -311,7 +335,7 @@ public class DatabaseAccessor {
 		ResultSet rs = null;
 
 		try {
-			con = DriverManager.getConnection(URL, user, password);
+			con = ds.getConnection();
 			s = con.createStatement();
 			rs = s.executeQuery("SELECT id, name FROM company WHERE id=" + id);
 			rs.next();
@@ -352,7 +376,7 @@ public class DatabaseAccessor {
 		ResultSet rs = null;
 
 		try {//id name intro disc idcomp
-			con = DriverManager.getConnection(URL, user, password);
+			con = ds.getConnection();
 			s = con.prepareStatement("SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id=?");
 			s.setLong(1, id);
 			rs = s.executeQuery();
@@ -395,7 +419,7 @@ public class DatabaseAccessor {
 		ResultSet rs = null;
 
 		try {
-			con = DriverManager.getConnection(URL, user, password);
+			con = ds.getConnection();
 			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
 			s.setString(1, "%"+name+"%");
 
@@ -434,7 +458,7 @@ public class DatabaseAccessor {
 	 */
 	public long countComputers() throws DatabaseErrorException {
 		try {
-			Connection con = DriverManager.getConnection(URL, user, password);
+			Connection con = ds.getConnection();
 			ResultSet res = con.createStatement().executeQuery("SELECT COUNT(id) FROM computer");
 			res.next();
 			return res.getLong(1);
@@ -450,7 +474,7 @@ public class DatabaseAccessor {
 	 */
 	public long countComputersByName(String name) throws DatabaseErrorException {
 		try {
-			Connection con = DriverManager.getConnection(URL, user, password);
+			Connection con = ds.getConnection();
 			PreparedStatement s;
 			ResultSet res;
 			s= con.prepareStatement("SELECT COUNT(c.id) FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
@@ -486,7 +510,7 @@ public class DatabaseAccessor {
 		Connection con = null;
 		PreparedStatement s = null;
 		try {
-			con = DriverManager.getConnection(URL, user, password);
+			con = ds.getConnection();
 			s = con.prepareStatement(
 					"INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?)");
 			s.setString(1, computer.getName());
@@ -541,7 +565,7 @@ public class DatabaseAccessor {
 		PreparedStatement s = null;
 		int ret = 0;
 		try {
-			con = DriverManager.getConnection(URL, user, password);
+			con = ds.getConnection();
 			s = con.prepareStatement("DELETE FROM computer WHERE name = ?");
 			s.setString(1, name);
 			ret = s.executeUpdate();
@@ -575,7 +599,7 @@ public class DatabaseAccessor {
 		PreparedStatement s = null;
 		int status = 0;
 		try {
-			con = DriverManager.getConnection(URL, user, password);
+			con = ds.getConnection();
 			s = con.prepareStatement("DELETE FROM computer WHERE id = ?");
 			s.setLong(1, id);
 			status = s.executeUpdate();
@@ -636,7 +660,7 @@ public class DatabaseAccessor {
 		PreparedStatement s = null;
 		boolean hasParameters = false;
 		try {
-			con = DriverManager.getConnection(URL, user, password);
+			con = ds.getConnection();
 			
 			String sql = "UPDATE computer SET";
 			if(computer.getName() != null) {
