@@ -77,7 +77,7 @@ public class SQLDataPresenter implements DataPresenter{
 	}
 	
 	@Override
-	public Company getCompanyById(int id) throws ObjectNotFoundException {
+	public Company getCompanyById(int id) throws ObjectNotFoundException, DatabaseErrorException {
 		return dba.getCompanybyId(id);
 	}
 
@@ -105,6 +105,12 @@ public class SQLDataPresenter implements DataPresenter{
 	@Override
 	public void deleteCompanyById(long id) {
 		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public List <Computer> getOrderedComputersByName(String name, long offset, long lenght, DatabaseAccessor.ComputerFields orderBy, DatabaseAccessor.OrderDirection direction ) throws DatabaseErrorException {
+		return dba.getOrderedComputers(name, offset, lenght, orderBy, direction);
 		
 	}
 }

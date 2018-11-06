@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.persistence.DatabaseAccessor.ComputerFields;
+import com.excilys.cdb.persistence.DatabaseAccessor.OrderDirection;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.InvalidParameterException;
 import com.excilys.cdb.persistence.ObjectNotFoundException;
@@ -114,4 +116,19 @@ public interface DataPresenter {
 	 * @param id
 	 */
 	void deleteCompanyById(long id);
+
+	/**
+	 * @param name pattern of computer to search, leave blank or null for all of them
+	 * @param offset index of the first item in result
+	 * @param lenght max size of result
+	 * @param orderBy
+	 * @param direction
+	 * @return ordered list of computers
+	 * @throws DatabaseErrorException 
+	 */
+	List<Computer> getOrderedComputersByName(String name, long offset, long lenght, ComputerFields orderBy,
+			OrderDirection direction) throws DatabaseErrorException;
+	
 }
+
+

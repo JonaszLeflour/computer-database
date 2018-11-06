@@ -51,7 +51,6 @@ public class NameComputerRequestPager implements ComputerRequestPager {
 
 	@Override
 	public long getNbPages() throws DatabaseErrorException{
-		// TODO Auto-generated method stub
 		return (long)Math.ceil(dp.countComputersByName(searchName)/((double)pageSize));
 	}
 

@@ -25,10 +25,10 @@ public class NameComputerRequestPagerTest {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 * @throws DatabaseErrorException
-	 * @throws InvalidPageSizeError
+	 * @throws InvalidPageSizeException
 	 */
 	@Before
-	public void setUp() throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException, InvalidPageSizeError {
+	public void setUp() throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException, InvalidPageSizeException {
 		maxSize = 10;
 		pager = new NameComputerRequestPager("Apple", maxSize);
 	}
@@ -38,23 +38,23 @@ public class NameComputerRequestPagerTest {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 * @throws DatabaseErrorException
-	 * @throws InvalidPageSizeError
+	 * @throws InvalidPageSizeException
 	 */
 	@Test
-	public void creationTest() throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException, InvalidPageSizeError {
+	public void creationTest() throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException, InvalidPageSizeException {
 		AllComputerRequestPager pagerTest = new AllComputerRequestPager(maxSize);
 		boolean expectedFailure1 = false;
 		boolean expectedFailure2 = false;
 		
 		try {
 			new AllComputerRequestPager(-5);
-		} catch (InvalidPageSizeError e) {
+		} catch (InvalidPageSizeException e) {
 			expectedFailure1 = true;
 		}
 		
 		try {
 			new AllComputerRequestPager(0);
-		} catch (InvalidPageSizeError e) {
+		} catch (InvalidPageSizeException e) {
 			expectedFailure2 = true;
 		}
 		

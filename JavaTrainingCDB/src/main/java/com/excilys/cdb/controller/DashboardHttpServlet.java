@@ -9,12 +9,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.excilys.cdb.dto.AllComputerRequestPager;
-import com.excilys.cdb.dto.NameComputerRequestPager;
+import com.excilys.cdb.dto.OrderedComputerRequestPager;
 import com.excilys.cdb.dto.ComputerRequestPager;
 import com.excilys.cdb.dto.InvalidPageNumberException;
-import com.excilys.cdb.dto.InvalidPageSizeError;
+import com.excilys.cdb.dto.InvalidPageSizeException;
 import com.excilys.cdb.persistence.DatabaseErrorException;
+import com.excilys.cdb.persistence.DatabaseAccessor.ComputerFields;
+import com.excilys.cdb.persistence.DatabaseAccessor.OrderDirection;;
 
 /**
  * Servlet implementation class DashboardHttpServlet
@@ -25,13 +26,15 @@ public class DashboardHttpServlet extends HttpServlet {
     private ComputerRequestPager pager;
     private final long defaultPageSize = 10L;
     
+    private final ComputerFields defaultOrderBy = ComputerFields.id;
+    private final OrderDirection defaultDir = OrderDirection.DESC;
     
     @Override
     public void init() throws ServletException {
     	super.init();
     	try {
-			pager = new AllComputerRequestPager(defaultPageSize);
-		} catch (ClassNotFoundException | IOException | DatabaseErrorException | InvalidPageSizeError e) {
+    		pager = new OrderedComputerRequestPager("", defaultPageSize, defaultOrderBy, defaultDir);
+		} catch (ClassNotFoundException | IOException | DatabaseErrorException | InvalidPageSizeException e) {
 			throw new ServletException(e); 
 		}
         
@@ -41,14 +44,13 @@ public class DashboardHttpServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		int currentPage;
+		
 		try {
 			if(request.getParameter("search") != null) {
-				pager = new NameComputerRequestPager(request.getParameter("search"),defaultPageSize);
+				pager = new OrderedComputerRequestPager(request.getParameter("search"), defaultPageSize, defaultOrderBy, defaultDir);
 			}else if(request.getParameter("reset") != null) {
-				pager = new AllComputerRequestPager(defaultPageSize);
+				pager = new OrderedComputerRequestPager("", defaultPageSize, defaultOrderBy, defaultDir);
 			}
-			
-			
 			RequestDispatcher dispatcher = getServletContext()
 	                .getRequestDispatcher("/WEB-INF/views/dashboard.jsp");
 			
@@ -62,7 +64,7 @@ public class DashboardHttpServlet extends HttpServlet {
 			request.setAttribute("currentPage",currentPage);
 			request.setAttribute("nbPages", pager.getNbPages());
 			dispatcher.forward(request, response);
-		} catch (DatabaseErrorException | ClassNotFoundException | InvalidPageSizeError | InvalidPageNumberException e) {
+		} catch (DatabaseErrorException | ClassNotFoundException | InvalidPageSizeException | InvalidPageNumberException e) {
 			throw new ServletException(e);
 		}
         

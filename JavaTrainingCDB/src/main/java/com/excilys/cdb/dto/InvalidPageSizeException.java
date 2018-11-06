@@ -4,12 +4,12 @@ package com.excilys.cdb.dto;
  * @author Jonasz Leflour
  *
  */
-public class InvalidPageSizeError extends Exception {
+public class InvalidPageSizeException extends Exception {
 
 	/**
 	 * @param string
 	 */
-	public InvalidPageSizeError(String string) {
+	public InvalidPageSizeException(String string) {
 		// TODO Auto-generated constructor stub
 	}
 

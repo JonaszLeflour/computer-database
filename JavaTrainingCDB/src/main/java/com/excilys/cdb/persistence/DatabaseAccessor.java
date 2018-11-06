@@ -96,9 +96,6 @@ public class DatabaseAccessor {
 		config.setJdbcUrl(URL);
         config.setUsername(user);
         config.setPassword(password);
-        config.addDataSourceProperty( "cachePrepStmts" , "true" );
-        config.addDataSourceProperty( "prepStmtCacheSize" , "250" );
-        config.addDataSourceProperty( "prepStmtCacheSqlLimit" , "2048" );
         ds = new HikariDataSource( config );
 		
 	}
@@ -117,7 +114,7 @@ public class DatabaseAccessor {
 		return dba;
 	}
 
-	private Computer createComputerWithResultSetRow(ResultSet rs) throws EmptyResultSetException {
+	private Computer createComputerWithResultSetRow(ResultSet rs) throws EmptyResultSetException, DatabaseErrorException{
 		Computer computer = new Computer();
 		try {
 			long id = rs.getLong(1);
@@ -209,7 +206,7 @@ public class DatabaseAccessor {
 				}
 				
 			} catch (SQLException e) {
-				e.printStackTrace();
+				throw new DatabaseErrorException(e);
 			}
 		}
 		return computers;
@@ -256,7 +253,7 @@ public class DatabaseAccessor {
 					rs.close();
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				throw new DatabaseErrorException(e);
 			}
 		}
 		return computers;
@@ -305,7 +302,7 @@ public class DatabaseAccessor {
 					rs.close();
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				throw new DatabaseErrorException(e);
 			}
 		}
 		return computers;
@@ -337,8 +334,8 @@ public class DatabaseAccessor {
 		} catch (SQLException e) {
 			throw new DatabaseErrorException();
 		} catch (EmptyResultSetException e) {
-			e.printStackTrace();
-		} finally {
+			companies.clear();
+		}finally {
 			try {
 				if (con != null) {
 					con.commit();
@@ -361,8 +358,9 @@ public class DatabaseAccessor {
 	 * @param id id of company
 	 * @return single row of the company table with the specified id, if exists
 	 * @throws ObjectNotFoundException
+	 * @throws DatabaseErrorException 
 	 */
-	public Company getCompanybyId(long id) throws ObjectNotFoundException {
+	public Company getCompanybyId(long id) throws ObjectNotFoundException,DatabaseErrorException{
 		Company company = null;
 		Connection con = null;
 		Statement s = null;
@@ -392,7 +390,7 @@ public class DatabaseAccessor {
 					rs.close();
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				throw new DatabaseErrorException(e);
 			}
 		}
 		return company;
@@ -442,7 +440,66 @@ public class DatabaseAccessor {
 		}
 		return computer;
 	}
+	
+	/**
+	 * @param name name searched. Leave empty or null for all computers
+	 * @param offset index of for item in the resulting list
+	 * @param lenght max size of result
+	 * @param orderBy
+	 * @param direction
+	 * @return ordered list of computers
+	 * @throws DatabaseErrorException 
+	 */
+	public List<Computer> getOrderedComputers(String name, long offset, long lenght, ComputerFields orderBy, OrderDirection direction) throws DatabaseErrorException{
+		List<Computer> computers = new ArrayList<>();
+		Connection con = null;
+		PreparedStatement s = null;
+		ResultSet rs = null;
+		try {
+			con = ds.getConnection();
+			con.setAutoCommit(false);
+			
+			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id "
+					+ "FROM computer AS c "
+					+ "WHERE UPPER(c.name) LIKE UPPER(?) "
+					+ "ORDER BY c."+orderBy.toString()+" "+direction.toString()+" "
+					+ "LIMIT ?, ?");
+			if(name != null && !name.isEmpty()) {
+				s.setString(1, "%"+name+"%");
+			}else {
+				s.setString(1, "%");
+			}
+			s.setLong(2, offset);
+			s.setLong(3, lenght);
+			rs = s.executeQuery();
 
+			while (rs.next()) {
+				computers.add(this.createComputerWithResultSetRow(rs));
+			}
+
+		} catch (SQLException e) {
+			throw new DatabaseErrorException(e);
+		} catch (EmptyResultSetException e) {
+			computers.clear();
+		} finally {
+			try {
+				if (con != null) {
+					con.commit();
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException e) {
+				throw new DatabaseErrorException(e);
+			}
+		}
+		return computers;
+	}
+	
 	/**
 	 * @param name
 	 * @return all rows of the computer table with the specified name, if any
@@ -493,33 +550,66 @@ public class DatabaseAccessor {
 	 * @throws DatabaseErrorException
 	 */
 	public long countComputers() throws DatabaseErrorException {
+		Connection con = null;
+		ResultSet res = null;
 		try {
-			Connection con = ds.getConnection();
-			ResultSet res = con.createStatement().executeQuery("SELECT COUNT(id) FROM computer");
+			con = ds.getConnection();
+			res = con.createStatement().executeQuery("SELECT COUNT(id) FROM computer");
 			res.next();
 			return res.getLong(1);
 		} catch (SQLException e) {
 			throw new DatabaseErrorException(e);
+		}finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (res != null) {
+					res.close();
+				}
+			} catch (SQLException e) {
+				throw new DatabaseErrorException();
+			}
 		}
 	}
 	
 	/**
-	 * @param name name pattern of computers to count
+	 * @param name name pattern of computers to count, or empty/null for all of them
 	 * @return number of computers in database
 	 * @throws DatabaseErrorException
 	 */
 	public long countComputersByName(String name) throws DatabaseErrorException {
+		Connection con = null;
+		PreparedStatement s = null;
+		ResultSet res = null;
 		try {
-			Connection con = ds.getConnection();
-			PreparedStatement s;
-			ResultSet res;
+			con = ds.getConnection();
+			
 			s= con.prepareStatement("SELECT COUNT(c.id) FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
-			s.setString(1, "%"+name+"%");
+			if(name != null && !name.isEmpty()) {
+				s.setString(1, "%"+name+"%");
+			}else {
+				s.setString(1, "%");
+			}
 			res = s.executeQuery();
 			res.next();
 			return res.getLong(1);
 		} catch (SQLException e) {
 			throw new DatabaseErrorException(e);
+		}finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (res != null) {
+					res.close();
+				}
+			} catch (SQLException e) {
+				throw new DatabaseErrorException();
+			}
 		}
 	}
 	
@@ -798,6 +888,7 @@ public class DatabaseAccessor {
 			if(beforeUpdate != null) {
 				try {
 					con.rollback(beforeUpdate);
+					con.close();
 				} catch (SQLException e1) {
 					throw new DatabaseErrorException(e1);
 				}

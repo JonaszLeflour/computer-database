@@ -21,12 +21,12 @@ public class AllComputerRequestPager implements ComputerRequestPager {
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 * @throws FileNotFoundException 
-	 * @throws InvalidPageSizeError 
+	 * @throws InvalidPageSizeException 
 	 * 
 	 */
-	public AllComputerRequestPager(long pageSize) throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException, InvalidPageSizeError{
+	public AllComputerRequestPager(long pageSize) throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException, InvalidPageSizeException{
 		if(pageSize <= 0) {
-			throw new InvalidPageSizeError("Page size must be strictly positive");
+			throw new InvalidPageSizeException("Page size must be strictly positive");
 		}
 		
 		this.pageSize = pageSize;

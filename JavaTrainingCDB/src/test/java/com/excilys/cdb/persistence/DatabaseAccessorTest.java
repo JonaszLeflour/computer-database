@@ -152,9 +152,10 @@ public class DatabaseAccessorTest {
 	 * expected results of getCompanyById
 	 * 
 	 * @throws ObjectNotFoundException
+	 * @throws DatabaseErrorException 
 	 */
 	@Test
-	public void testGetCompanybyId() throws ObjectNotFoundException {
+	public void testGetCompanybyId() throws ObjectNotFoundException, DatabaseErrorException {
 		Company company1 = null;
 		Company company2 = null;
 		boolean excpectedException = false;
@@ -421,6 +422,49 @@ public class DatabaseAccessorTest {
 
 		dba.deleteComputerById(validComputer.getId());
 
+	}
+	
+	/**
+	 * @throws DatabaseErrorException 
+	 * 
+	 */
+	@Test
+	public void getOrderedComputersTest() throws DatabaseErrorException {
+		boolean expectedFailure1 = false;
+		boolean expectedFailure2 = false;
+		
+		
+		for(DatabaseAccessor.ComputerFields orderBy : DatabaseAccessor.ComputerFields.values()) {
+			for(DatabaseAccessor.OrderDirection direction : DatabaseAccessor.OrderDirection.values()) {
+				assertTrue(!dba.getOrderedComputers("mac", 0, 10, orderBy, direction).isEmpty());
+				assertTrue(!dba.getOrderedComputers("", 10, 10, orderBy, direction).isEmpty());
+			}
+		}
+		
+		
+		List<Computer> res = dba.getOrderedComputers("", 0, 10, DatabaseAccessor.ComputerFields.id, DatabaseAccessor.OrderDirection.DESC);
+		assertTrue(res.get(0).getId() > res.get(1).getId());
+		
+		res = dba.getOrderedComputers("", 0, 10, DatabaseAccessor.ComputerFields.id, DatabaseAccessor.OrderDirection.ASC);
+		
+		assertTrue(res.get(0).getId() < res.get(1).getId());
+		
+		try {
+			dba.getOrderedComputers("", -1, 10, DatabaseAccessor.ComputerFields.id, DatabaseAccessor.OrderDirection.ASC);
+		}catch (DatabaseErrorException e){
+			expectedFailure1 = true;
+		}
+		
+		try {
+			dba.getOrderedComputers("", -1, 10, DatabaseAccessor.ComputerFields.id, DatabaseAccessor.OrderDirection.ASC);
+		}catch (DatabaseErrorException e){
+			expectedFailure2 = true;
+		}
+		
+		assertTrue(expectedFailure1);
+		assertTrue(expectedFailure2);
+		
+		
 	}
 
 }
