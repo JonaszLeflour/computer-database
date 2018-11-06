@@ -10,6 +10,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Types;
 import java.time.LocalDate;
@@ -42,6 +43,36 @@ public class DatabaseAccessor {
 	private static HikariConfig config;
     private static HikariDataSource ds;
 	
+    /**
+     * @author Jonasz Leflour
+     *
+     */
+    public static enum ComputerFields{
+    	@SuppressWarnings("javadoc")
+		id,
+		@SuppressWarnings("javadoc")
+    	name,
+    	@SuppressWarnings("javadoc")
+    	introduced,
+    	@SuppressWarnings("javadoc")
+    	discontinued,
+    	@SuppressWarnings("javadoc")
+    	company_id;
+    };
+    
+    /**
+     * @author Jonasz Leflour
+     *
+     */
+    public static enum OrderDirection{
+    	@SuppressWarnings("javadoc")
+    	DESC,
+    	@SuppressWarnings("javadoc")
+    	ASC
+    }
+    
+    
+    
 	/**
 	 * Tries to connect to database on create
 	 * @throws ClassNotFoundException 
@@ -54,12 +85,6 @@ public class DatabaseAccessor {
 		if(input == null) {
 			throw new FileNotFoundException();
 		}
-		
-		
-
-		
-		
-		
 		
 		prop.load(input);
 		URL = prop.getProperty("database");
@@ -158,6 +183,7 @@ public class DatabaseAccessor {
 
 		try {
 			con = ds.getConnection();
+			con.setAutoCommit(false);
 			s = con.createStatement();
 			rs = s.executeQuery("SELECT id, name, introduced, discontinued, company_id FROM computer");
 
@@ -172,6 +198,7 @@ public class DatabaseAccessor {
 		} finally {
 			try {
 				if (con != null) {
+					con.commit();
 					con.close();
 				}
 				if (s != null) {
@@ -180,6 +207,7 @@ public class DatabaseAccessor {
 				if (rs != null) {
 					rs.close();
 				}
+				
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -201,6 +229,7 @@ public class DatabaseAccessor {
 
 		try {
 			con = ds.getConnection();
+			con.setAutoCommit(false);
 			s = con.prepareStatement("SELECT id, name, introduced, discontinued, company_id FROM computer LIMIT ?, ?");
 			s.setLong(1, offset);
 			s.setLong(2, lenght);
@@ -217,6 +246,7 @@ public class DatabaseAccessor {
 		} finally {
 			try {
 				if (con != null) {
+					con.commit();
 					con.close();
 				}
 				if (s != null) {
@@ -247,6 +277,7 @@ public class DatabaseAccessor {
 
 		try {
 			con = ds.getConnection();
+			con.setAutoCommit(false);
 			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?) LIMIT ?, ?");
 			s.setString(1, "%"+name+"%");
 			s.setLong(2, offset);
@@ -264,6 +295,7 @@ public class DatabaseAccessor {
 		} finally {
 			try {
 				if (con != null) {
+					con.commit();
 					con.close();
 				}
 				if (s != null) {
@@ -294,6 +326,7 @@ public class DatabaseAccessor {
 
 		try {
 			con = ds.getConnection();
+			con.setAutoCommit(false);
 			s = con.createStatement();
 			rs = s.executeQuery("SELECT id, name FROM company");
 
@@ -308,6 +341,7 @@ public class DatabaseAccessor {
 		} finally {
 			try {
 				if (con != null) {
+					con.commit();
 					con.close();
 				}
 				if (s != null) {
@@ -336,6 +370,7 @@ public class DatabaseAccessor {
 
 		try {
 			con = ds.getConnection();
+			con.setAutoCommit(false);
 			s = con.createStatement();
 			rs = s.executeQuery("SELECT id, name FROM company WHERE id=" + id);
 			rs.next();
@@ -347,6 +382,7 @@ public class DatabaseAccessor {
 		} finally {
 			try {
 				if (con != null) {
+					con.commit();
 					con.close();
 				}
 				if (s != null) {
@@ -487,6 +523,7 @@ public class DatabaseAccessor {
 		}
 	}
 	
+	
 
 	/**
 	 * @param computer
@@ -509,8 +546,11 @@ public class DatabaseAccessor {
 		}
 		Connection con = null;
 		PreparedStatement s = null;
+		Savepoint beforeUpdate = null;
 		try {
 			con = ds.getConnection();
+			con.setAutoCommit(false);
+			beforeUpdate = con.setSavepoint();
 			s = con.prepareStatement(
 					"INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?)");
 			s.setString(1, computer.getName());
@@ -531,17 +571,25 @@ public class DatabaseAccessor {
 			}
 			s.executeUpdate();
 		} catch (SQLException e) {
+			if(beforeUpdate != null) {
+				try {
+					con.rollback(beforeUpdate);
+				} catch (SQLException e1) {
+					throw new DatabaseErrorException(e1);
+				}
+			}
 			throw new DatabaseErrorException(e.toString());
 		} finally {
 			try {
 				if (con != null) {
+					con.commit();
 					con.close();
 				}
 				if (s != null) {
 					s.close();
 				}
 			} catch (SQLException e) {
-				throw new DatabaseErrorException();
+				throw new DatabaseErrorException(e);
 			}
 		}
 	}
@@ -564,16 +612,27 @@ public class DatabaseAccessor {
 		Connection con = null;
 		PreparedStatement s = null;
 		int ret = 0;
+		Savepoint beforeDelete = null;
 		try {
 			con = ds.getConnection();
+			beforeDelete = con.setSavepoint();
+			con.setAutoCommit(false);
 			s = con.prepareStatement("DELETE FROM computer WHERE name = ?");
 			s.setString(1, name);
 			ret = s.executeUpdate();
 		} catch (SQLException e) {
+			if(beforeDelete != null) {
+				try {
+					con.rollback(beforeDelete);
+				} catch (SQLException e1) {
+					throw new DatabaseErrorException(e1);
+				}
+			}
 			throw new DatabaseErrorException();
 		} finally {
 			try {
 				if (con != null) {
+					con.commit();
 					con.close();
 				}
 				if (s != null) {
@@ -598,16 +657,27 @@ public class DatabaseAccessor {
 		Connection con = null;
 		PreparedStatement s = null;
 		int status = 0;
+		Savepoint beforeDelete = null;
 		try {
 			con = ds.getConnection();
+			beforeDelete = con.setSavepoint();
+			con.setAutoCommit(false);
 			s = con.prepareStatement("DELETE FROM computer WHERE id = ?");
 			s.setLong(1, id);
 			status = s.executeUpdate();
 		} catch (SQLException e) {
+			if(beforeDelete != null) {
+				try {
+					con.rollback(beforeDelete);
+				} catch (SQLException e1) {
+					throw new DatabaseErrorException(e1);
+				}
+			}
 			throw new DatabaseErrorException();
 		} finally {
 			try {
 				if (con != null) {
+					con.commit();
 					con.close();
 				}
 				if (s != null) {
@@ -659,9 +729,11 @@ public class DatabaseAccessor {
 		Connection con = null;
 		PreparedStatement s = null;
 		boolean hasParameters = false;
+		Savepoint beforeUpdate = null;
 		try {
 			con = ds.getConnection();
-			
+			con.setAutoCommit(false);
+			beforeUpdate = con.setSavepoint();
 			String sql = "UPDATE computer SET";
 			if(computer.getName() != null) {
 				sql+="  name=? ";
@@ -723,10 +795,18 @@ public class DatabaseAccessor {
 			
 			s.executeUpdate();
 		} catch (SQLException e) {
+			if(beforeUpdate != null) {
+				try {
+					con.rollback(beforeUpdate);
+				} catch (SQLException e1) {
+					throw new DatabaseErrorException(e1);
+				}
+			}
 			throw new DatabaseErrorException();
 		} finally {
 			try {
 				if (con != null) {
+					con.commit();
 					con.close();
 				}
 				if (s != null) {
