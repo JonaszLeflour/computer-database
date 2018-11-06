@@ -781,6 +781,58 @@ public class DatabaseAccessor {
 			}
 		}
 	}
+	
+	void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException{
+		int status1 = 0, status2 = 0;
+		Connection con = null;
+		PreparedStatement s1 = null, s2 = null;
+		Savepoint beforeDelete = null;
+		try {
+			con = ds.getConnection();
+			beforeDelete = con.setSavepoint();
+			con.setAutoCommit(false);
+			s1 = con.prepareStatement("DELETE FROM computer WHERE company_id = ?");
+			s1.setLong(1, id);
+			status1 = s1.executeUpdate();
+			
+			s2 = con.prepareStatement("DELETE FROM company WHERE id = ?");
+			s2.setLong(1, id);
+			status2 = s2.executeUpdate();
+			
+			
+		} catch (SQLException e) {
+			if(beforeDelete != null) {
+				try {
+					con.rollback(beforeDelete);
+				} catch (SQLException e1) {
+					throw new DatabaseErrorException(e1);
+				}
+			}
+			throw new DatabaseErrorException();
+		} finally {
+			
+			try {
+				if (con != null) {
+					con.commit();
+					con.close();
+				}
+				if (s1 != null) {
+					s1.close();
+				}
+				if (s2 != null) {
+					s2.close();
+				}
+			} catch (SQLException e) {
+				throw new DatabaseErrorException();
+			}
+			if(status1 == 0 || status2 == 0) {
+				throw new ObjectNotFoundException();
+			}
+		}
+	
+	
+	
+	}
 
 	/**
 	 * @param computer to update

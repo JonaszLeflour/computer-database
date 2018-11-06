@@ -84,7 +84,6 @@ public class SQLDataPresenter implements DataPresenter{
 	@Override
 	public void updateComputer(Computer computer) throws InvalidParameterException, DatabaseErrorException, ObjectNotFoundException {
 		dba.updateComputer(computer);
-		
 	}
 
 	@Override

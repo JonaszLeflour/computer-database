@@ -107,17 +107,34 @@
             <ul class="pagination">
             <c:if test = "${currentPage > 1}">
                 <li>
-                    <a href="dashboard?page=${currentPage-1}" aria-label="Previous">
+                    <a href="dashboard?page=1" aria-label="Previous">
                       <span aria-hidden="true">&laquo;</span>
                   </a>
               </li>
               </c:if>
               
+              <c:if test = "${currentPage > 2}">
+              	<li><a href="dashboard?page=${currentPage-2}">${currentPage-2}</a></li>
+              </c:if>
+              
+              <c:if test = "${currentPage > 1}">
+              	<li><a href="dashboard?page=${currentPage-1}">${currentPage-1}</a></li>
+              </c:if>
+              
+              
               <li><a href="dashboard?page=${currentPage}">${currentPage}</a></li>
               
+              <c:if test = "${currentPage+1 <= nbPages}">
+              	<li><a href="dashboard?page=${currentPage+1}">${currentPage+1}</a></li>
+              </c:if>
+              
+              <c:if test = "${currentPage+2 <= nbPages}">
+              	<li><a href="dashboard?page=${currentPage+2}">${currentPage+2}</a></li>
+              </c:if>
+              	
               <c:if test = "${currentPage < nbPages}">
               	<li>
-	                <a href="dashboard?page=${currentPage+1}" aria-label="Next">
+	                <a href="dashboard?page=${nbPages}" aria-label="Next">
 	                    <span aria-hidden="true">&raquo;</span>
 	                </a>
 	            </li>
