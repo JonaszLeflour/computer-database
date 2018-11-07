@@ -46,7 +46,7 @@
             </div>
         </div>
 
-        <form id="deleteForm" action="#" method="POST">
+        <form id="deleteForm" action="dashboard" method="POST">
             <input type="hidden" name="selection" value="">
         </form>
 
@@ -87,7 +87,7 @@
                 	<c:forEach varStatus="loopCounter" items="${page}" var="computerResult">
                 	<tr>
                         <td class="editMode">
-                            <input type="checkbox" name="cb" class="cb" value="0">
+                            <input type="checkbox" form="deleteForm" name="deletecomputers" class="cb" value="${computerResult.id}">
                         </td>
                         <td>
                             <a href='editcomputer?id=${computerResult.id}'>${computerResult.name}</a>

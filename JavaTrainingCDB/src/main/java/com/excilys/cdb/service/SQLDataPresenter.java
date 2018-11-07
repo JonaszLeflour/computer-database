@@ -92,18 +92,18 @@ public class SQLDataPresenter implements DataPresenter{
 	}
 
 	@Override
-	public void removeComputerById(int id) throws ObjectNotFoundException, DatabaseErrorException {
+	public void deleteComputerById(long id) throws ObjectNotFoundException, DatabaseErrorException, InvalidParameterException {
 		dba.deleteComputerById(id);
 	}
 	
 	@Override
-	public void removeComputersByName(String name) throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException {
+	public void deleteComputersByName(String name) throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException {
 		dba.deleteComputerByName(name);
 	}
 
 	@Override
-	public void deleteCompanyById(long id) {
-		// TODO Auto-generated method stub
+	public void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException, InvalidParameterException {
+		dba.deleteCompanyById(id);
 		
 	}
 	

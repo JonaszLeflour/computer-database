@@ -737,16 +737,22 @@ public class DatabaseAccessor {
 		}
 
 	}
-
+	
 	/**
-	 * @param id
+	 * deletes all computers in table with specified name
+	 * @param id 
+	 * @throws InvalidParameterException 
 	 * @throws ObjectNotFoundException 
 	 * @throws DatabaseErrorException 
 	 */
-	public void deleteComputerById(long id) throws DatabaseErrorException, ObjectNotFoundException{
+	public void deleteComputerById(long id) throws InvalidParameterException, ObjectNotFoundException, DatabaseErrorException{
+		if(id <= 0) {
+			throw new InvalidParameterException("Id provided must be strictly positive");
+		}
+		
 		Connection con = null;
 		PreparedStatement s = null;
-		int status = 0;
+		int ret = 0;
 		Savepoint beforeDelete = null;
 		try {
 			con = ds.getConnection();
@@ -754,7 +760,7 @@ public class DatabaseAccessor {
 			con.setAutoCommit(false);
 			s = con.prepareStatement("DELETE FROM computer WHERE id = ?");
 			s.setLong(1, id);
-			status = s.executeUpdate();
+			ret = s.executeUpdate();
 		} catch (SQLException e) {
 			if(beforeDelete != null) {
 				try {
@@ -776,13 +782,19 @@ public class DatabaseAccessor {
 			} catch (SQLException e) {
 				throw new DatabaseErrorException();
 			}
-			if(status == 0) {
-				throw new ObjectNotFoundException();
-			}
 		}
+		if(ret == 0) {
+			throw new ObjectNotFoundException();
+		}
+
 	}
 	
-	void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException{
+	/**
+	 * @param id
+	 * @throws DatabaseErrorException
+	 * @throws ObjectNotFoundException
+	 */
+	public void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException{
 		int status1 = 0, status2 = 0;
 		Connection con = null;
 		PreparedStatement s1 = null, s2 = null;

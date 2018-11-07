@@ -71,8 +71,9 @@ public interface DataPresenter {
 	 * @param id of the computer to remove from database
 	 * @throws DatabaseErrorException 
 	 * @throws ObjectNotFoundException 
+	 * @throws InvalidParameterException 
 	 */
-	public void removeComputerById(int id) throws DatabaseErrorException, ObjectNotFoundException;
+	public void deleteComputerById(long id) throws DatabaseErrorException, ObjectNotFoundException, InvalidParameterException;
 
 	/**
 	 * @param name name shared by all computer to remove
@@ -80,7 +81,7 @@ public interface DataPresenter {
 	 * @throws InvalidParameterException 
 	 * @throws ObjectNotFoundException 
 	 */
-	public void removeComputersByName(String name) throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException;
+	public void deleteComputersByName(String name) throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException;
 
 	/**
 	 * @param name
@@ -114,8 +115,11 @@ public interface DataPresenter {
 	
 	/**
 	 * @param id
+	 * @throws ObjectNotFoundException 
+	 * @throws DatabaseErrorException 
+	 * @throws InvalidParameterException 
 	 */
-	void deleteCompanyById(long id);
+	void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException, InvalidParameterException;
 
 	/**
 	 * @param name pattern of computer to search, leave blank or null for all of them

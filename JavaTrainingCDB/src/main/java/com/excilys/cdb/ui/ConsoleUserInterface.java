@@ -393,11 +393,13 @@ public final class ConsoleUserInterface implements UserInterface {
 		int id = scan.nextInt();
 		scan.nextLine();
 		try {
-			dp.removeComputerById(id);
+			dp.deleteComputerById(id);
 		} catch (DatabaseErrorException e) {
 			System.out.println("Error in database, couldn't update");
 		} catch (ObjectNotFoundException e) {
 			System.out.println("Error : couldn't find computer with id="+id);
+		} catch (InvalidParameterException e) {
+			System.out.println("Error : invalid parametre with id="+id);
 		}
 	}
 
