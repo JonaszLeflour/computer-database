@@ -39,6 +39,7 @@ public final class ConsoleUserInterface implements UserInterface {
 			System.out.println("4 - Update computer infos");
 			System.out.println("5 - Add computer");
 			System.out.println("6 - Delete computer (id)");
+			System.out.println("7 - Delete company (id)");
 			System.out.println("0 - Exit");
 
 			String choice = scan.nextLine();
@@ -60,6 +61,9 @@ public final class ConsoleUserInterface implements UserInterface {
 				break;
 			case "6":
 				deleteComputer();
+				break;
+			case "7":
+				deleteCompany();
 				break;
 			case "0":
 				looping = false;
@@ -398,6 +402,22 @@ public final class ConsoleUserInterface implements UserInterface {
 			System.out.println("Error in database, couldn't update");
 		} catch (ObjectNotFoundException e) {
 			System.out.println("Error : couldn't find computer with id="+id);
+		} catch (InvalidParameterException e) {
+			System.out.println("Error : invalid parametre with id="+id);
+		}
+	}
+	
+	private void deleteCompany() {
+		System.out.println("Delete company");
+		System.out.println("Enter id");
+		long id = scan.nextLong();
+		scan.nextLine();
+		try {
+			dp.deleteCompanyById(id);
+		} catch (DatabaseErrorException e) {
+			System.out.println("Error in database, couldn't update");
+		} catch (ObjectNotFoundException e) {
+			System.out.println("Error : couldn't find company with id="+id);
 		} catch (InvalidParameterException e) {
 			System.out.println("Error : invalid parametre with id="+id);
 		}
