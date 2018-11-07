@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.*;
-import com.excilys.cdb.persistence.DatabaseAccessor.ComputerFields;
+import com.excilys.cdb.persistence.DatabaseAccessor.ComputerField;
 import com.excilys.cdb.persistence.DatabaseAccessor.OrderDirection;
 import com.excilys.cdb.service.DataPresenter;
 import com.excilys.cdb.service.SQLDataPresenter;
@@ -20,7 +20,7 @@ public class OrderedComputerRequestPager implements ComputerRequestPager {
 	DataPresenter dp;
 	String searchName;
 	long pageSize;
-	ComputerFields orderBy;
+	ComputerField orderBy;
 	OrderDirection direction;
 	
 	
@@ -37,7 +37,7 @@ public class OrderedComputerRequestPager implements ComputerRequestPager {
 	 * @throws InvalidPageSizeException 
 	 * 
 	 */
-	public OrderedComputerRequestPager(String name, long pageSize, ComputerFields orderBy, OrderDirection direction) throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException, InvalidPageSizeException {
+	public OrderedComputerRequestPager(String name, long pageSize, ComputerField orderBy, OrderDirection direction) throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException, InvalidPageSizeException {
 		
 		if(pageSize <= 0) {
 			throw new InvalidPageSizeException("Page size must be strictly positive");

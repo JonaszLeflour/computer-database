@@ -18,7 +18,7 @@ import com.excilys.cdb.persistence.InvalidParameterException;
 import com.excilys.cdb.persistence.ObjectNotFoundException;
 import com.excilys.cdb.service.DataPresenter;
 import com.excilys.cdb.service.SQLDataPresenter;
-import com.excilys.cdb.persistence.DatabaseAccessor.ComputerFields;
+import com.excilys.cdb.persistence.DatabaseAccessor.ComputerField;
 import com.excilys.cdb.persistence.DatabaseAccessor.OrderDirection;;
 
 /**
@@ -29,7 +29,7 @@ public class DashboardHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     private final long defaultPageSize = 10L;
     
-    private final ComputerFields defaultOrderBy = ComputerFields.id;
+    private final ComputerField defaultOrderBy = ComputerField.id;
     private final OrderDirection defaultDir = OrderDirection.DESC;
     
     private ComputerRequestPager pager;

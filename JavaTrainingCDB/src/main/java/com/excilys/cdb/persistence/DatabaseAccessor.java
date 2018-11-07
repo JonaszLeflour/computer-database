@@ -47,7 +47,7 @@ public class DatabaseAccessor {
      * @author Jonasz Leflour
      *
      */
-    public static enum ComputerFields{
+    public static enum ComputerField{
     	@SuppressWarnings("javadoc")
 		id,
 		@SuppressWarnings("javadoc")
@@ -59,6 +59,17 @@ public class DatabaseAccessor {
     	@SuppressWarnings("javadoc")
     	company_id;
     };
+    
+    /**
+     * @author JOnasz Leflour
+     *
+     */
+    public static enum CompanyField{
+    	@SuppressWarnings("javadoc")
+    	id,
+    	@SuppressWarnings("javadoc")
+    	name;
+    }
     
     /**
      * @author Jonasz Leflour
@@ -450,7 +461,7 @@ public class DatabaseAccessor {
 	 * @return ordered list of computers
 	 * @throws DatabaseErrorException 
 	 */
-	public List<Computer> getOrderedComputers(String name, long offset, long lenght, ComputerFields orderBy, OrderDirection direction) throws DatabaseErrorException{
+	public List<Computer> getOrderedComputers(String name, long offset, long lenght, ComputerField orderBy, OrderDirection direction) throws DatabaseErrorException{
 		List<Computer> computers = new ArrayList<>();
 		Connection con = null;
 		PreparedStatement s = null;
@@ -502,6 +513,65 @@ public class DatabaseAccessor {
 	
 	/**
 	 * @param name
+	 * @param offset
+	 * @param lenght
+	 * @param orderBy
+	 * @param direction
+	 * @return ordered list of companies
+	 * @throws DatabaseErrorException
+	 */
+	public List<Company> getOrderedCompanies(String name, long offset, long lenght, CompanyField orderBy, OrderDirection direction) throws DatabaseErrorException{
+		List<Company> companies = new ArrayList<>();
+		Connection con = null;
+		PreparedStatement s = null;
+		ResultSet rs = null;
+		try {
+			con = ds.getConnection();
+			con.setAutoCommit(false);
+			
+			s = con.prepareStatement("SELECT c.id, c.name "
+					+ "FROM company AS c "
+					+ "WHERE UPPER(c.name) LIKE UPPER(?) "
+					+ "ORDER BY c."+orderBy.toString()+" "+direction.toString()+" "
+					+ "LIMIT ?, ?");
+			if(name != null && !name.isEmpty()) {
+				s.setString(1, "%"+name+"%");
+			}else {
+				s.setString(1, "%");
+			}
+			s.setLong(2, offset);
+			s.setLong(3, lenght);
+			rs = s.executeQuery();
+
+			while (rs.next()) {
+				companies.add(createCompanyWithResultSetRow(rs));
+			}
+
+		} catch (SQLException e) {
+			throw new DatabaseErrorException(e);
+		} catch (EmptyResultSetException e) {
+			companies.clear();
+		} finally {
+			try {
+				if (con != null) {
+					con.commit();
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException e) {
+				throw new DatabaseErrorException(e);
+			}
+		}
+		return companies;
+	}
+	
+	/**
+	 * @param name
 	 * @return all rows of the computer table with the specified name, if any
 	 * @throws DatabaseErrorException 
 	 */
@@ -546,34 +616,6 @@ public class DatabaseAccessor {
 	}
 	
 	/**
-	 * @return number of computers in database
-	 * @throws DatabaseErrorException
-	 */
-	public long countComputers() throws DatabaseErrorException {
-		Connection con = null;
-		ResultSet res = null;
-		try {
-			con = ds.getConnection();
-			res = con.createStatement().executeQuery("SELECT COUNT(id) FROM computer");
-			res.next();
-			return res.getLong(1);
-		} catch (SQLException e) {
-			throw new DatabaseErrorException(e);
-		}finally {
-			try {
-				if (con != null) {
-					con.close();
-				}
-				if (res != null) {
-					res.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
-		}
-	}
-	
-	/**
 	 * @param name name pattern of computers to count, or empty/null for all of them
 	 * @return number of computers in database
 	 * @throws DatabaseErrorException
@@ -586,6 +628,46 @@ public class DatabaseAccessor {
 			con = ds.getConnection();
 			
 			s= con.prepareStatement("SELECT COUNT(c.id) FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
+			if(name != null && !name.isEmpty()) {
+				s.setString(1, "%"+name+"%");
+			}else {
+				s.setString(1, "%");
+			}
+			res = s.executeQuery();
+			res.next();
+			return res.getLong(1);
+		} catch (SQLException e) {
+			throw new DatabaseErrorException(e);
+		}finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (res != null) {
+					res.close();
+				}
+			} catch (SQLException e) {
+				throw new DatabaseErrorException();
+			}
+		}
+	}
+	
+	/**
+	 * @param name
+	 * @return number of companies matching name in database
+	 * @throws DatabaseErrorException
+	 */
+	public long countCompaniesByName(String name) throws DatabaseErrorException {
+		Connection con = null;
+		PreparedStatement s = null;
+		ResultSet res = null;
+		try {
+			con = ds.getConnection();
+			
+			s= con.prepareStatement("SELECT COUNT(c.id) FROM company AS c WHERE UPPER(c.name) LIKE UPPER(?)");
 			if(name != null && !name.isEmpty()) {
 				s.setString(1, "%"+name+"%");
 			}else {

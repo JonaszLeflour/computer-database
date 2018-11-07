@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.persistence.DatabaseAccessor.ComputerFields;
+import com.excilys.cdb.persistence.DatabaseAccessor.ComputerField;
 import com.excilys.cdb.persistence.DatabaseAccessor.OrderDirection;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.InvalidParameterException;
@@ -130,7 +130,7 @@ public interface DataPresenter {
 	 * @return ordered list of computers
 	 * @throws DatabaseErrorException 
 	 */
-	List<Computer> getOrderedComputersByName(String name, long offset, long lenght, ComputerFields orderBy,
+	List<Computer> getOrderedComputersByName(String name, long offset, long lenght, ComputerField orderBy,
 			OrderDirection direction) throws DatabaseErrorException;
 	
 }

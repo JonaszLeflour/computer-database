@@ -93,15 +93,6 @@ public class DatabaseAccessorTest {
 	}
 	
 	/**
-	 * @throws DatabaseErrorException 
-	 * 
-	 */
-	@Test
-	public void testCountComputers() throws DatabaseErrorException {
-		assertTrue(dba.countComputers()>0);
-	}
-	
-	/**
 	 * @throws DatabaseErrorException
 	 */
 	@Test
@@ -109,6 +100,18 @@ public class DatabaseAccessorTest {
 		assertTrue(dba.countComputersByName("mac")>0);
 		assertEquals(0,dba.countComputersByName("This computer shouldn't be in the database"));
 	}
+	
+	/**
+	 * @throws DatabaseErrorException
+	 */
+	@Test
+	public void testCountCompaniesByName() throws DatabaseErrorException{
+		assertTrue(dba.countCompaniesByName("apple")>0);
+		assertEquals(0,dba.countComputersByName("This computer shouldn't be in the database"));
+	}
+	
+	
+	
 	
 	/**
 	 * @throws DatabaseErrorException
@@ -429,12 +432,12 @@ public class DatabaseAccessorTest {
 	 * 
 	 */
 	@Test
-	public void getOrderedComputersTest() throws DatabaseErrorException {
+	public void testGetOrderedComputers() throws DatabaseErrorException {
 		boolean expectedFailure1 = false;
 		boolean expectedFailure2 = false;
 		
 		
-		for(DatabaseAccessor.ComputerFields orderBy : DatabaseAccessor.ComputerFields.values()) {
+		for(DatabaseAccessor.ComputerField orderBy : DatabaseAccessor.ComputerField.values()) {
 			for(DatabaseAccessor.OrderDirection direction : DatabaseAccessor.OrderDirection.values()) {
 				assertTrue(!dba.getOrderedComputers("mac", 0, 10, orderBy, direction).isEmpty());
 				assertTrue(!dba.getOrderedComputers("", 10, 10, orderBy, direction).isEmpty());
@@ -442,21 +445,21 @@ public class DatabaseAccessorTest {
 		}
 		
 		
-		List<Computer> res = dba.getOrderedComputers("", 0, 10, DatabaseAccessor.ComputerFields.id, DatabaseAccessor.OrderDirection.DESC);
+		List<Computer> res = dba.getOrderedComputers("", 0, 10, DatabaseAccessor.ComputerField.id, DatabaseAccessor.OrderDirection.DESC);
 		assertTrue(res.get(0).getId() > res.get(1).getId());
 		
-		res = dba.getOrderedComputers("", 0, 10, DatabaseAccessor.ComputerFields.id, DatabaseAccessor.OrderDirection.ASC);
+		res = dba.getOrderedComputers("", 0, 10, DatabaseAccessor.ComputerField.id, DatabaseAccessor.OrderDirection.ASC);
 		
 		assertTrue(res.get(0).getId() < res.get(1).getId());
 		
 		try {
-			dba.getOrderedComputers("", -1, 10, DatabaseAccessor.ComputerFields.id, DatabaseAccessor.OrderDirection.ASC);
+			dba.getOrderedComputers("", -1, 10, DatabaseAccessor.ComputerField.id, DatabaseAccessor.OrderDirection.ASC);
 		}catch (DatabaseErrorException e){
 			expectedFailure1 = true;
 		}
 		
 		try {
-			dba.getOrderedComputers("", -1, 10, DatabaseAccessor.ComputerFields.id, DatabaseAccessor.OrderDirection.ASC);
+			dba.getOrderedComputers("", 0, -1, DatabaseAccessor.ComputerField.id, DatabaseAccessor.OrderDirection.ASC);
 		}catch (DatabaseErrorException e){
 			expectedFailure2 = true;
 		}
@@ -465,6 +468,45 @@ public class DatabaseAccessorTest {
 		assertTrue(expectedFailure2);
 		
 		
+	}
+	
+	/**
+	 * @throws DatabaseErrorException
+	 */
+	@Test
+	public void testGetOrderedCompanies() throws DatabaseErrorException {
+		boolean expectedFailure1 = false;
+		boolean expectedFailure2 = false;
+		
+		for(DatabaseAccessor.CompanyField orderBy : DatabaseAccessor.CompanyField.values()) {
+			for(DatabaseAccessor.OrderDirection direction : DatabaseAccessor.OrderDirection.values()) {
+				assertTrue(!dba.getOrderedCompanies("a", 0, 10, orderBy, direction).isEmpty());
+				assertTrue(!dba.getOrderedCompanies("", 5, 5, orderBy, direction).isEmpty());
+			}
+		}
+		
+		
+		List<Company> res = dba.getOrderedCompanies("", 0, 10, DatabaseAccessor.CompanyField.id, DatabaseAccessor.OrderDirection.DESC);
+		assertTrue(res.get(0).getId() > res.get(1).getId());
+		
+		res = dba.getOrderedCompanies("", 0, 10, DatabaseAccessor.CompanyField.id, DatabaseAccessor.OrderDirection.ASC);
+		
+		assertTrue(res.get(0).getId() < res.get(1).getId());
+		
+		try {
+			dba.getOrderedCompanies("", -1, 10, DatabaseAccessor.CompanyField.id, DatabaseAccessor.OrderDirection.ASC);
+		}catch (DatabaseErrorException e){
+			expectedFailure1 = true;
+		}
+		
+		try {
+			dba.getOrderedCompanies("", 1, -1, DatabaseAccessor.CompanyField.id, DatabaseAccessor.OrderDirection.ASC);
+		}catch (DatabaseErrorException e){
+			expectedFailure2 = true;
+		}
+		
+		assertTrue(expectedFailure1);
+		assertTrue(expectedFailure2);
 	}
 
 }

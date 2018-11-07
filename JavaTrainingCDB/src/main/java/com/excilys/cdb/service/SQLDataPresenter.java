@@ -68,7 +68,7 @@ public class SQLDataPresenter implements DataPresenter{
 	
 	@Override
 	public long countAllComputers() throws DatabaseErrorException {
-		return dba.countComputers();
+		return dba.countComputersByName("");
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class SQLDataPresenter implements DataPresenter{
 	}
 	
 	@Override
-	public List <Computer> getOrderedComputersByName(String name, long offset, long lenght, DatabaseAccessor.ComputerFields orderBy, DatabaseAccessor.OrderDirection direction ) throws DatabaseErrorException {
+	public List <Computer> getOrderedComputersByName(String name, long offset, long lenght, DatabaseAccessor.ComputerField orderBy, DatabaseAccessor.OrderDirection direction ) throws DatabaseErrorException {
 		return dba.getOrderedComputers(name, offset, lenght, orderBy, direction);
 		
 	}
