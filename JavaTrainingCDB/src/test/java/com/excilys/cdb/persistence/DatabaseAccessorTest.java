@@ -339,7 +339,7 @@ public class DatabaseAccessorTest {
 
 		try {
 			dba.deleteComputerById(invalidId);
-		} catch (ObjectNotFoundException e) {
+		} catch (ObjectNotFoundException | InvalidParameterException e) {
 			expectedError = true;
 		}
 		assertTrue(expectedError);

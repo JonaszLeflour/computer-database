@@ -343,6 +343,7 @@ public final class ConsoleUserInterface implements UserInterface {
 	private void updateComputer() {
 		Computer.Builder computerBuilder = new Computer.Builder();	
 		String val;
+		
 		System.out.println("Upate computer");
 	
 		System.out.println("Enter introduction date (blank for no update) : ");

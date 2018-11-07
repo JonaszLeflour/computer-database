@@ -1,6 +1,8 @@
 package com.excilys.cdb;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.service.DataPresenter;
@@ -13,7 +15,8 @@ import com.excilys.cdb.ui.ConsoleUserInterface;
  *
  */
 public class Main {
-
+	static Logger logger = LoggerFactory.getLogger(Main.class);
+	
 	/**
 	 * Creates user interface object
 	 * @param args
@@ -24,12 +27,8 @@ public class Main {
 		try {
 			dp = new SQLDataPresenter();
 			new ConsoleUserInterface(dp).mainLoop(args);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (DatabaseErrorException e) {
-			e.printStackTrace();
+		} catch (IOException | DatabaseErrorException e) {
+			logger.error("Error : ", e);
 		}
 	}
 }
