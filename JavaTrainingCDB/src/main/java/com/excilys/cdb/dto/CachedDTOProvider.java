@@ -16,23 +16,23 @@ import com.excilys.cdb.service.SQLDataPresenter;
  * @author Jonasz Leflour
  *
  */
-public class CachedDTOProvider implements DTOProvider{
+public class CachedDTOProvider implements DTOProvider {
 	DataPresenter dp = null;
 	List<DTOComputer> allComputers = new ArrayList<DTOComputer>();
 	boolean obsoleteData = true;
-	
-	
+
 	/**
-	 * @throws DatabaseErrorException 
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
-	 * @throws ClassNotFoundException 
+	 * @throws DatabaseErrorException
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 * @throws ClassNotFoundException
 	 * 
 	 */
-	public CachedDTOProvider() throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
+	public CachedDTOProvider()
+			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
 		dp = new SQLDataPresenter();
 	}
-	
+
 	/**
 	 * @param c
 	 * @return DTO object version of c
@@ -40,13 +40,13 @@ public class CachedDTOProvider implements DTOProvider{
 	public static DTOComputer computertoDaoComputer(Computer c) {
 		DTOComputer daoC = new DTOComputer();
 		daoC.setId(String.valueOf(c.getId()));
-		daoC.setName(c.getName()!=null ? c.getName() : "");
-		daoC.setIntroduced(c.getIntroduced()!=null ? c.getIntroduced().toString() : "");
-		daoC.setDiscontinued(c.getDiscontinued()!=null ? c.getDiscontinued().toString() : "");
-		daoC.setCompany(c.getCompany()!=null ? c.getCompany().getName().toString() : "");
+		daoC.setName(c.getName() != null ? c.getName() : "");
+		daoC.setIntroduced(c.getIntroduced() != null ? c.getIntroduced().toString() : "");
+		daoC.setDiscontinued(c.getDiscontinued() != null ? c.getDiscontinued().toString() : "");
+		daoC.setCompany(c.getCompany() != null ? c.getCompany().getName().toString() : "");
 		return daoC;
 	}
-	
+
 	/**
 	 * @param c
 	 * @return DTO object version of c
@@ -54,23 +54,23 @@ public class CachedDTOProvider implements DTOProvider{
 	public static DTOCompany companytoDaoCompany(Company c) {
 		DTOCompany daoC = new DTOCompany();
 		daoC.setId(String.valueOf(c.getId()));
-		daoC.setName(c.getName()!=null ? c.getName() : "");
+		daoC.setName(c.getName() != null ? c.getName() : "");
 		return daoC;
 	}
-	
+
 	private void reloadAllComputers() throws DatabaseErrorException {
 		allComputers.clear();
-		for(Computer c :dp.getComputers()) {
+		for (Computer c : dp.getComputers()) {
 			allComputers.add(computertoDaoComputer(c));
 		}
 		obsoleteData = false;
 	}
-	
-	public List<DTOComputer> getAllComputers() throws DatabaseErrorException{
+
+	public List<DTOComputer> getAllComputers() throws DatabaseErrorException {
 		reloadAllComputers();
 		return allComputers;
 	}
-	
+
 	/**
 	 * @param pageNumber
 	 * @param computersPerPage
@@ -78,16 +78,16 @@ public class CachedDTOProvider implements DTOProvider{
 	 */
 
 	@Override
-	public List<DTOComputer> getComputersByName(String nameFilter) throws DatabaseErrorException{
+	public List<DTOComputer> getComputersByName(String nameFilter) throws DatabaseErrorException {
 		List<DTOComputer> resultsByName = new ArrayList<DTOComputer>();
-		if(obsoleteData) {
+		if (obsoleteData) {
 			List<Computer> result = dp.getComputersByName(nameFilter);
-			for(Computer c : result) {
+			for (Computer c : result) {
 				resultsByName.add(computertoDaoComputer(c));
 			}
-		}else {
-			for(DTOComputer c : allComputers) {
-				if(nameFilter.equals(c.getName())) {
+		} else {
+			for (DTOComputer c : allComputers) {
+				if (nameFilter.equals(c.getName())) {
 					resultsByName.add(c);
 				}
 			}
@@ -96,7 +96,7 @@ public class CachedDTOProvider implements DTOProvider{
 	}
 
 	@Override
-	public void editComputer(Computer c) throws DatabaseErrorException, InvalidParameterException{
+	public void editComputer(Computer c) throws DatabaseErrorException, InvalidParameterException {
 		dp.addComputer(c);
 		updateCache();
 	}
@@ -106,7 +106,7 @@ public class CachedDTOProvider implements DTOProvider{
 		dp.addComputer(c);
 		updateCache();
 	}
-	
+
 	/**
 	 * Mark data as obsolete so it will be loaded at next query
 	 */
@@ -117,7 +117,7 @@ public class CachedDTOProvider implements DTOProvider{
 	@Override
 	public List<DTOCompany> getAllCompanies() throws DatabaseErrorException {
 		List<DTOCompany> result = new ArrayList<>();
-		for(Company c : this.dp.getCompanies()) {
+		for (Company c : this.dp.getCompanies()) {
 			result.add(companytoDaoCompany(c));
 		}
 		return result;

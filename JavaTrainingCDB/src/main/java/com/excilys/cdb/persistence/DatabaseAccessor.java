@@ -1,7 +1,5 @@
 package com.excilys.cdb.persistence;
 
-
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,97 +33,93 @@ import com.zaxxer.hikari.HikariDataSource;
 public class DatabaseAccessor {
 	private static DatabaseAccessor dba = null;
 	private static String propertiesURL = "config.properties";
-	
+
 	private String URL = null;
 	private String user = null;
 	private String password = null;
-	
+
 	private static HikariConfig config;
-    private static HikariDataSource ds;
-	
-    /**
-     * @author Jonasz Leflour
-     *
-     */
-    public static enum ComputerField{
-    	@SuppressWarnings("javadoc")
-		id,
+	private static HikariDataSource ds;
+
+	/**
+	 * @author Jonasz Leflour
+	 *
+	 */
+	public static enum ComputerField {
 		@SuppressWarnings("javadoc")
-    	name,
-    	@SuppressWarnings("javadoc")
-    	introduced,
-    	@SuppressWarnings("javadoc")
-    	discontinued,
-    	@SuppressWarnings("javadoc")
-    	company_id;
-    };
-    
-    /**
-     * @author JOnasz Leflour
-     *
-     */
-    public static enum CompanyField{
-    	@SuppressWarnings("javadoc")
-    	id,
-    	@SuppressWarnings("javadoc")
-    	name;
-    }
-    
-    /**
-     * @author Jonasz Leflour
-     *
-     */
-    public static enum OrderDirection{
-    	@SuppressWarnings("javadoc")
-    	DESC,
-    	@SuppressWarnings("javadoc")
-    	ASC
-    }
-    
-    
-    
+		id, @SuppressWarnings("javadoc")
+		name, @SuppressWarnings("javadoc")
+		introduced, @SuppressWarnings("javadoc")
+		discontinued, @SuppressWarnings("javadoc")
+		company_id;
+	};
+
+	/**
+	 * @author JOnasz Leflour
+	 *
+	 */
+	public static enum CompanyField {
+		@SuppressWarnings("javadoc")
+		id, @SuppressWarnings("javadoc")
+		name;
+	}
+
+	/**
+	 * @author Jonasz Leflour
+	 *
+	 */
+	public static enum OrderDirection {
+		@SuppressWarnings("javadoc")
+		DESC, @SuppressWarnings("javadoc")
+		ASC
+	}
+
 	/**
 	 * Tries to connect to database on create
-	 * @throws ClassNotFoundException 
+	 * 
+	 * @throws ClassNotFoundException
 	 */
-	private DatabaseAccessor() throws FileNotFoundException,IOException, DatabaseErrorException, ClassNotFoundException{
+	private DatabaseAccessor()
+			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
 		Properties prop = new Properties();
 		Class.forName("com.mysql.cj.jdbc.Driver");
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		InputStream input = classLoader.getResourceAsStream(propertiesURL);
-		if(input == null) {
+		if (input == null) {
 			throw new FileNotFoundException();
 		}
-		
+
 		prop.load(input);
 		URL = prop.getProperty("database");
 		user = prop.getProperty("user");
 		password = prop.getProperty("password");
-		
+
 		config = new HikariConfig();
-		
+
 		config.setJdbcUrl(URL);
-        config.setUsername(user);
-        config.setPassword(password);
-        ds = new HikariDataSource( config );
-		
+		config.setUsername(user);
+		config.setPassword(password);
+		ds = new HikariDataSource(config);
+
 	}
-	
+
 	/**
-	 * @return Singleton of DatabaseAccessor 
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
-	 * @throws DatabaseErrorException 
-	 * @throws ClassNotFoundException 
+	 * @return Singleton of DatabaseAccessor
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 * @throws DatabaseErrorException
+	 * @throws ClassNotFoundException
 	 */
-	public static DatabaseAccessor GetDatabaseAccessor() throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
-		if(dba == null) {
+	public static DatabaseAccessor GetDatabaseAccessor()
+			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
+		if (dba == null) {
 			dba = new DatabaseAccessor();
 		}
 		return dba;
 	}
 
-	private Computer createComputerWithResultSetRow(ResultSet rs) throws EmptyResultSetException, DatabaseErrorException{
+	private Computer createComputerWithResultSetRow(ResultSet rs)
+			throws EmptyResultSetException, DatabaseErrorException {
 		Computer computer = new Computer();
 		try {
 			long id = rs.getLong(1);
@@ -133,7 +127,7 @@ public class DatabaseAccessor {
 				throw new EmptyResultSetException();
 			}
 			computer.setId(id);
-			
+
 			String name = rs.getString(2);
 			if (rs.wasNull()) {
 				throw new EmptyResultSetException();
@@ -180,10 +174,10 @@ public class DatabaseAccessor {
 
 	/**
 	 * @return all computers from the database as a ResultSet
-	 * @throws DatabaseErrorException 
+	 * @throws DatabaseErrorException
 	 * @throws SQLException
 	 */
-	public List<Computer> getAllComputers() throws DatabaseErrorException{
+	public List<Computer> getAllComputers() throws DatabaseErrorException {
 		List<Computer> computers = new ArrayList<>();
 		Connection con = null;
 		Statement s = null;
@@ -215,21 +209,21 @@ public class DatabaseAccessor {
 				if (rs != null) {
 					rs.close();
 				}
-				
+
 			} catch (SQLException e) {
 				throw new DatabaseErrorException(e);
 			}
 		}
 		return computers;
 	}
-	
+
 	/**
-	 * @param offset 
+	 * @param offset
 	 * @param lenght max size of the array (less if no more computers in database)
 	 * @return array of lenght or less computers
 	 * @throws DatabaseErrorException
 	 */
-	public List<Computer> getAllComputers(long offset, long lenght) throws DatabaseErrorException{
+	public List<Computer> getAllComputers(long offset, long lenght) throws DatabaseErrorException {
 		List<Computer> computers = new ArrayList<>();
 		Connection con = null;
 		PreparedStatement s = null;
@@ -269,15 +263,15 @@ public class DatabaseAccessor {
 		}
 		return computers;
 	}
-	
+
 	/**
-	 * @param name 
-	 * @param offset 
+	 * @param name
+	 * @param offset
 	 * @param lenght max size of the array (less if no more computers in database)
 	 * @return array of lenght or less computers
 	 * @throws DatabaseErrorException
 	 */
-	public List<Computer> getComputersByName(String name, long offset, long lenght) throws DatabaseErrorException{
+	public List<Computer> getComputersByName(String name, long offset, long lenght) throws DatabaseErrorException {
 		List<Computer> computers = new ArrayList<>();
 		Connection con = null;
 		PreparedStatement s = null;
@@ -286,8 +280,9 @@ public class DatabaseAccessor {
 		try {
 			con = ds.getConnection();
 			con.setAutoCommit(false);
-			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?) LIMIT ?, ?");
-			s.setString(1, "%"+name+"%");
+			s = con.prepareStatement(
+					"SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?) LIMIT ?, ?");
+			s.setString(1, "%" + name + "%");
 			s.setLong(2, offset);
 			s.setLong(3, lenght);
 			rs = s.executeQuery();
@@ -318,15 +313,13 @@ public class DatabaseAccessor {
 		}
 		return computers;
 	}
-	
-	
 
 	/**
 	 * @return all companies from the database as a ResultSet
-	 * @throws DatabaseErrorException 
+	 * @throws DatabaseErrorException
 	 * @throws SQLException
 	 */
-	public List<Company> getAllCompanies() throws DatabaseErrorException{
+	public List<Company> getAllCompanies() throws DatabaseErrorException {
 		List<Company> companies = new ArrayList<>();
 		Connection con = null;
 		Statement s = null;
@@ -346,7 +339,7 @@ public class DatabaseAccessor {
 			throw new DatabaseErrorException();
 		} catch (EmptyResultSetException e) {
 			companies.clear();
-		}finally {
+		} finally {
 			try {
 				if (con != null) {
 					con.commit();
@@ -369,9 +362,9 @@ public class DatabaseAccessor {
 	 * @param id id of company
 	 * @return single row of the company table with the specified id, if exists
 	 * @throws ObjectNotFoundException
-	 * @throws DatabaseErrorException 
+	 * @throws DatabaseErrorException
 	 */
-	public Company getCompanybyId(long id) throws ObjectNotFoundException,DatabaseErrorException{
+	public Company getCompanybyId(long id) throws ObjectNotFoundException, DatabaseErrorException {
 		Company company = null;
 		Connection con = null;
 		Statement s = null;
@@ -411,16 +404,16 @@ public class DatabaseAccessor {
 	 * @param id
 	 * @return single row of the computer table with the specified id, if exists
 	 * @throws ObjectNotFoundException
-	 * @throws DatabaseErrorException 
+	 * @throws DatabaseErrorException
 	 */
-	public Computer getComputerById(long id) throws ObjectNotFoundException, DatabaseErrorException{
+	public Computer getComputerById(long id) throws ObjectNotFoundException, DatabaseErrorException {
 
 		Computer computer = null;
 		Connection con = null;
 		PreparedStatement s = null;
 		ResultSet rs = null;
 
-		try {//id name intro disc idcomp
+		try {// id name intro disc idcomp
 			con = ds.getConnection();
 			s = con.prepareStatement("SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id=?");
 			s.setLong(1, id);
@@ -430,7 +423,7 @@ public class DatabaseAccessor {
 		} catch (SQLException e) {
 			throw new DatabaseErrorException(e);
 		} catch (EmptyResultSetException e) {
-			throw new ObjectNotFoundException("Couldn't find computer with id="+id);
+			throw new ObjectNotFoundException("Couldn't find computer with id=" + id);
 		} finally {
 			try {
 				if (con != null) {
@@ -446,22 +439,23 @@ public class DatabaseAccessor {
 				throw new DatabaseErrorException();
 			}
 		}
-		if(computer == null || computer.getId() == 0 || computer.getName() == null ||  computer.getName().isEmpty()) {
+		if (computer == null || computer.getId() == 0 || computer.getName() == null || computer.getName().isEmpty()) {
 			throw new ObjectNotFoundException();
 		}
 		return computer;
 	}
-	
+
 	/**
-	 * @param name name searched. Leave empty or null for all computers
-	 * @param offset index of for item in the resulting list
-	 * @param lenght max size of result
+	 * @param name      name searched. Leave empty or null for all computers
+	 * @param offset    index of for item in the resulting list
+	 * @param lenght    max size of result
 	 * @param orderBy
 	 * @param direction
 	 * @return ordered list of computers
-	 * @throws DatabaseErrorException 
+	 * @throws DatabaseErrorException
 	 */
-	public List<Computer> getOrderedComputers(String name, long offset, long lenght, ComputerField orderBy, OrderDirection direction) throws DatabaseErrorException{
+	public List<Computer> getOrderedComputers(String name, long offset, long lenght, ComputerField orderBy,
+			OrderDirection direction) throws DatabaseErrorException {
 		List<Computer> computers = new ArrayList<>();
 		Connection con = null;
 		PreparedStatement s = null;
@@ -469,15 +463,13 @@ public class DatabaseAccessor {
 		try {
 			con = ds.getConnection();
 			con.setAutoCommit(false);
-			
+
 			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id "
-					+ "FROM computer AS c "
-					+ "WHERE UPPER(c.name) LIKE UPPER(?) "
-					+ "ORDER BY c."+orderBy.toString()+" "+direction.toString()+" "
-					+ "LIMIT ?, ?");
-			if(name != null && !name.isEmpty()) {
-				s.setString(1, "%"+name+"%");
-			}else {
+					+ "FROM computer AS c " + "WHERE UPPER(c.name) LIKE UPPER(?) " + "ORDER BY c." + orderBy.toString()
+					+ " " + direction.toString() + " " + "LIMIT ?, ?");
+			if (name != null && !name.isEmpty()) {
+				s.setString(1, "%" + name + "%");
+			} else {
 				s.setString(1, "%");
 			}
 			s.setLong(2, offset);
@@ -510,7 +502,7 @@ public class DatabaseAccessor {
 		}
 		return computers;
 	}
-	
+
 	/**
 	 * @param name
 	 * @param offset
@@ -520,7 +512,8 @@ public class DatabaseAccessor {
 	 * @return ordered list of companies
 	 * @throws DatabaseErrorException
 	 */
-	public List<Company> getOrderedCompanies(String name, long offset, long lenght, CompanyField orderBy, OrderDirection direction) throws DatabaseErrorException{
+	public List<Company> getOrderedCompanies(String name, long offset, long lenght, CompanyField orderBy,
+			OrderDirection direction) throws DatabaseErrorException {
 		List<Company> companies = new ArrayList<>();
 		Connection con = null;
 		PreparedStatement s = null;
@@ -528,15 +521,13 @@ public class DatabaseAccessor {
 		try {
 			con = ds.getConnection();
 			con.setAutoCommit(false);
-			
-			s = con.prepareStatement("SELECT c.id, c.name "
-					+ "FROM company AS c "
-					+ "WHERE UPPER(c.name) LIKE UPPER(?) "
-					+ "ORDER BY c."+orderBy.toString()+" "+direction.toString()+" "
-					+ "LIMIT ?, ?");
-			if(name != null && !name.isEmpty()) {
-				s.setString(1, "%"+name+"%");
-			}else {
+
+			s = con.prepareStatement(
+					"SELECT c.id, c.name " + "FROM company AS c " + "WHERE UPPER(c.name) LIKE UPPER(?) " + "ORDER BY c."
+							+ orderBy.toString() + " " + direction.toString() + " " + "LIMIT ?, ?");
+			if (name != null && !name.isEmpty()) {
+				s.setString(1, "%" + name + "%");
+			} else {
 				s.setString(1, "%");
 			}
 			s.setLong(2, offset);
@@ -569,11 +560,11 @@ public class DatabaseAccessor {
 		}
 		return companies;
 	}
-	
+
 	/**
 	 * @param name
 	 * @return all rows of the computer table with the specified name, if any
-	 * @throws DatabaseErrorException 
+	 * @throws DatabaseErrorException
 	 */
 	public List<Computer> getComputerByName(String name) throws DatabaseErrorException {
 		List<Computer> computers = new ArrayList<>();
@@ -583,8 +574,9 @@ public class DatabaseAccessor {
 
 		try {
 			con = ds.getConnection();
-			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
-			s.setString(1, "%"+name+"%");
+			s = con.prepareStatement(
+					"SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
+			s.setString(1, "%" + name + "%");
 
 			rs = s.executeQuery();
 
@@ -593,11 +585,10 @@ public class DatabaseAccessor {
 			}
 
 		} catch (SQLException e) {
-			throw new DatabaseErrorException(e); 
-		} catch(EmptyResultSetException e) {
+			throw new DatabaseErrorException(e);
+		} catch (EmptyResultSetException e) {
 			computers.clear();
-		}
-		finally {
+		} finally {
 			try {
 				if (con != null) {
 					con.close();
@@ -614,7 +605,7 @@ public class DatabaseAccessor {
 		}
 		return computers;
 	}
-	
+
 	/**
 	 * @param name name pattern of computers to count, or empty/null for all of them
 	 * @return number of computers in database
@@ -626,11 +617,11 @@ public class DatabaseAccessor {
 		ResultSet res = null;
 		try {
 			con = ds.getConnection();
-			
-			s= con.prepareStatement("SELECT COUNT(c.id) FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
-			if(name != null && !name.isEmpty()) {
-				s.setString(1, "%"+name+"%");
-			}else {
+
+			s = con.prepareStatement("SELECT COUNT(c.id) FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
+			if (name != null && !name.isEmpty()) {
+				s.setString(1, "%" + name + "%");
+			} else {
 				s.setString(1, "%");
 			}
 			res = s.executeQuery();
@@ -638,7 +629,7 @@ public class DatabaseAccessor {
 			return res.getLong(1);
 		} catch (SQLException e) {
 			throw new DatabaseErrorException(e);
-		}finally {
+		} finally {
 			try {
 				if (con != null) {
 					con.close();
@@ -654,7 +645,7 @@ public class DatabaseAccessor {
 			}
 		}
 	}
-	
+
 	/**
 	 * @param name
 	 * @return number of companies matching name in database
@@ -666,11 +657,11 @@ public class DatabaseAccessor {
 		ResultSet res = null;
 		try {
 			con = ds.getConnection();
-			
-			s= con.prepareStatement("SELECT COUNT(c.id) FROM company AS c WHERE UPPER(c.name) LIKE UPPER(?)");
-			if(name != null && !name.isEmpty()) {
-				s.setString(1, "%"+name+"%");
-			}else {
+
+			s = con.prepareStatement("SELECT COUNT(c.id) FROM company AS c WHERE UPPER(c.name) LIKE UPPER(?)");
+			if (name != null && !name.isEmpty()) {
+				s.setString(1, "%" + name + "%");
+			} else {
 				s.setString(1, "%");
 			}
 			res = s.executeQuery();
@@ -678,7 +669,7 @@ public class DatabaseAccessor {
 			return res.getLong(1);
 		} catch (SQLException e) {
 			throw new DatabaseErrorException(e);
-		}finally {
+		} finally {
 			try {
 				if (con != null) {
 					con.close();
@@ -694,25 +685,23 @@ public class DatabaseAccessor {
 			}
 		}
 	}
-	
-	
 
 	/**
 	 * @param computer
-	 * @throws InvalidParameterException 
-	 * @throws DatabaseErrorException 
+	 * @throws InvalidParameterException
+	 * @throws DatabaseErrorException
 	 */
-	public void createComputer(Computer computer) throws InvalidParameterException,DatabaseErrorException {
-		if(computer == null) {
+	public void createComputer(Computer computer) throws InvalidParameterException, DatabaseErrorException {
+		if (computer == null) {
 			throw new InvalidParameterException("Computer is null");
-			
-		}else if(computer.getName()== null) {
+
+		} else if (computer.getName() == null) {
 			throw new InvalidParameterException("Computer name is null");
-			
-		}else if(computer.getName().equals("")) {
+
+		} else if (computer.getName().equals("")) {
 			throw new InvalidParameterException("Computer name is empty");
 		}
-		if((computer.getIntroduced() != null && computer.getDiscontinued() != null )
+		if ((computer.getIntroduced() != null && computer.getDiscontinued() != null)
 				&& computer.getIntroduced().isAfter(computer.getDiscontinued())) {
 			throw new InvalidParameterException("Incoherent introduced and discontinued dates");
 		}
@@ -743,7 +732,7 @@ public class DatabaseAccessor {
 			}
 			s.executeUpdate();
 		} catch (SQLException e) {
-			if(beforeUpdate != null) {
+			if (beforeUpdate != null) {
 				try {
 					con.rollback(beforeUpdate);
 				} catch (SQLException e1) {
@@ -770,17 +759,18 @@ public class DatabaseAccessor {
 	 * deletes all computers in table with specified name
 	 * 
 	 * @param name
-	 * @throws InvalidParameterException 
-	 * @throws ObjectNotFoundException 
-	 * @throws DatabaseErrorException 
+	 * @throws InvalidParameterException
+	 * @throws ObjectNotFoundException
+	 * @throws DatabaseErrorException
 	 */
-	public void deleteComputerByName(String name) throws InvalidParameterException, ObjectNotFoundException, DatabaseErrorException{
-		if(name == null) {
+	public void deleteComputerByName(String name)
+			throws InvalidParameterException, ObjectNotFoundException, DatabaseErrorException {
+		if (name == null) {
 			throw new InvalidParameterException("Name provided is null");
-		}else if (name.isEmpty()){
+		} else if (name.isEmpty()) {
 			throw new InvalidParameterException("Name provided is empty");
 		}
-		
+
 		Connection con = null;
 		PreparedStatement s = null;
 		int ret = 0;
@@ -793,7 +783,7 @@ public class DatabaseAccessor {
 			s.setString(1, name);
 			ret = s.executeUpdate();
 		} catch (SQLException e) {
-			if(beforeDelete != null) {
+			if (beforeDelete != null) {
 				try {
 					con.rollback(beforeDelete);
 				} catch (SQLException e1) {
@@ -814,24 +804,26 @@ public class DatabaseAccessor {
 				throw new DatabaseErrorException();
 			}
 		}
-		if(ret == 0) {
+		if (ret == 0) {
 			throw new ObjectNotFoundException();
 		}
 
 	}
-	
+
 	/**
 	 * deletes all computers in table with specified name
-	 * @param id 
-	 * @throws InvalidParameterException 
-	 * @throws ObjectNotFoundException 
-	 * @throws DatabaseErrorException 
+	 * 
+	 * @param id
+	 * @throws InvalidParameterException
+	 * @throws ObjectNotFoundException
+	 * @throws DatabaseErrorException
 	 */
-	public void deleteComputerById(long id) throws InvalidParameterException, ObjectNotFoundException, DatabaseErrorException{
-		if(id <= 0) {
+	public void deleteComputerById(long id)
+			throws InvalidParameterException, ObjectNotFoundException, DatabaseErrorException {
+		if (id <= 0) {
 			throw new InvalidParameterException("Id provided must be strictly positive");
 		}
-		
+
 		Connection con = null;
 		PreparedStatement s = null;
 		int ret = 0;
@@ -844,7 +836,7 @@ public class DatabaseAccessor {
 			s.setLong(1, id);
 			ret = s.executeUpdate();
 		} catch (SQLException e) {
-			if(beforeDelete != null) {
+			if (beforeDelete != null) {
 				try {
 					con.rollback(beforeDelete);
 				} catch (SQLException e1) {
@@ -865,18 +857,18 @@ public class DatabaseAccessor {
 				throw new DatabaseErrorException();
 			}
 		}
-		if(ret == 0) {
+		if (ret == 0) {
 			throw new ObjectNotFoundException();
 		}
 
 	}
-	
+
 	/**
 	 * @param id
 	 * @throws DatabaseErrorException
 	 * @throws ObjectNotFoundException
 	 */
-	public void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException{
+	public void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException {
 		int status1 = 0, status2 = 0;
 		Connection con = null;
 		PreparedStatement s1 = null, s2 = null;
@@ -888,14 +880,13 @@ public class DatabaseAccessor {
 			s1 = con.prepareStatement("DELETE FROM computer WHERE company_id = ?");
 			s1.setLong(1, id);
 			status1 = s1.executeUpdate();
-			
+
 			s2 = con.prepareStatement("DELETE FROM company WHERE id = ?");
 			s2.setLong(1, id);
 			status2 = s2.executeUpdate();
-			
-			
+
 		} catch (SQLException e) {
-			if(beforeDelete != null) {
+			if (beforeDelete != null) {
 				try {
 					con.rollback(beforeDelete);
 				} catch (SQLException e1) {
@@ -904,7 +895,7 @@ public class DatabaseAccessor {
 			}
 			throw new DatabaseErrorException();
 		} finally {
-			
+
 			try {
 				if (con != null) {
 					con.commit();
@@ -919,48 +910,46 @@ public class DatabaseAccessor {
 			} catch (SQLException e) {
 				throw new DatabaseErrorException();
 			}
-			if(status1 == 0 || status2 == 0) {
+			if (status1 == 0 || status2 == 0) {
 				throw new ObjectNotFoundException();
 			}
 		}
-	
-	
-	
+
 	}
 
 	/**
 	 * @param computer to update
-	 * @throws ObjectNotFoundException 
+	 * @throws ObjectNotFoundException
 	 * @throws InvalidParameterException if no updated fields or field "name" is
 	 *                                   left blank
-	 * @throws DatabaseErrorException 
+	 * @throws DatabaseErrorException
 	 */
-	public void updateComputer(Computer computer) throws InvalidParameterException,ObjectNotFoundException,DatabaseErrorException {
+	public void updateComputer(Computer computer)
+			throws InvalidParameterException, ObjectNotFoundException, DatabaseErrorException {
 		if (computer == null) {
 			throw new InvalidParameterException("Computer object is null");
-		}else if(computer.getName()!=null && computer.getName().isEmpty()) {
+		} else if (computer.getName() != null && computer.getName().isEmpty()) {
 			throw new InvalidParameterException("Computer name cannot be empty");
 		}
-		
-		if(computer.getId() == 0){
+
+		if (computer.getId() == 0) {
 			throw new InvalidParameterException("Computer id isn't provided");
 		}
 		Computer oldComputer = null;
 		oldComputer = getComputerById(computer.getId());
 		LocalDate newIntroduced = computer.getIntroduced();
 		LocalDate newDiscontinued = computer.getDiscontinued();
-		if(newIntroduced == null) {
+		if (newIntroduced == null) {
 			newIntroduced = oldComputer.getIntroduced();
 		}
-		if(newDiscontinued == null) {
+		if (newDiscontinued == null) {
 			newDiscontinued = oldComputer.getDiscontinued();
 		}
-		if(newIntroduced != null && newDiscontinued != null) {
-			if(newIntroduced.isAfter(newDiscontinued)) {
+		if (newIntroduced != null && newDiscontinued != null) {
+			if (newIntroduced.isAfter(newDiscontinued)) {
 				throw new InvalidParameterException("Invalid dates");
 			}
 		}
-		
 
 		Connection con = null;
 		PreparedStatement s = null;
@@ -971,67 +960,65 @@ public class DatabaseAccessor {
 			con.setAutoCommit(false);
 			beforeUpdate = con.setSavepoint();
 			String sql = "UPDATE computer SET";
-			if(computer.getName() != null) {
-				sql+="  name=? ";
-				hasParameters = true;
-			}	
-			if(computer.getIntroduced() != null) {
-				if(hasParameters) {
-					sql+=",";
-				}
-				sql+= " introduced=?";
-				hasParameters = true;
-				
-			}
-			if(computer.getDiscontinued() != null) { 
-				if(hasParameters) {
-					sql+=",";
-				}
-				sql+= " discontinued=?";
+			if (computer.getName() != null) {
+				sql += "  name=? ";
 				hasParameters = true;
 			}
-			if(computer.getCompany() != null) { 
-				if(hasParameters) {
-					sql+=",";
+			if (computer.getIntroduced() != null) {
+				if (hasParameters) {
+					sql += ",";
 				}
-				sql+= " company_id=?";
+				sql += " introduced=?";
+				hasParameters = true;
+
+			}
+			if (computer.getDiscontinued() != null) {
+				if (hasParameters) {
+					sql += ",";
+				}
+				sql += " discontinued=?";
 				hasParameters = true;
 			}
-			
-			if(!hasParameters) {
+			if (computer.getCompany() != null) {
+				if (hasParameters) {
+					sql += ",";
+				}
+				sql += " company_id=?";
+				hasParameters = true;
+			}
+
+			if (!hasParameters) {
 				con.close();
 				throw new InvalidParameterException("No updated parameters provided");
 			}
 			sql += " WHERE id=?";
-			
-			
+
 			s = con.prepareStatement(sql);
 			int i = 1;
-			if(computer.getName() != null) {
+			if (computer.getName() != null) {
 				s.setString(i, computer.getName());
 				i++;
 			}
-			
-			if(computer.getIntroduced() != null) { 
+
+			if (computer.getIntroduced() != null) {
 				s.setDate(i, Date.valueOf(computer.getIntroduced()));
 				i++;
 			}
-			if(computer.getDiscontinued() != null) { 
+			if (computer.getDiscontinued() != null) {
 				s.setDate(i, Date.valueOf(computer.getDiscontinued()));
 				i++;
 			}
-			
-			if(computer.getCompany() != null) { 
+
+			if (computer.getCompany() != null) {
 				s.setLong(i, computer.getCompany().getId());
 				i++;
 			}
-			
+
 			s.setLong(i, computer.getId());
-			
-			
+
 			s.executeUpdate();
 		} catch (SQLException e) {
-			if(beforeUpdate != null) {
+			if (beforeUpdate != null) {
 				try {
 					con.rollback(beforeUpdate);
 					con.close();

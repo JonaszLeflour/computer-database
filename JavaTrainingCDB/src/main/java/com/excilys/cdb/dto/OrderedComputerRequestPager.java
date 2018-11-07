@@ -22,46 +22,45 @@ public class OrderedComputerRequestPager implements ComputerRequestPager {
 	long pageSize;
 	ComputerField orderBy;
 	OrderDirection direction;
-	
-	
-	
+
 	/**
-	 * @param name 
-	 * @param pageSize 
-	 * @param orderBy 
-	 * @param direction 
-	 * @throws DatabaseErrorException 
-	 * @throws IOException 
-	 * @throws ClassNotFoundException 
-	 * @throws FileNotFoundException 
-	 * @throws InvalidPageSizeException 
+	 * @param name
+	 * @param pageSize
+	 * @param orderBy
+	 * @param direction
+	 * @throws DatabaseErrorException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws FileNotFoundException
+	 * @throws InvalidPageSizeException
 	 * 
 	 */
-	public OrderedComputerRequestPager(String name, long pageSize, ComputerField orderBy, OrderDirection direction) throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException, InvalidPageSizeException {
-		
-		if(pageSize <= 0) {
+	public OrderedComputerRequestPager(String name, long pageSize, ComputerField orderBy, OrderDirection direction)
+			throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException,
+			InvalidPageSizeException {
+
+		if (pageSize <= 0) {
 			throw new InvalidPageSizeException("Page size must be strictly positive");
 		}
-		
+
 		dp = new SQLDataPresenter();
 		this.searchName = name;
 		this.pageSize = pageSize;
 		this.orderBy = orderBy;
 		this.direction = direction;
 	}
-	
-	
-	
+
 	@Override
 	public List<DTOComputer> getPage(long pageNumber) throws DatabaseErrorException, InvalidPageNumberException {
-		if(pageNumber < 0) {
+		if (pageNumber < 0) {
 			throw new InvalidPageNumberException("Page number must be positive");
 		}
 		List<DTOComputer> list = new ArrayList<DTOComputer>();
-		for(Computer c : dp.getOrderedComputersByName(searchName, pageNumber*pageSize, pageSize, orderBy, direction)) {
+		for (Computer c : dp.getOrderedComputersByName(searchName, pageNumber * pageSize, pageSize, orderBy,
+				direction)) {
 			list.add(CachedDTOProvider.computertoDaoComputer(c));
 		}
-		if(list.isEmpty() ) {
+		if (list.isEmpty()) {
 			throw new InvalidPageNumberException("This page doesn't exist");
 		}
 		return list;
@@ -69,7 +68,7 @@ public class OrderedComputerRequestPager implements ComputerRequestPager {
 
 	@Override
 	public long getNbPages() throws DatabaseErrorException {
-		return (long)Math.ceil(dp.countComputersByName(searchName)/((double)pageSize));
+		return (long) Math.ceil(dp.countComputersByName(searchName) / ((double) pageSize));
 	}
 
 	@Override

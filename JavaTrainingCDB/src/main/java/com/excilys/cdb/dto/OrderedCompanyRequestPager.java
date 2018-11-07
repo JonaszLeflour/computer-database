@@ -1,33 +1,80 @@
 package com.excilys.cdb.dto;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.excilys.cdb.model.Company;
 import com.excilys.cdb.persistence.DatabaseErrorException;
+import com.excilys.cdb.persistence.DatabaseAccessor.CompanyField;
+import com.excilys.cdb.persistence.DatabaseAccessor.OrderDirection;
+import com.excilys.cdb.service.DataPresenter;
+import com.excilys.cdb.service.SQLDataPresenter;
 
 /**
  * @author Jonasz Leflour
  *
  */
 public class OrderedCompanyRequestPager implements CompanyRequestPager {
+	DataPresenter dp;
 	String searchName;
+	long pageSize;
+	CompanyField orderBy;
+	OrderDirection direction;
+
+	/**
+	 * @param name
+	 * @param pageSize
+	 * @param orderBy
+	 * @param direction
+	 * @throws FileNotFoundException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 * @throws DatabaseErrorException
+	 * @throws InvalidPageSizeException
+	 */
+	public OrderedCompanyRequestPager(String name, long pageSize, CompanyField orderBy, OrderDirection direction)
+			throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException,
+			InvalidPageSizeException {
+
+		if (pageSize <= 0) {
+			throw new InvalidPageSizeException("Page size must be strictly positive");
+		}
+
+		dp = new SQLDataPresenter();
+		this.searchName = name;
+		this.pageSize = pageSize;
+		this.orderBy = orderBy;
+		this.direction = direction;
+	}
 	
 	
 	@Override
 	public List<DTOCompany> getPage(long pageNumber) throws DatabaseErrorException, InvalidPageNumberException {
-		// TODO Auto-generated method stub
-		return null;
+		if (pageNumber < 0) {
+			throw new InvalidPageNumberException("Page number must be positive");
+		}
+		List<DTOCompany> list = new ArrayList<DTOCompany>();
+		for (Company c : dp.getOrderedCompaniesByName(searchName, pageNumber * pageSize, pageSize, orderBy,
+				direction)) {
+			list.add(CachedDTOProvider.companytoDaoCompany(c));
+		}
+		if (list.isEmpty()) {
+			throw new InvalidPageNumberException("This page doesn't exist");
+		}
+		return list;
 	}
 
 	@Override
 	public long getNbPages() throws DatabaseErrorException {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		return (long) Math.ceil(dp.countCompaniesByName(searchName) / ((double) pageSize));
 	}
 
 	@Override
 	public long getNbComputers() throws DatabaseErrorException {
-		// TODO Auto-generated method stub
-		return 0;
+		return dp.countCompaniesByName(searchName);
 	}
 
 }

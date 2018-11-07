@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.persistence.DatabaseAccessor.CompanyField;
 import com.excilys.cdb.persistence.DatabaseAccessor.ComputerField;
 import com.excilys.cdb.persistence.DatabaseAccessor.OrderDirection;
 import com.excilys.cdb.persistence.DatabaseErrorException;
@@ -93,12 +94,6 @@ public interface DataPresenter {
 	List<Computer> getComputersByName(String name, long l, long pageSize) throws DatabaseErrorException;
 
 	/**
-	 * @return nomber of computers stored in database
-	 * @throws DatabaseErrorException
-	 */
-	long countAllComputers() throws DatabaseErrorException;
-
-	/**
 	 * @param name
 	 * @return number of computers in database whose name match the string parametre
 	 * @throws DatabaseErrorException 
@@ -122,7 +117,7 @@ public interface DataPresenter {
 	void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException, InvalidParameterException;
 
 	/**
-	 * @param name pattern of computer to search, leave blank or null for all of them
+	 * @param name pattern of computers to search, leave blank or null for all of them
 	 * @param offset index of the first item in result
 	 * @param lenght max size of result
 	 * @param orderBy
@@ -132,6 +127,25 @@ public interface DataPresenter {
 	 */
 	List<Computer> getOrderedComputersByName(String name, long offset, long lenght, ComputerField orderBy,
 			OrderDirection direction) throws DatabaseErrorException;
+
+	/**
+	 * @param name pattern of companies to search, leave blank or null for all of them
+	 * @param offset index of the first item in result
+	 * @param lenght max size of result
+	 * @param orderBy
+	 * @param direction
+	 * @return ordered list of companies
+	 * @throws DatabaseErrorException
+	 */
+	List<Company> getOrderedCompaniesByName(String name, long offset, long lenght, CompanyField orderBy,
+			OrderDirection direction) throws DatabaseErrorException;
+
+	/**
+	 * @param name pattern of companies to count, leave blank or null for all of them
+	 * @return number of companies
+	 * @throws DatabaseErrorException
+	 */
+	long countCompaniesByName(String name) throws DatabaseErrorException;
 	
 }
 

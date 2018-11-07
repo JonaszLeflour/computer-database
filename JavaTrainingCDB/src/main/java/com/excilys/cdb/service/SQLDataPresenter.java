@@ -18,16 +18,17 @@ import com.excilys.cdb.persistence.ObjectNotFoundException;
  * @version %I%
  * 
  */
-public class SQLDataPresenter implements DataPresenter{
+public class SQLDataPresenter implements DataPresenter {
 	private DatabaseAccessor dba = null;
-	
+
 	/**
 	 * @throws FileNotFoundException
 	 * @throws IOException
-	 * @throws DatabaseErrorException 
-	 * @throws ClassNotFoundException 
+	 * @throws DatabaseErrorException
+	 * @throws ClassNotFoundException
 	 */
-	public SQLDataPresenter() throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
+	public SQLDataPresenter()
+			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
 		dba = DatabaseAccessor.GetDatabaseAccessor();
 	}
 
@@ -36,7 +37,7 @@ public class SQLDataPresenter implements DataPresenter{
 		List<Computer> result = dba.getAllComputers();
 		return result;
 	}
-	
+
 	@Override
 	public List<Computer> getComputers(long offset, long pageSize) throws DatabaseErrorException {
 		List<Computer> result = dba.getAllComputers(offset, pageSize);
@@ -44,7 +45,7 @@ public class SQLDataPresenter implements DataPresenter{
 	}
 
 	@Override
-	public Computer getComputerById(int id) throws ObjectNotFoundException, DatabaseErrorException{
+	public Computer getComputerById(int id) throws ObjectNotFoundException, DatabaseErrorException {
 		return dba.getComputerById(id);
 	}
 
@@ -53,7 +54,7 @@ public class SQLDataPresenter implements DataPresenter{
 		List<Computer> result = dba.getComputerByName(name);
 		return result;
 	}
-	
+
 	@Override
 	public List<Computer> getComputersByName(String name, long offset, long length) throws DatabaseErrorException {
 		List<Computer> result = dba.getComputersByName(name, offset, length);
@@ -61,14 +62,9 @@ public class SQLDataPresenter implements DataPresenter{
 	}
 
 	@Override
-	public List<Company> getCompanies() throws DatabaseErrorException{
+	public List<Company> getCompanies() throws DatabaseErrorException {
 		List<Company> result = dba.getAllCompanies();
 		return result;
-	}
-	
-	@Override
-	public long countAllComputers() throws DatabaseErrorException {
-		return dba.countComputersByName("");
 	}
 
 	@Override
@@ -77,12 +73,18 @@ public class SQLDataPresenter implements DataPresenter{
 	}
 	
 	@Override
+	public long countCompaniesByName(String name) throws DatabaseErrorException {
+		return dba.countCompaniesByName(name);
+	}
+
+	@Override
 	public Company getCompanyById(int id) throws ObjectNotFoundException, DatabaseErrorException {
 		return dba.getCompanybyId(id);
 	}
 
 	@Override
-	public void updateComputer(Computer computer) throws InvalidParameterException, DatabaseErrorException, ObjectNotFoundException {
+	public void updateComputer(Computer computer)
+			throws InvalidParameterException, DatabaseErrorException, ObjectNotFoundException {
 		dba.updateComputer(computer);
 	}
 
@@ -92,24 +94,35 @@ public class SQLDataPresenter implements DataPresenter{
 	}
 
 	@Override
-	public void deleteComputerById(long id) throws ObjectNotFoundException, DatabaseErrorException, InvalidParameterException {
+	public void deleteComputerById(long id)
+			throws ObjectNotFoundException, DatabaseErrorException, InvalidParameterException {
 		dba.deleteComputerById(id);
 	}
-	
+
 	@Override
-	public void deleteComputersByName(String name) throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException {
+	public void deleteComputersByName(String name)
+			throws DatabaseErrorException, InvalidParameterException, ObjectNotFoundException {
 		dba.deleteComputerByName(name);
 	}
 
 	@Override
-	public void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException, InvalidParameterException {
+	public void deleteCompanyById(long id)
+			throws DatabaseErrorException, ObjectNotFoundException, InvalidParameterException {
 		dba.deleteCompanyById(id);
-		
+
+	}
+
+	@Override
+	public List<Computer> getOrderedComputersByName(String name, long offset, long lenght,
+			DatabaseAccessor.ComputerField orderBy, DatabaseAccessor.OrderDirection direction)
+			throws DatabaseErrorException {
+		return dba.getOrderedComputers(name, offset, lenght, orderBy, direction);
 	}
 	
 	@Override
-	public List <Computer> getOrderedComputersByName(String name, long offset, long lenght, DatabaseAccessor.ComputerField orderBy, DatabaseAccessor.OrderDirection direction ) throws DatabaseErrorException {
-		return dba.getOrderedComputers(name, offset, lenght, orderBy, direction);
-		
+	public List<Company> getOrderedCompaniesByName(String name, long offset, long lenght,
+			DatabaseAccessor.CompanyField orderBy, DatabaseAccessor.OrderDirection direction)
+			throws DatabaseErrorException {
+		return dba.getOrderedCompanies(name, offset, lenght, orderBy, direction);
 	}
 }
