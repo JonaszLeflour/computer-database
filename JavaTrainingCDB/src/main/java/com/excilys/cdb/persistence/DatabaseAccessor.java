@@ -55,7 +55,7 @@ public class DatabaseAccessor {
 	};
 
 	/**
-	 * @author JOnasz Leflour
+	 * @author Jonasz Leflour
 	 *
 	 */
 	public static enum CompanyField {
@@ -739,7 +739,7 @@ public class DatabaseAccessor {
 					throw new DatabaseErrorException(e1);
 				}
 			}
-			throw new DatabaseErrorException(e.toString());
+			throw new DatabaseErrorException(e);
 		} finally {
 			try {
 				if (con != null) {
