@@ -8,13 +8,13 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>computer-database</name>
 	<description>JEE training project</description>
-	
+
 	<properties>
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
 		<maven-compiler-plugin.configuration.source>1.8</maven-compiler-plugin.configuration.source>
 		<maven-compiler-plugin.configuration.target>1.8</maven-compiler-plugin.configuration.target>
 		<maven-war-plugin.version>3.2.2</maven-war-plugin.version>
-		
+
 		<junit.version>4.12</junit.version>
 		<mockito-all.version>1.9.5</mockito-all.version>
 		<slf4j-nop.version>1.7.25</slf4j-nop.version>
@@ -26,20 +26,23 @@
 		<HikariCP.version>2.7.8</HikariCP.version>
 		<spring.version>3.2.3.RELEASE</spring.version>
 	</properties>
-	
-	
+
+
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<testSourceDirectory>src/test/java </testSourceDirectory>
 		<resources>
-	      <resource>
-	        <directory>src/main/resources</directory>
-	      </resource>
-	    </resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
 		<testResources>
 			<testResource>
 				<directory>src/test/java</directory>
 			</testResource>
+			<testResource>
+                 <directory>src/main/webapp</directory>
+            </testResource>
 		</testResources>
 		<plugins>
 			<plugin>
@@ -51,15 +54,15 @@
 				</configuration>
 			</plugin>
 			<plugin>
-	        <groupId>org.apache.maven.plugins</groupId>
-	        <artifactId>maven-war-plugin</artifactId>
-	        <version>${maven-war-plugin.version}</version>
-	        <configuration>
-		        <archive>
-	            	<manifestFile>src/main/webapp/META-INF/MANIFEST.MF</manifestFile>
-	          	</archive>
-	        </configuration>
-	      </plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>${maven-war-plugin.version}</version>
+				<configuration>
+					<archive>
+						<manifestFile>src/main/webapp/META-INF/MANIFEST.MF</manifestFile>
+					</archive>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -87,32 +90,32 @@
 			<version>${mysql-connector-java.version}</version>
 		</dependency>
 		<dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet-api.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>jstl</groupId>
-            <artifactId>jstl</artifactId>
-            <version>${jstl.version}</version>
-        </dependency>
-        <dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>${javax.servlet-api.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>jstl</groupId>
+			<artifactId>jstl</artifactId>
+			<version>${jstl.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>taglibs</groupId>
 			<artifactId>standard</artifactId>
 			<version>${standard.version}</version>
 		</dependency>
 		<dependency>
-		  <groupId>org.apache.logging.log4j</groupId>
-		  <artifactId>log4j</artifactId>
-		  <version>${log4j.version}</version>
-		  <type>pom</type>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
-		    <groupId>com.zaxxer</groupId>
-		    <artifactId>HikariCP</artifactId>
-		    <version>${HikariCP.version}</version>
-		    <scope>compile</scope>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>${HikariCP.version}</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -130,9 +133,17 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-jdbc</artifactId>
-    <version>${spring.version}</version>
-</dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 </project>

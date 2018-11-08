@@ -2,7 +2,6 @@ package com.excilys.cdb.persistence;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -14,12 +13,15 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
+import javax.sql.DataSource;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import com.excilys.cdb.controller.beans.DataConfig;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * 
@@ -32,15 +34,26 @@ import com.zaxxer.hikari.HikariDataSource;
  */
 public class DatabaseAccessor {
 	private static DatabaseAccessor dba = null;
-	private static String propertiesURL = "config.properties";
+	private  DataSource ds;
+	@SuppressWarnings("unused")
+	
+	private  DataSourceTransactionManager manager;
 
-	private String URL = null;
-	private String user = null;
-	private String password = null;
-
-	private static HikariConfig config;
-	private static HikariDataSource ds;
-
+	/**
+	 * @param source
+	 */
+	public void setSource(DataSource source) {
+		this.ds = source;
+	}
+	
+	/**
+	 * @param manager
+	 */
+	public void setManager(DataSource manager) {
+		this.ds = manager;
+	}
+	
+	
 	/**
 	 * @author Jonasz Leflour
 	 *
@@ -81,26 +94,10 @@ public class DatabaseAccessor {
 	 */
 	private DatabaseAccessor()
 			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
-		Properties prop = new Properties();
-		Class.forName("com.mysql.cj.jdbc.Driver");
-		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		InputStream input = classLoader.getResourceAsStream(propertiesURL);
-		if (input == null) {
-			throw new FileNotFoundException();
-		}
-
-		prop.load(input);
-		URL = prop.getProperty("database");
-		user = prop.getProperty("user");
-		password = prop.getProperty("password");
-
-		config = new HikariConfig();
-
-		config.setJdbcUrl(URL);
-		config.setUsername(user);
-		config.setPassword(password);
-		ds = new HikariDataSource(config);
-
+		@SuppressWarnings("resource")
+		ApplicationContext ctx = new AnnotationConfigApplicationContext(DataConfig.class);
+		ds = ctx.getBean(DataSource.class);
+		manager = ctx.getBean(DataSourceTransactionManager.class);
 	}
 
 	/**

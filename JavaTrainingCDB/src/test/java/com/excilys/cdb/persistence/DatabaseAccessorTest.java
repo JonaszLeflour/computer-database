@@ -10,7 +10,12 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import com.excilys.cdb.controller.beans.DataConfig;
 import com.excilys.cdb.model.*;
 import com.excilys.cdb.persistence.InvalidParameterException;
 
@@ -20,6 +25,8 @@ import com.excilys.cdb.persistence.InvalidParameterException;
  *
  */
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { DataConfig.class})
 public class DatabaseAccessorTest {
 	private DatabaseAccessor dba;
 
