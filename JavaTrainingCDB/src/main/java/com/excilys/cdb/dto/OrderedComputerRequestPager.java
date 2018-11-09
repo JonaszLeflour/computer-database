@@ -7,8 +7,8 @@ import java.util.List;
 
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.*;
-import com.excilys.cdb.persistence.DatabaseAccessor.ComputerField;
-import com.excilys.cdb.persistence.DatabaseAccessor.OrderDirection;
+import com.excilys.cdb.persistence.ComputerDAO.ComputerField;
+import com.excilys.cdb.persistence.OrderDirection;
 import com.excilys.cdb.service.DataPresenter;
 import com.excilys.cdb.service.SQLDataPresenter;
 

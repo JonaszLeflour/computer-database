@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
-import com.excilys.cdb.persistence.DatabaseAccessor.CompanyField;
-import com.excilys.cdb.persistence.DatabaseAccessor.ComputerField;
-import com.excilys.cdb.persistence.DatabaseAccessor.OrderDirection;
+import com.excilys.cdb.persistence.CompanyDAO.CompanyField;
+import com.excilys.cdb.persistence.ComputerDAO.ComputerField;
+import com.excilys.cdb.persistence.OrderDirection;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.InvalidParameterException;
 import com.excilys.cdb.persistence.ObjectNotFoundException;

@@ -28,14 +28,14 @@ import com.excilys.cdb.persistence.InvalidParameterException;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { DataConfig.class})
 public class DatabaseAccessorTest {
-	private DatabaseAccessor dba;
+	private ComputerDAO dba;
 
 	/**
 	 * @throws Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		dba = DatabaseAccessor.GetDatabaseAccessor();
+		dba = ComputerDAO.getInstance();
 	}
 
 	/**
@@ -57,8 +57,8 @@ public class DatabaseAccessorTest {
 	@Test
 	public void testGetDatabaseAccessor()
 			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
-		DatabaseAccessor dba2 = null;
-		dba2 = DatabaseAccessor.GetDatabaseAccessor();
+		ComputerDAO dba2 = null;
+		dba2 = ComputerDAO.getInstance();
 		assertEquals(dba2, dba);
 	}
 
@@ -143,41 +143,6 @@ public class DatabaseAccessorTest {
 		assertNotNull(computers);
 		assertTrue(computers.size() <= 10);
 		assertTrue(!computers.isEmpty());
-	}
-
-	/**
-	 * Tests that the list object is not null
-	 * 
-	 * @throws DatabaseErrorException
-	 */
-	@Test
-	public void testGetAllCompanies() throws DatabaseErrorException {
-		List<Company> companies = dba.getAllCompanies();
-		assertNotNull(companies);
-	}
-
-	/**
-	 * expected results of getCompanyById
-	 * 
-	 * @throws ObjectNotFoundException
-	 * @throws DatabaseErrorException
-	 */
-	@Test
-	public void testGetCompanybyId() throws ObjectNotFoundException, DatabaseErrorException {
-		Company company1 = null;
-		Company company2 = null;
-		boolean excpectedException = false;
-
-		company1 = dba.getCompanybyId(1);
-
-		assertNotNull(company1);
-		try {
-			company2 = dba.getCompanybyId(0);
-		} catch (ObjectNotFoundException e) {
-			excpectedException = true;
-		}
-		assertTrue(excpectedException);
-		assertNull(company2);
 	}
 
 	/**
@@ -441,30 +406,30 @@ public class DatabaseAccessorTest {
 		boolean expectedFailure1 = false;
 		boolean expectedFailure2 = false;
 
-		for (DatabaseAccessor.ComputerField orderBy : DatabaseAccessor.ComputerField.values()) {
-			for (DatabaseAccessor.OrderDirection direction : DatabaseAccessor.OrderDirection.values()) {
+		for (ComputerDAO.ComputerField orderBy : ComputerDAO.ComputerField.values()) {
+			for (OrderDirection direction : OrderDirection.values()) {
 				assertTrue(!dba.getOrderedComputers("mac", 0, 10, orderBy, direction).isEmpty());
 				assertTrue(!dba.getOrderedComputers("", 10, 10, orderBy, direction).isEmpty());
 			}
 		}
 
-		List<Computer> res = dba.getOrderedComputers("", 0, 10, DatabaseAccessor.ComputerField.id,
-				DatabaseAccessor.OrderDirection.DESC);
+		List<Computer> res = dba.getOrderedComputers("", 0, 10, ComputerDAO.ComputerField.id,
+				OrderDirection.DESC);
 		assertTrue(res.get(0).getId() > res.get(1).getId());
 
-		res = dba.getOrderedComputers("", 0, 10, DatabaseAccessor.ComputerField.id,
-				DatabaseAccessor.OrderDirection.ASC);
+		res = dba.getOrderedComputers("", 0, 10, ComputerDAO.ComputerField.id,
+				OrderDirection.ASC);
 
 		assertTrue(res.get(0).getId() < res.get(1).getId());
 
 		try {
-			dba.getOrderedComputers("", -1, 10, DatabaseAccessor.ComputerField.id, DatabaseAccessor.OrderDirection.ASC);
+			dba.getOrderedComputers("", -1, 10, ComputerDAO.ComputerField.id, OrderDirection.ASC);
 		} catch (DatabaseErrorException e) {
 			expectedFailure1 = true;
 		}
 
 		try {
-			dba.getOrderedComputers("", 0, -1, DatabaseAccessor.ComputerField.id, DatabaseAccessor.OrderDirection.ASC);
+			dba.getOrderedComputers("", 0, -1, ComputerDAO.ComputerField.id, OrderDirection.ASC);
 		} catch (DatabaseErrorException e) {
 			expectedFailure2 = true;
 		}
@@ -474,43 +439,6 @@ public class DatabaseAccessorTest {
 
 	}
 
-	/**
-	 * @throws DatabaseErrorException
-	 */
-	@Test
-	public void testGetOrderedCompanies() throws DatabaseErrorException {
-		boolean expectedFailure1 = false;
-		boolean expectedFailure2 = false;
 
-		for (DatabaseAccessor.CompanyField orderBy : DatabaseAccessor.CompanyField.values()) {
-			for (DatabaseAccessor.OrderDirection direction : DatabaseAccessor.OrderDirection.values()) {
-				assertTrue(!dba.getOrderedCompanies("a", 0, 10, orderBy, direction).isEmpty());
-				assertTrue(!dba.getOrderedCompanies("", 5, 5, orderBy, direction).isEmpty());
-			}
-		}
-
-		List<Company> res = dba.getOrderedCompanies("", 0, 10, DatabaseAccessor.CompanyField.id,
-				DatabaseAccessor.OrderDirection.DESC);
-		assertTrue(res.get(0).getId() > res.get(1).getId());
-
-		res = dba.getOrderedCompanies("", 0, 10, DatabaseAccessor.CompanyField.id, DatabaseAccessor.OrderDirection.ASC);
-
-		assertTrue(res.get(0).getId() < res.get(1).getId());
-
-		try {
-			dba.getOrderedCompanies("", -1, 10, DatabaseAccessor.CompanyField.id, DatabaseAccessor.OrderDirection.ASC);
-		} catch (DatabaseErrorException e) {
-			expectedFailure1 = true;
-		}
-
-		try {
-			dba.getOrderedCompanies("", 1, -1, DatabaseAccessor.CompanyField.id, DatabaseAccessor.OrderDirection.ASC);
-		} catch (DatabaseErrorException e) {
-			expectedFailure2 = true;
-		}
-
-		assertTrue(expectedFailure1);
-		assertTrue(expectedFailure2);
-	}
 
 }

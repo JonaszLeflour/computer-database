@@ -18,8 +18,8 @@ import com.excilys.cdb.persistence.InvalidParameterException;
 import com.excilys.cdb.persistence.ObjectNotFoundException;
 import com.excilys.cdb.service.DataPresenter;
 import com.excilys.cdb.service.SQLDataPresenter;
-import com.excilys.cdb.persistence.DatabaseAccessor.ComputerField;
-import com.excilys.cdb.persistence.DatabaseAccessor.OrderDirection;;
+import com.excilys.cdb.persistence.ComputerDAO.ComputerField;
+import com.excilys.cdb.persistence.OrderDirection;;
 
 /**
  * Servlet implementation class DashboardHttpServlet

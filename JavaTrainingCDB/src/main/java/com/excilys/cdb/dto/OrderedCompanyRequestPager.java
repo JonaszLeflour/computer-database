@@ -7,8 +7,8 @@ import java.util.List;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.persistence.DatabaseErrorException;
-import com.excilys.cdb.persistence.DatabaseAccessor.CompanyField;
-import com.excilys.cdb.persistence.DatabaseAccessor.OrderDirection;
+import com.excilys.cdb.persistence.CompanyDAO.CompanyField;
+import com.excilys.cdb.persistence.OrderDirection;
 import com.excilys.cdb.service.DataPresenter;
 import com.excilys.cdb.service.SQLDataPresenter;
 

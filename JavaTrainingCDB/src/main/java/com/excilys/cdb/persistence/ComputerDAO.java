@@ -20,7 +20,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import com.excilys.cdb.controller.beans.DataConfig;
-import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 
 /**
@@ -32,8 +31,8 @@ import com.excilys.cdb.model.Computer;
  * @version %I%
  *
  */
-public class DatabaseAccessor {
-	private static DatabaseAccessor dba = null;
+public class ComputerDAO {
+	private static ComputerDAO dba = null;
 	private  DataSource ds;
 	@SuppressWarnings("unused")
 	
@@ -67,33 +66,16 @@ public class DatabaseAccessor {
 		company_id;
 	};
 
-	/**
-	 * @author Jonasz Leflour
-	 *
-	 */
-	public static enum CompanyField {
-		@SuppressWarnings("javadoc")
-		id, @SuppressWarnings("javadoc")
-		name;
-	}
 
-	/**
-	 * @author Jonasz Leflour
-	 *
-	 */
-	public static enum OrderDirection {
-		@SuppressWarnings("javadoc")
-		DESC, @SuppressWarnings("javadoc")
-		ASC
-	}
+
+
 
 	/**
 	 * Tries to connect to database on create
 	 * 
 	 * @throws ClassNotFoundException
 	 */
-	private DatabaseAccessor()
-			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
+	private ComputerDAO() {
 		@SuppressWarnings("resource")
 		ApplicationContext ctx = new AnnotationConfigApplicationContext(DataConfig.class);
 		ds = ctx.getBean(DataSource.class);
@@ -107,66 +89,11 @@ public class DatabaseAccessor {
 	 * @throws DatabaseErrorException
 	 * @throws ClassNotFoundException
 	 */
-	public static DatabaseAccessor GetDatabaseAccessor()
-			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
+	public static ComputerDAO getInstance(){
 		if (dba == null) {
-			dba = new DatabaseAccessor();
+			dba = new ComputerDAO();
 		}
 		return dba;
-	}
-
-	private Computer createComputerWithResultSetRow(ResultSet rs)
-			throws EmptyResultSetException, DatabaseErrorException {
-		Computer computer = new Computer();
-		try {
-			long id = rs.getLong(1);
-			if (rs.wasNull()) {
-				throw new EmptyResultSetException();
-			}
-			computer.setId(id);
-
-			String name = rs.getString(2);
-			if (rs.wasNull()) {
-				throw new EmptyResultSetException();
-			}
-			computer.setName(name);
-
-			Date introduced = rs.getDate(3);
-			if (!rs.wasNull()) {
-				computer.setIntroduced(introduced.toLocalDate());
-			}
-
-			Date discontinued = rs.getDate(4);
-			if (!rs.wasNull()) {
-				computer.setDiscontinued(discontinued.toLocalDate());
-			}
-
-			Integer idCompany = rs.getInt(5);
-			if (!rs.wasNull()) {
-				computer.setCompany(getCompanybyId(idCompany));
-			}
-		} catch (SQLException e) {
-			new EmptyResultSetException();
-		} catch (ObjectNotFoundException e) {
-			computer.setCompany(null);
-		}
-		return computer;
-	}
-
-	private Company createCompanyWithResultSetRow(ResultSet rs) throws EmptyResultSetException {
-		try {
-			int id = rs.getInt(1);
-			if (rs.wasNull()) {
-				throw new EmptyResultSetException();
-			}
-			String name = rs.getString(2);
-			if (rs.wasNull()) {
-				throw new EmptyResultSetException();
-			}
-			return new Company(id, name);
-		} catch (SQLException e) {
-			throw new EmptyResultSetException();
-		}
 	}
 
 	/**
@@ -187,7 +114,7 @@ public class DatabaseAccessor {
 			rs = s.executeQuery("SELECT id, name, introduced, discontinued, company_id FROM computer");
 
 			while (rs.next()) {
-				computers.add(this.createComputerWithResultSetRow(rs));
+				computers.add(ComputerResultSetMapper.createComputerWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -235,7 +162,7 @@ public class DatabaseAccessor {
 			rs = s.executeQuery();
 
 			while (rs.next()) {
-				computers.add(this.createComputerWithResultSetRow(rs));
+				computers.add(ComputerResultSetMapper.createComputerWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -285,7 +212,7 @@ public class DatabaseAccessor {
 			rs = s.executeQuery();
 
 			while (rs.next()) {
-				computers.add(this.createComputerWithResultSetRow(rs));
+				computers.add(ComputerResultSetMapper.createComputerWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -312,92 +239,6 @@ public class DatabaseAccessor {
 	}
 
 	/**
-	 * @return all companies from the database as a ResultSet
-	 * @throws DatabaseErrorException
-	 * @throws SQLException
-	 */
-	public List<Company> getAllCompanies() throws DatabaseErrorException {
-		List<Company> companies = new ArrayList<>();
-		Connection con = null;
-		Statement s = null;
-		ResultSet rs = null;
-
-		try {
-			con = ds.getConnection();
-			con.setAutoCommit(false);
-			s = con.createStatement();
-			rs = s.executeQuery("SELECT id, name FROM company");
-
-			while (rs.next()) {
-				companies.add(this.createCompanyWithResultSetRow(rs));
-			}
-
-		} catch (SQLException e) {
-			throw new DatabaseErrorException();
-		} catch (EmptyResultSetException e) {
-			companies.clear();
-		} finally {
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
-		}
-		return companies;
-	}
-
-	/**
-	 * @param id id of company
-	 * @return single row of the company table with the specified id, if exists
-	 * @throws ObjectNotFoundException
-	 * @throws DatabaseErrorException
-	 */
-	public Company getCompanybyId(long id) throws ObjectNotFoundException, DatabaseErrorException {
-		Company company = null;
-		Connection con = null;
-		Statement s = null;
-		ResultSet rs = null;
-
-		try {
-			con = ds.getConnection();
-			con.setAutoCommit(false);
-			s = con.createStatement();
-			rs = s.executeQuery("SELECT id, name FROM company WHERE id=" + id);
-			rs.next();
-			company = this.createCompanyWithResultSetRow(rs);
-		} catch (SQLException e) {
-			throw new ObjectNotFoundException();
-		} catch (EmptyResultSetException e) {
-			throw new ObjectNotFoundException();
-		} finally {
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException(e);
-			}
-		}
-		return company;
-	}
-
-	/**
 	 * @param id
 	 * @return single row of the computer table with the specified id, if exists
 	 * @throws ObjectNotFoundException
@@ -416,7 +257,7 @@ public class DatabaseAccessor {
 			s.setLong(1, id);
 			rs = s.executeQuery();
 			rs.next();
-			computer = this.createComputerWithResultSetRow(rs);
+			computer = ComputerResultSetMapper.createComputerWithResultSetRow(rs);
 		} catch (SQLException e) {
 			throw new DatabaseErrorException(e);
 		} catch (EmptyResultSetException e) {
@@ -474,7 +315,7 @@ public class DatabaseAccessor {
 			rs = s.executeQuery();
 
 			while (rs.next()) {
-				computers.add(this.createComputerWithResultSetRow(rs));
+				computers.add(ComputerResultSetMapper.createComputerWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -500,63 +341,7 @@ public class DatabaseAccessor {
 		return computers;
 	}
 
-	/**
-	 * @param name
-	 * @param offset
-	 * @param lenght
-	 * @param orderBy
-	 * @param direction
-	 * @return ordered list of companies
-	 * @throws DatabaseErrorException
-	 */
-	public List<Company> getOrderedCompanies(String name, long offset, long lenght, CompanyField orderBy,
-			OrderDirection direction) throws DatabaseErrorException {
-		List<Company> companies = new ArrayList<>();
-		Connection con = null;
-		PreparedStatement s = null;
-		ResultSet rs = null;
-		try {
-			con = ds.getConnection();
-			con.setAutoCommit(false);
-
-			s = con.prepareStatement(
-					"SELECT c.id, c.name " + "FROM company AS c " + "WHERE UPPER(c.name) LIKE UPPER(?) " + "ORDER BY c."
-							+ orderBy.toString() + " " + direction.toString() + " " + "LIMIT ?, ?");
-			if (name != null && !name.isEmpty()) {
-				s.setString(1, "%" + name + "%");
-			} else {
-				s.setString(1, "%");
-			}
-			s.setLong(2, offset);
-			s.setLong(3, lenght);
-			rs = s.executeQuery();
-
-			while (rs.next()) {
-				companies.add(createCompanyWithResultSetRow(rs));
-			}
-
-		} catch (SQLException e) {
-			throw new DatabaseErrorException(e);
-		} catch (EmptyResultSetException e) {
-			companies.clear();
-		} finally {
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException(e);
-			}
-		}
-		return companies;
-	}
+	
 
 	/**
 	 * @param name
@@ -578,7 +363,7 @@ public class DatabaseAccessor {
 			rs = s.executeQuery();
 
 			while (rs.next()) {
-				computers.add(this.createComputerWithResultSetRow(rs));
+				computers.add(ComputerResultSetMapper.createComputerWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -856,60 +641,6 @@ public class DatabaseAccessor {
 		}
 		if (ret == 0) {
 			throw new ObjectNotFoundException();
-		}
-
-	}
-
-	/**
-	 * @param id
-	 * @throws DatabaseErrorException
-	 * @throws ObjectNotFoundException
-	 */
-	public void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException {
-		int status1 = 0, status2 = 0;
-		Connection con = null;
-		PreparedStatement s1 = null, s2 = null;
-		Savepoint beforeDelete = null;
-		try {
-			con = ds.getConnection();
-			beforeDelete = con.setSavepoint();
-			con.setAutoCommit(false);
-			s1 = con.prepareStatement("DELETE FROM computer WHERE company_id = ?");
-			s1.setLong(1, id);
-			status1 = s1.executeUpdate();
-
-			s2 = con.prepareStatement("DELETE FROM company WHERE id = ?");
-			s2.setLong(1, id);
-			status2 = s2.executeUpdate();
-
-		} catch (SQLException e) {
-			if (beforeDelete != null) {
-				try {
-					con.rollback(beforeDelete);
-				} catch (SQLException e1) {
-					throw new DatabaseErrorException(e1);
-				}
-			}
-			throw new DatabaseErrorException();
-		} finally {
-
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s1 != null) {
-					s1.close();
-				}
-				if (s2 != null) {
-					s2.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
-			if (status1 == 0 || status2 == 0) {
-				throw new ObjectNotFoundException();
-			}
 		}
 
 	}
