@@ -10,8 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.excilys.cdb.dto.CachedDTOProvider;
-import com.excilys.cdb.dto.DTOProvider;
+import com.excilys.cdb.dto.CompanyDTOMapper;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.DatabaseErrorException;
@@ -26,14 +25,12 @@ import com.excilys.cdb.service.SQLDataPresenter;
 public class AddComputerHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private DataPresenter dp;
-	private DTOProvider dto;
 	
     @Override
     public void init() throws ServletException {
     	super.init();
     	try {
 			dp = new SQLDataPresenter();
-			dto = new CachedDTOProvider();
 		} catch (ClassNotFoundException | IOException | DatabaseErrorException e) {
 			throw new ServletException(e.toString()); 
 		}
@@ -48,7 +45,7 @@ public class AddComputerHttpServlet extends HttpServlet {
 				.getRequestDispatcher("/WEB-INF/views/addComputer.jsp");
 		
 		try {
-			request.setAttribute("companies", dto.getAllCompanies());
+			request.setAttribute("companies", CompanyDTOMapper.toDTOCompany(dp.getCompanies()));
 		} catch (DatabaseErrorException e) {
 			throw new ServletException(e);
 		}

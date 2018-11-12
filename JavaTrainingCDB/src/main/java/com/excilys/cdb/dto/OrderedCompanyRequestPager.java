@@ -58,7 +58,7 @@ public class OrderedCompanyRequestPager implements CompanyRequestPager {
 		List<DTOCompany> list = new ArrayList<DTOCompany>();
 		for (Company c : dp.getOrderedCompaniesByName(searchName, pageNumber * pageSize, pageSize, orderBy,
 				direction)) {
-			list.add(CachedDTOProvider.companytoDaoCompany(c));
+			list.add(CompanyDTOMapper.toDTOCompany(c));
 		}
 		if (list.isEmpty()) {
 			throw new InvalidPageNumberException("This page doesn't exist");
@@ -68,7 +68,6 @@ public class OrderedCompanyRequestPager implements CompanyRequestPager {
 
 	@Override
 	public long getNbPages() throws DatabaseErrorException {
-		
 		return (long) Math.ceil(dp.countCompaniesByName(searchName) / ((double) pageSize));
 	}
 

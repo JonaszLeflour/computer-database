@@ -56,4 +56,57 @@ public class Company implements Serializable {
 		this.name = name;
 	}
 	
+	/**
+	 * @param b
+	 */
+	public Company(Builder b) {
+		this.id = b.id;
+		this.name = b.name;
+	}
+	
+	/**
+	 * @return instance of the builder of this class
+	 */
+	public static Builder getBuilder() {
+		return new Builder();
+	}
+	
+	/**
+	 * @author Jonasz Leflour
+	 *
+	 */
+	public static class Builder{
+		private Long id;
+		private String name;
+		/**
+		 * @return id
+		 */
+		public Long getId() {
+			return id;
+		}
+		/**
+		 * @param id
+		 * @return reference to this builder
+		 */
+		public Builder id(Long id) {
+			this.id = id;
+			return this;
+		}
+		/**
+		 * @return name
+		 */
+		public String getName() {
+			return name;
+		}
+		/**
+		 * @param name
+		 * @return reference to this builder
+		 */
+		public Builder name(String name) {
+			this.name = name;
+			return this;
+		}
+		
+	}
+	
 }

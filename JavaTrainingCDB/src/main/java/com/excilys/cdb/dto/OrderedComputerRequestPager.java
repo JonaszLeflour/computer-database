@@ -58,7 +58,7 @@ public class OrderedComputerRequestPager implements ComputerRequestPager {
 		List<DTOComputer> list = new ArrayList<DTOComputer>();
 		for (Computer c : dp.getOrderedComputersByName(searchName, pageNumber * pageSize, pageSize, orderBy,
 				direction)) {
-			list.add(CachedDTOProvider.computertoDaoComputer(c));
+			list.add(ComputerDTOMapper.toDTOComputer(c));
 		}
 		if (list.isEmpty()) {
 			throw new InvalidPageNumberException("This page doesn't exist");

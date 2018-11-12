@@ -10,6 +10,7 @@ public class DTOComputer {
 	private String introduced="";
 	private String discontinued="";
 	private String company="";
+	private String companyId="";
 	
 	/**
 	 * 
@@ -85,6 +86,20 @@ public class DTOComputer {
 	 */
 	public void setCompany(String company) {
 		this.company = company;
+	}
+
+	/**
+	 * @return company id
+	 */
+	public String getCompanyId() {
+		return companyId;
+	}
+
+	/**
+	 * @param companyId
+	 */
+	public void setCompanyId(String companyId) {
+		this.companyId = companyId;
 	}
 
 }
