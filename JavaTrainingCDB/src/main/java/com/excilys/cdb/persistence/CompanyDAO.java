@@ -274,6 +274,46 @@ public class CompanyDAO {
 				throw new ObjectNotFoundException();
 			}
 		}
+		
+	}
+	
+	/**
+	 * @param name
+	 * @return number of companies matching name in database
+	 * @throws DatabaseErrorException
+	 */
+	public long countCompaniesByName(String name) throws DatabaseErrorException {
+		Connection con = null;
+		PreparedStatement s = null;
+		ResultSet res = null;
+		try {
+			con = ds.getConnection();
 
+			s = con.prepareStatement("SELECT COUNT(c.id) FROM company AS c WHERE UPPER(c.name) LIKE UPPER(?)");
+			if (name != null && !name.isEmpty()) {
+				s.setString(1, "%" + name + "%");
+			} else {
+				s.setString(1, "%");
+			}
+			res = s.executeQuery();
+			res.next();
+			return res.getLong(1);
+		} catch (SQLException e) {
+			throw new DatabaseErrorException(e);
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				if (s != null) {
+					s.close();
+				}
+				if (res != null) {
+					res.close();
+				}
+			} catch (SQLException e) {
+				throw new DatabaseErrorException();
+			}
+		}
 	}
 }

@@ -9,7 +9,8 @@ import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.InvalidParameterException;
 import com.excilys.cdb.persistence.ObjectNotFoundException;
-import com.excilys.cdb.service.DataPresenter;
+import com.excilys.cdb.service.CompanyService;
+import com.excilys.cdb.service.ComputerService;
 
 /**
  * @author Jonasz Leflour
@@ -17,14 +18,18 @@ import com.excilys.cdb.service.DataPresenter;
  */
 public final class ConsoleUserInterface implements UserInterface {
 	Scanner scan = new Scanner(System.in);
-	DataPresenter dp;
+	ComputerService computerService;
+	CompanyService companyService;
 	
 	/**
 	 * implementation of DataPresenter provided at creation
+	 * @param computerService 
+	 * @param companyService 
 	 * @param dp
 	 */
-	public ConsoleUserInterface(DataPresenter dp) {
-		this.dp = dp;
+	public ConsoleUserInterface(ComputerService computerService, CompanyService companyService) {
+		this.computerService = computerService;
+		this.companyService = companyService;
 	}
 
 	@Override
@@ -77,7 +82,7 @@ public final class ConsoleUserInterface implements UserInterface {
 	}
 
 	private void listComputers() throws DatabaseErrorException {
-		List<Computer> computers = dp.getComputers();
+		List<Computer> computers = computerService.getComputers();
 		int pageSize = 10;
 		int currentPage = 0;
 		int nbPages = (int) Math.ceil(computers.size() / (double) pageSize);
@@ -176,7 +181,7 @@ public final class ConsoleUserInterface implements UserInterface {
 	private void listCompanies() {
 		List<Company> companies = null;
 		try {
-			companies = dp.getCompanies();
+			companies = companyService.getCompanies();
 		} catch (DatabaseErrorException e) {
 			System.out.println("Error : couldn't connect to database");
 		}
@@ -285,7 +290,7 @@ public final class ConsoleUserInterface implements UserInterface {
 			}
 			List<Computer> foundComputers = null;
 			try {
-				foundComputers = dp.getComputersByName(name);
+				foundComputers = computerService.getComputersByName(name);
 			} catch (DatabaseErrorException e) {
 				System.out.println("Error in database, couldn't query for "+name);
 				return;
@@ -332,7 +337,7 @@ public final class ConsoleUserInterface implements UserInterface {
 		
 		Computer computer = new Computer(computerBuilder);
 		try {
-			dp.addComputer(computer);
+			computerService.addComputer(computer);
 		} catch (DatabaseErrorException e) {
 			System.out.println("Error in database, couldn't add "+computer.toString());
 		} catch (InvalidParameterException e) {
@@ -381,7 +386,7 @@ public final class ConsoleUserInterface implements UserInterface {
 		
 		Computer computer = new Computer(computerBuilder);
 		try {
-			dp.updateComputer(computer);
+			computerService.updateComputer(computer);
 		} catch (InvalidParameterException e) {
 			System.out.println("Invalid parameters, couldn't update computer with id="+computer.getId()+" with new values");
 		} catch (DatabaseErrorException e) {
@@ -398,7 +403,7 @@ public final class ConsoleUserInterface implements UserInterface {
 		int id = scan.nextInt();
 		scan.nextLine();
 		try {
-			dp.deleteComputerById(id);
+			computerService.deleteComputerById(id);
 		} catch (DatabaseErrorException e) {
 			System.out.println("Error in database, couldn't update");
 		} catch (ObjectNotFoundException e) {
@@ -414,7 +419,7 @@ public final class ConsoleUserInterface implements UserInterface {
 		long id = scan.nextLong();
 		scan.nextLine();
 		try {
-			dp.deleteCompanyById(id);
+			companyService.deleteCompanyById(id);
 		} catch (DatabaseErrorException e) {
 			System.out.println("Error in database, couldn't update");
 		} catch (ObjectNotFoundException e) {

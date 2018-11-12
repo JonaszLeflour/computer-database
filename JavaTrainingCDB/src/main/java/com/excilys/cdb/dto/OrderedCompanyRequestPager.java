@@ -9,15 +9,15 @@ import com.excilys.cdb.model.Company;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.CompanyDAO.CompanyField;
 import com.excilys.cdb.persistence.OrderDirection;
-import com.excilys.cdb.service.DataPresenter;
-import com.excilys.cdb.service.SQLDataPresenter;
+import com.excilys.cdb.service.CompanyService;
+import com.excilys.cdb.service.SimpleCompanyService;
 
 /**
  * @author Jonasz Leflour
  *
  */
 public class OrderedCompanyRequestPager implements CompanyRequestPager {
-	DataPresenter dp;
+	CompanyService service;
 	String searchName;
 	long pageSize;
 	CompanyField orderBy;
@@ -42,7 +42,7 @@ public class OrderedCompanyRequestPager implements CompanyRequestPager {
 			throw new InvalidPageSizeException("Page size must be strictly positive");
 		}
 
-		dp = new SQLDataPresenter();
+		service = new SimpleCompanyService();
 		this.searchName = name;
 		this.pageSize = pageSize;
 		this.orderBy = orderBy;
@@ -56,7 +56,7 @@ public class OrderedCompanyRequestPager implements CompanyRequestPager {
 			throw new InvalidPageNumberException("Page number must be positive");
 		}
 		List<DTOCompany> list = new ArrayList<DTOCompany>();
-		for (Company c : dp.getOrderedCompaniesByName(searchName, pageNumber * pageSize, pageSize, orderBy,
+		for (Company c : service.getOrderedCompaniesByName(searchName, pageNumber * pageSize, pageSize, orderBy,
 				direction)) {
 			list.add(CompanyDTOMapper.toDTOCompany(c));
 		}
@@ -68,12 +68,12 @@ public class OrderedCompanyRequestPager implements CompanyRequestPager {
 
 	@Override
 	public long getNbPages() throws DatabaseErrorException {
-		return (long) Math.ceil(dp.countCompaniesByName(searchName) / ((double) pageSize));
+		return (long) Math.ceil(service.countCompaniesByName(searchName) / ((double) pageSize));
 	}
 
 	@Override
 	public long getNbComputers() throws DatabaseErrorException {
-		return dp.countCompaniesByName(searchName);
+		return service.countCompaniesByName(searchName);
 	}
 
 }

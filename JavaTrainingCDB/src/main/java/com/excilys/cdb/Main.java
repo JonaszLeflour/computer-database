@@ -8,8 +8,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import com.excilys.cdb.controller.beans.DataConfig;
 import com.excilys.cdb.persistence.DatabaseErrorException;
-import com.excilys.cdb.service.DataPresenter;
-import com.excilys.cdb.service.SQLDataPresenter;
+import com.excilys.cdb.service.SimpleCompanyService;
+import com.excilys.cdb.service.SimpleComputerService;
 import com.excilys.cdb.ui.ConsoleUserInterface;
 /**
  * Program main entry point
@@ -26,10 +26,8 @@ public class Main {
 	 * @throws ClassNotFoundException 
 	 */
 	public static void main(String[] args) throws ClassNotFoundException {
-		DataPresenter dp = null;
 		try {
-			dp = new SQLDataPresenter();
-			new ConsoleUserInterface(dp).mainLoop(args);
+			new ConsoleUserInterface(new SimpleComputerService(), new SimpleCompanyService()).mainLoop(args);
 		} catch (IOException | DatabaseErrorException e) {
 			logger.error("Error : ", e);
 		}

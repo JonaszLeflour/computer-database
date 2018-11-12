@@ -15,8 +15,10 @@ import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.InvalidParameterException;
-import com.excilys.cdb.service.DataPresenter;
-import com.excilys.cdb.service.SQLDataPresenter;
+import com.excilys.cdb.service.CompanyService;
+import com.excilys.cdb.service.ComputerService;
+import com.excilys.cdb.service.SimpleCompanyService;
+import com.excilys.cdb.service.SimpleComputerService;
 
 /**
  * Servlet implementation class AddComputerHttpServlet
@@ -24,13 +26,15 @@ import com.excilys.cdb.service.SQLDataPresenter;
 @WebServlet("/addcomputer")
 public class AddComputerHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private DataPresenter dp;
+	private ComputerService computerService;
+	private CompanyService companyService;
 	
     @Override
     public void init() throws ServletException {
     	super.init();
     	try {
-			dp = new SQLDataPresenter();
+    		computerService = new SimpleComputerService();
+			companyService = new SimpleCompanyService();
 		} catch (ClassNotFoundException | IOException | DatabaseErrorException e) {
 			throw new ServletException(e.toString()); 
 		}
@@ -45,7 +49,7 @@ public class AddComputerHttpServlet extends HttpServlet {
 				.getRequestDispatcher("/WEB-INF/views/addComputer.jsp");
 		
 		try {
-			request.setAttribute("companies", CompanyDTOMapper.toDTOCompany(dp.getCompanies()));
+			request.setAttribute("companies", CompanyDTOMapper.toDTOCompany(companyService.getCompanies()));
 		} catch (DatabaseErrorException e) {
 			throw new ServletException(e);
 		}
@@ -76,7 +80,7 @@ public class AddComputerHttpServlet extends HttpServlet {
 			newComputer.setCompany(new Company(companyId,""));
 		}
 		try {
-			dp.addComputer(newComputer);
+			computerService.addComputer(newComputer);
 			request.setAttribute("RequestStatus","Ok");
 		} catch (DatabaseErrorException e) {
 			request.setAttribute("RequestStatus",e.toString());

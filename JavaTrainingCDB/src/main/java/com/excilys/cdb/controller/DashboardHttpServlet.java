@@ -16,8 +16,8 @@ import com.excilys.cdb.dto.InvalidPageSizeException;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.InvalidParameterException;
 import com.excilys.cdb.persistence.ObjectNotFoundException;
-import com.excilys.cdb.service.DataPresenter;
-import com.excilys.cdb.service.SQLDataPresenter;
+import com.excilys.cdb.service.ComputerService;
+import com.excilys.cdb.service.SimpleComputerService;
 import com.excilys.cdb.persistence.ComputerDAO.ComputerField;
 import com.excilys.cdb.persistence.OrderDirection;;
 
@@ -33,14 +33,14 @@ public class DashboardHttpServlet extends HttpServlet {
     private final OrderDirection defaultDir = OrderDirection.DESC;
     
     private ComputerRequestPager pager;
-    private DataPresenter dp;
+    private ComputerService dp;
     
     @Override
     public void init() throws ServletException {
     	super.init();
     	try {
     		pager = new OrderedComputerRequestPager("", defaultPageSize, defaultOrderBy, defaultDir);
-    		dp = new SQLDataPresenter();
+    		dp = new SimpleComputerService();
 		} catch (ClassNotFoundException | IOException | DatabaseErrorException | InvalidPageSizeException e) {
 			throw new ServletException(e); 
 		}

@@ -16,8 +16,10 @@ import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.InvalidParameterException;
 import com.excilys.cdb.persistence.ObjectNotFoundException;
-import com.excilys.cdb.service.DataPresenter;
-import com.excilys.cdb.service.SQLDataPresenter;
+import com.excilys.cdb.service.CompanyService;
+import com.excilys.cdb.service.ComputerService;
+import com.excilys.cdb.service.SimpleCompanyService;
+import com.excilys.cdb.service.SimpleComputerService;
 
 /**
  * Servlet implementation class EditComputerHttpServlet
@@ -25,13 +27,15 @@ import com.excilys.cdb.service.SQLDataPresenter;
 @WebServlet("/editcomputer")
 public class EditComputerHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private DataPresenter dp;
+	private ComputerService computerService;
+	private CompanyService companyService;
 
 	@Override
 	public void init() throws ServletException {
 		super.init();
 		try {
-			dp = new SQLDataPresenter();
+			computerService = new SimpleComputerService();
+			companyService = new SimpleCompanyService();
 		} catch (ClassNotFoundException | IOException | DatabaseErrorException e) {
 			throw new ServletException(e.toString());
 		}
@@ -52,7 +56,7 @@ public class EditComputerHttpServlet extends HttpServlet {
 
 		try {
 			int id = Integer.parseInt(request.getParameter("id"));
-			c = dp.getComputerById(id);
+			c = computerService.getComputerById(id);
 		} catch (NumberFormatException | ObjectNotFoundException e) {
 			getServletContext().getRequestDispatcher("/404").forward(request, response);
 		} catch (DatabaseErrorException e) {
@@ -61,7 +65,7 @@ public class EditComputerHttpServlet extends HttpServlet {
 		
 		request.setAttribute("computer", c);
 		try {
-			request.setAttribute("companies", CompanyDTOMapper.toDTOCompany(dp.getCompanies()));
+			request.setAttribute("companies", CompanyDTOMapper.toDTOCompany(companyService.getCompanies()));
 		} catch (DatabaseErrorException e) {
 			throw new ServletException(e);
 		}
@@ -94,7 +98,7 @@ public class EditComputerHttpServlet extends HttpServlet {
 			newComputer.setCompany(new Company(companyId, ""));
 		}
 		try {
-			dp.updateComputer(newComputer);
+			computerService.updateComputer(newComputer);
 		} catch (ObjectNotFoundException |DatabaseErrorException | InvalidParameterException e) {
 			throw new ServletException(e);
 		}

@@ -9,15 +9,15 @@ import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.*;
 import com.excilys.cdb.persistence.ComputerDAO.ComputerField;
 import com.excilys.cdb.persistence.OrderDirection;
-import com.excilys.cdb.service.DataPresenter;
-import com.excilys.cdb.service.SQLDataPresenter;
+import com.excilys.cdb.service.ComputerService;
+import com.excilys.cdb.service.SimpleComputerService;
 
 /**
  * @author Jonasz Leflour
  *
  */
 public class OrderedComputerRequestPager implements ComputerRequestPager {
-	DataPresenter dp;
+	ComputerService dp;
 	String searchName;
 	long pageSize;
 	ComputerField orderBy;
@@ -43,7 +43,7 @@ public class OrderedComputerRequestPager implements ComputerRequestPager {
 			throw new InvalidPageSizeException("Page size must be strictly positive");
 		}
 
-		dp = new SQLDataPresenter();
+		dp = new SimpleComputerService();
 		this.searchName = name;
 		this.pageSize = pageSize;
 		this.orderBy = orderBy;

@@ -28,14 +28,16 @@ import com.excilys.cdb.persistence.InvalidParameterException;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { DataConfig.class})
 public class DatabaseAccessorTest {
-	private ComputerDAO dba;
+	private ComputerDAO computerDAO;
+	private CompanyDAO companyDAO;
 
 	/**
 	 * @throws Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		dba = ComputerDAO.getInstance();
+		computerDAO = ComputerDAO.getInstance();
+		companyDAO = CompanyDAO.getInstance();
 	}
 
 	/**
@@ -43,7 +45,7 @@ public class DatabaseAccessorTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		dba = null;
+		computerDAO = null;
 	}
 
 	/**
@@ -59,7 +61,7 @@ public class DatabaseAccessorTest {
 			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
 		ComputerDAO dba2 = null;
 		dba2 = ComputerDAO.getInstance();
-		assertEquals(dba2, dba);
+		assertEquals(dba2, computerDAO);
 	}
 
 	/**
@@ -69,7 +71,7 @@ public class DatabaseAccessorTest {
 	 */
 	@Test
 	public void testGetAllComputers() throws DatabaseErrorException {
-		List<Computer> computers = dba.getAllComputers();
+		List<Computer> computers = computerDAO.getAllComputers();
 		assertNotNull(computers);
 	}
 
@@ -81,15 +83,15 @@ public class DatabaseAccessorTest {
 		boolean expectedFailure1 = false;
 		boolean expectedFailure2 = false;
 
-		List<Computer> computers = dba.getAllComputers(0, 10);
+		List<Computer> computers = computerDAO.getAllComputers(0, 10);
 		try {
-			computers = dba.getAllComputers(-10, 0);
+			computers = computerDAO.getAllComputers(-10, 0);
 		} catch (DatabaseErrorException e) {
 			expectedFailure1 = true;
 		}
 
 		try {
-			computers = dba.getAllComputers(0, -10);
+			computers = computerDAO.getAllComputers(0, -10);
 		} catch (DatabaseErrorException e) {
 			expectedFailure2 = true;
 		}
@@ -105,8 +107,8 @@ public class DatabaseAccessorTest {
 	 */
 	@Test
 	public void testCountComputersByName() throws DatabaseErrorException {
-		assertTrue(dba.countComputersByName("mac") > 0);
-		assertEquals(0, dba.countComputersByName("This computer shouldn't be in the database"));
+		assertTrue(computerDAO.countComputersByName("mac") > 0);
+		assertEquals(0, computerDAO.countComputersByName("This computer shouldn't be in the database"));
 	}
 
 	/**
@@ -114,8 +116,8 @@ public class DatabaseAccessorTest {
 	 */
 	@Test
 	public void testCountCompaniesByName() throws DatabaseErrorException {
-		assertTrue(dba.countCompaniesByName("apple") > 0);
-		assertEquals(0, dba.countComputersByName("This computer shouldn't be in the database"));
+		assertTrue(companyDAO.countCompaniesByName("apple") > 0);
+		assertEquals(0, computerDAO.countComputersByName("This computer shouldn't be in the database"));
 	}
 
 	/**
@@ -126,15 +128,15 @@ public class DatabaseAccessorTest {
 		boolean expectedFailure1 = false;
 		boolean expectedFailure2 = false;
 
-		List<Computer> computers = dba.getComputersByName("Apple", 0, 10);
+		List<Computer> computers = computerDAO.getComputersByName("Apple", 0, 10);
 		try {
-			computers = dba.getAllComputers(-10, 0);
+			computers = computerDAO.getAllComputers(-10, 0);
 		} catch (DatabaseErrorException e) {
 			expectedFailure1 = true;
 		}
 
 		try {
-			computers = dba.getAllComputers(0, -10);
+			computers = computerDAO.getAllComputers(0, -10);
 		} catch (DatabaseErrorException e) {
 			expectedFailure2 = true;
 		}
@@ -157,15 +159,15 @@ public class DatabaseAccessorTest {
 		Computer computer2 = null;
 		boolean excpectedException = false;
 
-		long validId = dba.getComputerByName("CM-2a").get(0).getId();
+		long validId = computerDAO.getComputerByName("CM-2a").get(0).getId();
 
-		computer1 = dba.getComputerById(validId);
+		computer1 = computerDAO.getComputerById(validId);
 
 		assertNotNull(computer1);
 		assertNotNull(computer1.getName());
 		assertEquals(false, computer1.getName().isEmpty());
 		try {
-			computer2 = dba.getComputerById(0);
+			computer2 = computerDAO.getComputerById(0);
 		} catch (ObjectNotFoundException e) {
 			excpectedException = true;
 		}
@@ -183,13 +185,13 @@ public class DatabaseAccessorTest {
 	public void testGetComputerByName() throws DatabaseErrorException {
 		String realComputerName = "CM-2a", fakeComputerName = "LOL C PAS DANS LA DB";
 		List<Computer> computers = null;
-		computers = dba.getComputerByName(realComputerName);
+		computers = computerDAO.getComputerByName(realComputerName);
 		assertNotNull(computers);
 		assertEquals(1, computers.size());
 		assertEquals(realComputerName, computers.get(0).getName());
 
 		computers = null;
-		computers = dba.getComputerByName(fakeComputerName);
+		computers = computerDAO.getComputerByName(fakeComputerName);
 		assertNotNull(computers);
 		assertTrue(computers.isEmpty());
 
@@ -214,30 +216,30 @@ public class DatabaseAccessorTest {
 		String invalidName = "";
 
 		try {
-			dba.createComputer(new Computer());
+			computerDAO.createComputer(new Computer());
 		} catch (InvalidParameterException e) {
 			expectedFailure1 = true;
 		}
 		assertTrue(expectedFailure1);
 
 		try {
-			dba.createComputer(new Computer(new Computer.Builder().name(invalidName)));
+			computerDAO.createComputer(new Computer(new Computer.Builder().name(invalidName)));
 		} catch (InvalidParameterException e) {
 			expectedFailure2 = true;
 		}
 		assertTrue(expectedFailure2);
 
 		try {
-			dba.createComputer(
+			computerDAO.createComputer(
 					new Computer(new Computer.Builder().name(validName).introduced(now).discontinued(previously)));
 		} catch (InvalidParameterException e) {
 			expectedFailure3 = true;
 		}
 		assertTrue(expectedFailure3);
 
-		dba.createComputer(
+		computerDAO.createComputer(
 				new Computer(new Computer.Builder().name(validName).introduced(previously).discontinued(now)));
-		dba.deleteComputerByName(validName);
+		computerDAO.deleteComputerByName(validName);
 	}
 
 	/**
@@ -258,30 +260,30 @@ public class DatabaseAccessorTest {
 		String nullName = null;
 		String emptyName = "";
 
-		dba.createComputer(new Computer(new Computer.Builder().name(validName)));
+		computerDAO.createComputer(new Computer(new Computer.Builder().name(validName)));
 
 		try {
-			dba.deleteComputerByName(notExistsName);
+			computerDAO.deleteComputerByName(notExistsName);
 		} catch (ObjectNotFoundException e) {
 			expectedFailure1 = true;
 		}
 		assertTrue(expectedFailure1);
 
 		try {
-			dba.deleteComputerByName(nullName);
+			computerDAO.deleteComputerByName(nullName);
 		} catch (InvalidParameterException e) {
 			expectedFailure2 = true;
 		}
 		assertTrue(expectedFailure2);
 
 		try {
-			dba.deleteComputerByName(emptyName);
+			computerDAO.deleteComputerByName(emptyName);
 		} catch (InvalidParameterException e) {
 			expectedFailure3 = true;
 		}
 		assertTrue(expectedFailure3);
 
-		dba.deleteComputerByName(validName);
+		computerDAO.deleteComputerByName(validName);
 
 	}
 
@@ -303,7 +305,7 @@ public class DatabaseAccessorTest {
 		while (computer == null) {
 			id++;
 			try {
-				computer = dba.getComputerById(id);
+				computer = computerDAO.getComputerById(id);
 			} catch (ObjectNotFoundException e) {
 
 			}
@@ -311,16 +313,16 @@ public class DatabaseAccessorTest {
 		}
 
 		try {
-			dba.deleteComputerById(invalidId);
+			computerDAO.deleteComputerById(invalidId);
 		} catch (ObjectNotFoundException | InvalidParameterException e) {
 			expectedError = true;
 		}
 		assertTrue(expectedError);
 
-		dba.deleteComputerById(computer.getId());
+		computerDAO.deleteComputerById(computer.getId());
 
 		// restore db
-		dba.createComputer(computer);
+		computerDAO.createComputer(computer);
 	}
 
 	/**
@@ -350,8 +352,8 @@ public class DatabaseAccessorTest {
 
 		Computer dbComputer = new Computer(new Computer.Builder().name(origName).introduced(now));
 
-		dba.createComputer(dbComputer);
-		dbComputer = dba.getComputerByName(origName).get(0);
+		computerDAO.createComputer(dbComputer);
+		dbComputer = computerDAO.getComputerByName(origName).get(0);
 		assertNotNull(dbComputer);
 
 		nullName = new Computer(new Computer.Builder().id(dbComputer.getId()).introduced(previously));
@@ -364,36 +366,36 @@ public class DatabaseAccessorTest {
 				new Computer.Builder().name(newName).id(dbComputer.getId()).introduced(previously).discontinued(now));
 
 		try {
-			dba.updateComputer(nullComputer);
+			computerDAO.updateComputer(nullComputer);
 		} catch (InvalidParameterException e) {
 			expectedFailure1 = true;
 		}
 		assertTrue(expectedFailure1);
 
 		// ok with no name : no update
-		dba.updateComputer(nullName);
+		computerDAO.updateComputer(nullName);
 
 		try {
-			dba.updateComputer(emptyName);
+			computerDAO.updateComputer(emptyName);
 		} catch (InvalidParameterException e) {
 			expectedFailure2 = true;
 		}
 		assertTrue(expectedFailure2);
 
 		try {
-			dba.updateComputer(incoherentDates);
+			computerDAO.updateComputer(incoherentDates);
 		} catch (InvalidParameterException e) {
 			expectedFailure3 = true;
 		}
 		assertTrue(expectedFailure3);
-		dba.updateComputer(validComputer);
-		returnedComputer = dba.getComputerById(dbComputer.getId());
+		computerDAO.updateComputer(validComputer);
+		returnedComputer = computerDAO.getComputerById(dbComputer.getId());
 
 		assertEquals(returnedComputer.getName(), validComputer.getName());
 		assertEquals(returnedComputer.getIntroduced(), validComputer.getIntroduced());
 		assertEquals(returnedComputer.getDiscontinued(), validComputer.getDiscontinued());
 
-		dba.deleteComputerById(validComputer.getId());
+		computerDAO.deleteComputerById(validComputer.getId());
 
 	}
 
@@ -408,28 +410,28 @@ public class DatabaseAccessorTest {
 
 		for (ComputerDAO.ComputerField orderBy : ComputerDAO.ComputerField.values()) {
 			for (OrderDirection direction : OrderDirection.values()) {
-				assertTrue(!dba.getOrderedComputers("mac", 0, 10, orderBy, direction).isEmpty());
-				assertTrue(!dba.getOrderedComputers("", 10, 10, orderBy, direction).isEmpty());
+				assertTrue(!computerDAO.getOrderedComputers("mac", 0, 10, orderBy, direction).isEmpty());
+				assertTrue(!computerDAO.getOrderedComputers("", 10, 10, orderBy, direction).isEmpty());
 			}
 		}
 
-		List<Computer> res = dba.getOrderedComputers("", 0, 10, ComputerDAO.ComputerField.id,
+		List<Computer> res = computerDAO.getOrderedComputers("", 0, 10, ComputerDAO.ComputerField.id,
 				OrderDirection.DESC);
 		assertTrue(res.get(0).getId() > res.get(1).getId());
 
-		res = dba.getOrderedComputers("", 0, 10, ComputerDAO.ComputerField.id,
+		res = computerDAO.getOrderedComputers("", 0, 10, ComputerDAO.ComputerField.id,
 				OrderDirection.ASC);
 
 		assertTrue(res.get(0).getId() < res.get(1).getId());
 
 		try {
-			dba.getOrderedComputers("", -1, 10, ComputerDAO.ComputerField.id, OrderDirection.ASC);
+			computerDAO.getOrderedComputers("", -1, 10, ComputerDAO.ComputerField.id, OrderDirection.ASC);
 		} catch (DatabaseErrorException e) {
 			expectedFailure1 = true;
 		}
 
 		try {
-			dba.getOrderedComputers("", 0, -1, ComputerDAO.ComputerField.id, OrderDirection.ASC);
+			computerDAO.getOrderedComputers("", 0, -1, ComputerDAO.ComputerField.id, OrderDirection.ASC);
 		} catch (DatabaseErrorException e) {
 			expectedFailure2 = true;
 		}
