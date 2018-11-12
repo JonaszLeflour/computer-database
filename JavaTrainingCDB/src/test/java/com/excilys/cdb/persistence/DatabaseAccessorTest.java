@@ -22,7 +22,6 @@ import com.excilys.cdb.persistence.InvalidParameterException;
 /**
  * @author Jonasz Leflour
  * 
- *
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -46,6 +45,7 @@ public class DatabaseAccessorTest {
 	@After
 	public void tearDown() throws Exception {
 		computerDAO = null;
+		companyDAO = null;
 	}
 
 	/**
