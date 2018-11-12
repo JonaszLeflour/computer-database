@@ -3,19 +3,22 @@ package com.excilys.cdb.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.springframework.stereotype.Component;
+
 import com.excilys.cdb.model.Company;
 
 /**
  * @author Jonasz Leflour
  *
  */
+@Component
 public class CompanyResultSetMapper {
 	/**
 	 * @param rs
 	 * @return company
 	 * @throws EmptyResultSetException
 	 */
-	public static Company createCompanyWithResultSetRow(ResultSet rs) throws EmptyResultSetException {
+	public Company createCompanyWithResultSetRow(ResultSet rs) throws EmptyResultSetException {
 		try {
 			int id = rs.getInt(1);
 			if (rs.wasNull()) {

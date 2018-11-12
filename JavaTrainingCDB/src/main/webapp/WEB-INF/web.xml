@@ -7,6 +7,25 @@
 	http://java.sun.com/xml/ns/javaee/web-app_3_1.xsd" 
 	id="WebApp_ID" version="3.1">
 	<display-name>JavaTrainingCDB</display-name>
+	<context-param>
+      <param-name>contextClass</param-name>
+      <param-value>
+          org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+      </param-value>
+	</context-param>
+
+	<context-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>com.excilys.cdb.controller.beans.DAOConfig</param-value>
+	</context-param>
+
+	<!-- Bootstrap the root application context as usual using ContextLoaderListener -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	
+	
+	
 	<error-page>
 		<error-code>404</error-code>
 		<location>/404</location>
@@ -19,4 +38,6 @@
 		<error-code>500</error-code>
 		<location>/500</location>
 	</error-page>
+	
+	
 </web-app>

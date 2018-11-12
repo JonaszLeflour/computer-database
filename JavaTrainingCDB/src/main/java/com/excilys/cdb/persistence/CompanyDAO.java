@@ -13,10 +13,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import com.excilys.cdb.controller.beans.DataConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import com.excilys.cdb.model.Company;
 
 
@@ -24,9 +22,16 @@ import com.excilys.cdb.model.Company;
  * @author Jonasz Leflour
  *
  */
+@Repository
 public class CompanyDAO {
 	private static CompanyDAO dba = null;
-	private  DataSource ds;
+	
+	@SuppressWarnings("javadoc")
+	@Autowired
+	public DataSource dataSource;
+	
+	@Autowired
+	CompanyResultSetMapper companyResultSetMapper;
 
 	/**
 	 * @author Jonasz Leflour
@@ -36,32 +41,6 @@ public class CompanyDAO {
 		@SuppressWarnings("javadoc")
 		id, @SuppressWarnings("javadoc")
 		name;
-	}
-	
-	
-	/**
-	 * @param source
-	 */
-	public void setSource(DataSource source) {
-		this.ds = source;
-	}
-	
-	/**
-	 * @param manager
-	 */
-	public void setManager(DataSource manager) {
-		this.ds = manager;
-	}
-	
-	/**
-	 * Tries to connect to database on create
-	 * 
-	 * @throws ClassNotFoundException
-	 */
-	private CompanyDAO() {
-		@SuppressWarnings("resource")
-		ApplicationContext ctx = new AnnotationConfigApplicationContext(DataConfig.class);
-		ds = ctx.getBean(DataSource.class);
 	}
 
 	/**
@@ -95,7 +74,7 @@ public class CompanyDAO {
 		PreparedStatement s = null;
 		ResultSet rs = null;
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			con.setAutoCommit(false);
 
 			s = con.prepareStatement(
@@ -111,7 +90,7 @@ public class CompanyDAO {
 			rs = s.executeQuery();
 
 			while (rs.next()) {
-				companies.add(CompanyResultSetMapper.createCompanyWithResultSetRow(rs));
+				companies.add(companyResultSetMapper.createCompanyWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -149,13 +128,13 @@ public class CompanyDAO {
 		ResultSet rs = null;
 
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			con.setAutoCommit(false);
 			s = con.createStatement();
 			rs = s.executeQuery("SELECT id, name FROM company");
 
 			while (rs.next()) {
-				companies.add(CompanyResultSetMapper.createCompanyWithResultSetRow(rs));
+				companies.add(companyResultSetMapper.createCompanyWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -194,12 +173,12 @@ public class CompanyDAO {
 		ResultSet rs = null;
 
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			con.setAutoCommit(false);
 			s = con.createStatement();
 			rs = s.executeQuery("SELECT id, name FROM company WHERE id=" + id);
 			rs.next();
-			company = CompanyResultSetMapper.createCompanyWithResultSetRow(rs);
+			company = companyResultSetMapper.createCompanyWithResultSetRow(rs);
 		} catch (SQLException e) {
 			throw new ObjectNotFoundException();
 		} catch (EmptyResultSetException e) {
@@ -234,7 +213,7 @@ public class CompanyDAO {
 		PreparedStatement s1 = null, s2 = null;
 		Savepoint beforeDelete = null;
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			beforeDelete = con.setSavepoint();
 			con.setAutoCommit(false);
 			s1 = con.prepareStatement("DELETE FROM computer WHERE company_id = ?");
@@ -287,7 +266,7 @@ public class CompanyDAO {
 		PreparedStatement s = null;
 		ResultSet res = null;
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 
 			s = con.prepareStatement("SELECT COUNT(c.id) FROM company AS c WHERE UPPER(c.name) LIKE UPPER(?)");
 			if (name != null && !name.isEmpty()) {

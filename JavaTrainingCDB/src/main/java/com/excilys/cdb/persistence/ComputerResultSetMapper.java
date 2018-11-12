@@ -4,21 +4,26 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.excilys.cdb.model.Computer;
 
 /**
  * @author Jonasz Lefour
  *
  */
+@Component
 public class ComputerResultSetMapper {
-	
+	@Autowired
+	CompanyDAO companyDAO;
 	/**
 	 * @param rs resulset with index on the description of a computer
 	 * @return Computer
 	 * @throws EmptyResultSetException
 	 * @throws DatabaseErrorException
 	 */
-	public static Computer createComputerWithResultSetRow(ResultSet rs)
+	public Computer createComputerWithResultSetRow(ResultSet rs)
 			throws EmptyResultSetException, DatabaseErrorException {
 		Computer computer = new Computer();
 		try {
@@ -46,7 +51,7 @@ public class ComputerResultSetMapper {
 
 			Integer idCompany = rs.getInt(5);
 			if (!rs.wasNull()) {
-				computer.setCompany(CompanyDAO.getInstance().getCompanybyId(idCompany));
+				computer.setCompany(companyDAO.getCompanybyId(idCompany));
 			}
 		} catch (SQLException e) {
 			new EmptyResultSetException();

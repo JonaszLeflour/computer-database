@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import com.excilys.cdb.controller.beans.DataConfig;
+import com.excilys.cdb.controller.beans.DAOConfig;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.service.SimpleCompanyService;
 import com.excilys.cdb.service.SimpleComputerService;
@@ -19,7 +19,7 @@ import com.excilys.cdb.ui.ConsoleUserInterface;
  */
 public class Main {
 	static Logger logger = LoggerFactory.getLogger(Main.class);
-	ApplicationContext ctx = new AnnotationConfigApplicationContext(DataConfig.class);
+	ApplicationContext ctx = new AnnotationConfigApplicationContext(DAOConfig.class);
 	/**
 	 * Creates user interface object
 	 * @param args

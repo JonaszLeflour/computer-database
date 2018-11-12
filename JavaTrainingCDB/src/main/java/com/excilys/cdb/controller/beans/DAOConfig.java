@@ -6,9 +6,12 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -17,7 +20,8 @@ import com.zaxxer.hikari.HikariDataSource;
  * @author Jonasz Leflour Spring configuration
  */
 @Configuration
-public class DataConfig {
+@ComponentScan(basePackages ="com.excilys.cdb.persistence")
+public class DAOConfig extends AnnotationConfigApplicationContext{
 	static DataSource source = null;
 	
 	/**
@@ -26,7 +30,7 @@ public class DataConfig {
 	 * @throws ClassNotFoundException 
 	 */
 	@Bean
-	public static DataSource source() throws IOException, ClassNotFoundException {
+	public static DataSource getDataSource() throws IOException, ClassNotFoundException {
 		if(source != null) {
 			return source;
 		}
@@ -53,7 +57,7 @@ public class DataConfig {
 	@Bean
 	public static DataSourceTransactionManager manager() throws IOException, ClassNotFoundException {
 		DataSourceTransactionManager manager = new DataSourceTransactionManager();
-		manager.setDataSource(source());
+		manager.setDataSource(getDataSource());
 		return manager;
 	}
 }

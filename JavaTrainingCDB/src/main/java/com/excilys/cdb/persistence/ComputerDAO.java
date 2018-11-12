@@ -16,10 +16,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import com.excilys.cdb.controller.beans.DataConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import com.excilys.cdb.model.Computer;
 
 /**
@@ -31,26 +29,15 @@ import com.excilys.cdb.model.Computer;
  * @version %I%
  *
  */
+@Repository
 public class ComputerDAO {
 	private static ComputerDAO dba = null;
-	private  DataSource ds;
-	@SuppressWarnings("unused")
+	@SuppressWarnings("javadoc")
+	@Autowired
+	public DataSource dataSource;
 	
-	private  DataSourceTransactionManager manager;
-
-	/**
-	 * @param source
-	 */
-	public void setSource(DataSource source) {
-		this.ds = source;
-	}
-	
-	/**
-	 * @param manager
-	 */
-	public void setManager(DataSource manager) {
-		this.ds = manager;
-	}
+	@Autowired
+	ComputerResultSetMapper computerResultSetMapper;
 	
 	
 	/**
@@ -66,21 +53,11 @@ public class ComputerDAO {
 		company_id;
 	};
 
-
-
-
-
 	/**
 	 * Tries to connect to database on create
 	 * 
 	 * @throws ClassNotFoundException
 	 */
-	private ComputerDAO() {
-		@SuppressWarnings("resource")
-		ApplicationContext ctx = new AnnotationConfigApplicationContext(DataConfig.class);
-		ds = ctx.getBean(DataSource.class);
-		manager = ctx.getBean(DataSourceTransactionManager.class);
-	}
 
 	/**
 	 * @return Singleton of DatabaseAccessor
@@ -108,13 +85,13 @@ public class ComputerDAO {
 		ResultSet rs = null;
 
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			con.setAutoCommit(false);
 			s = con.createStatement();
 			rs = s.executeQuery("SELECT id, name, introduced, discontinued, company_id FROM computer");
 
 			while (rs.next()) {
-				computers.add(ComputerResultSetMapper.createComputerWithResultSetRow(rs));
+				computers.add(computerResultSetMapper.createComputerWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -154,7 +131,7 @@ public class ComputerDAO {
 		ResultSet rs = null;
 
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			con.setAutoCommit(false);
 			s = con.prepareStatement("SELECT id, name, introduced, discontinued, company_id FROM computer LIMIT ?, ?");
 			s.setLong(1, offset);
@@ -162,7 +139,7 @@ public class ComputerDAO {
 			rs = s.executeQuery();
 
 			while (rs.next()) {
-				computers.add(ComputerResultSetMapper.createComputerWithResultSetRow(rs));
+				computers.add(computerResultSetMapper.createComputerWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -202,7 +179,7 @@ public class ComputerDAO {
 		ResultSet rs = null;
 
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			con.setAutoCommit(false);
 			s = con.prepareStatement(
 					"SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?) LIMIT ?, ?");
@@ -212,7 +189,7 @@ public class ComputerDAO {
 			rs = s.executeQuery();
 
 			while (rs.next()) {
-				computers.add(ComputerResultSetMapper.createComputerWithResultSetRow(rs));
+				computers.add(computerResultSetMapper.createComputerWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -252,12 +229,12 @@ public class ComputerDAO {
 		ResultSet rs = null;
 
 		try {// id name intro disc idcomp
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			s = con.prepareStatement("SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id=?");
 			s.setLong(1, id);
 			rs = s.executeQuery();
 			rs.next();
-			computer = ComputerResultSetMapper.createComputerWithResultSetRow(rs);
+			computer = computerResultSetMapper.createComputerWithResultSetRow(rs);
 		} catch (SQLException e) {
 			throw new DatabaseErrorException(e);
 		} catch (EmptyResultSetException e) {
@@ -299,7 +276,7 @@ public class ComputerDAO {
 		PreparedStatement s = null;
 		ResultSet rs = null;
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			con.setAutoCommit(false);
 
 			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id "
@@ -315,7 +292,7 @@ public class ComputerDAO {
 			rs = s.executeQuery();
 
 			while (rs.next()) {
-				computers.add(ComputerResultSetMapper.createComputerWithResultSetRow(rs));
+				computers.add(computerResultSetMapper.createComputerWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -355,7 +332,7 @@ public class ComputerDAO {
 		ResultSet rs = null;
 
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			s = con.prepareStatement(
 					"SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
 			s.setString(1, "%" + name + "%");
@@ -363,7 +340,7 @@ public class ComputerDAO {
 			rs = s.executeQuery();
 
 			while (rs.next()) {
-				computers.add(ComputerResultSetMapper.createComputerWithResultSetRow(rs));
+				computers.add(computerResultSetMapper.createComputerWithResultSetRow(rs));
 			}
 
 		} catch (SQLException e) {
@@ -398,7 +375,7 @@ public class ComputerDAO {
 		PreparedStatement s = null;
 		ResultSet res = null;
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 
 			s = con.prepareStatement("SELECT COUNT(c.id) FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
 			if (name != null && !name.isEmpty()) {
@@ -453,7 +430,7 @@ public class ComputerDAO {
 		PreparedStatement s = null;
 		Savepoint beforeUpdate = null;
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			con.setAutoCommit(false);
 			beforeUpdate = con.setSavepoint();
 			s = con.prepareStatement(
@@ -520,7 +497,7 @@ public class ComputerDAO {
 		int ret = 0;
 		Savepoint beforeDelete = null;
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			beforeDelete = con.setSavepoint();
 			con.setAutoCommit(false);
 			s = con.prepareStatement("DELETE FROM computer WHERE name = ?");
@@ -573,7 +550,7 @@ public class ComputerDAO {
 		int ret = 0;
 		Savepoint beforeDelete = null;
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			beforeDelete = con.setSavepoint();
 			con.setAutoCommit(false);
 			s = con.prepareStatement("DELETE FROM computer WHERE id = ?");
@@ -646,7 +623,7 @@ public class ComputerDAO {
 		boolean hasParameters = false;
 		Savepoint beforeUpdate = null;
 		try {
-			con = ds.getConnection();
+			con = dataSource.getConnection();
 			con.setAutoCommit(false);
 			beforeUpdate = con.setSavepoint();
 			String sql = "UPDATE computer SET";

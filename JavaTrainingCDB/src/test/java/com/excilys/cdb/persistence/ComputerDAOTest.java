@@ -2,8 +2,6 @@ package com.excilys.cdb.persistence;
 
 import static org.junit.Assert.*;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -11,11 +9,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import com.excilys.cdb.controller.beans.DataConfig;
+import com.excilys.cdb.controller.beans.DAOConfig;
 import com.excilys.cdb.model.*;
 import com.excilys.cdb.persistence.InvalidParameterException;
 
@@ -25,18 +24,18 @@ import com.excilys.cdb.persistence.InvalidParameterException;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { DataConfig.class})
-public class DatabaseAccessorTest {
-	private ComputerDAO computerDAO;
-	private CompanyDAO companyDAO;
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { DAOConfig.class})
+public class ComputerDAOTest {
+	@Autowired
+	ComputerDAO computerDAO;
+	@Autowired
+	CompanyDAO companyDAO;
 
 	/**
 	 * @throws Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		computerDAO = ComputerDAO.getInstance();
-		companyDAO = CompanyDAO.getInstance();
 	}
 
 	/**
@@ -55,14 +54,15 @@ public class DatabaseAccessorTest {
 	 * @throws FileNotFoundException
 	 * @throws DatabaseErrorException
 	 * @throws ClassNotFoundException
-	 */
+	 
 	@Test
 	public void testGetDatabaseAccessor()
 			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
-		ComputerDAO dba2 = null;
+		
+		ComputerDAO dba2;
 		dba2 = ComputerDAO.getInstance();
 		assertEquals(dba2, computerDAO);
-	}
+	}*/
 
 	/**
 	 * Tests that the list object is not null

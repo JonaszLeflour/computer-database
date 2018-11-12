@@ -10,11 +10,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import com.excilys.cdb.controller.beans.DataConfig;
+import com.excilys.cdb.controller.beans.DAOConfig;
 import com.excilys.cdb.model.Company;
 
 /**
@@ -22,16 +23,16 @@ import com.excilys.cdb.model.Company;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { DataConfig.class })
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { DAOConfig.class })
 public class CompanyDAOTest {
-	private CompanyDAO dba;
+	@Autowired
+	CompanyDAO companyDAO;
 
 	/**
 	 * @throws Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		dba = CompanyDAO.getInstance();
 	}
 
 	/**
@@ -39,7 +40,7 @@ public class CompanyDAOTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		dba = null;
+		companyDAO = null;
 	}
 
 	/**
@@ -52,26 +53,26 @@ public class CompanyDAOTest {
 
 		for (CompanyDAO.CompanyField orderBy : CompanyDAO.CompanyField.values()) {
 			for (OrderDirection direction : OrderDirection.values()) {
-				assertTrue(!dba.getOrderedCompanies("a", 0, 10, orderBy, direction).isEmpty());
-				assertTrue(!dba.getOrderedCompanies("", 5, 5, orderBy, direction).isEmpty());
+				assertTrue(!companyDAO.getOrderedCompanies("a", 0, 10, orderBy, direction).isEmpty());
+				assertTrue(!companyDAO.getOrderedCompanies("", 5, 5, orderBy, direction).isEmpty());
 			}
 		}
 
-		List<Company> res = dba.getOrderedCompanies("", 0, 10, CompanyDAO.CompanyField.id, OrderDirection.DESC);
+		List<Company> res = companyDAO.getOrderedCompanies("", 0, 10, CompanyDAO.CompanyField.id, OrderDirection.DESC);
 		assertTrue(res.get(0).getId() > res.get(1).getId());
 
-		res = dba.getOrderedCompanies("", 0, 10, CompanyDAO.CompanyField.id, OrderDirection.ASC);
+		res = companyDAO.getOrderedCompanies("", 0, 10, CompanyDAO.CompanyField.id, OrderDirection.ASC);
 
 		assertTrue(res.get(0).getId() < res.get(1).getId());
 
 		try {
-			dba.getOrderedCompanies("", -1, 10, CompanyDAO.CompanyField.id, OrderDirection.ASC);
+			companyDAO.getOrderedCompanies("", -1, 10, CompanyDAO.CompanyField.id, OrderDirection.ASC);
 		} catch (DatabaseErrorException e) {
 			expectedFailure1 = true;
 		}
 
 		try {
-			dba.getOrderedCompanies("", 1, -1, CompanyDAO.CompanyField.id, OrderDirection.ASC);
+			companyDAO.getOrderedCompanies("", 1, -1, CompanyDAO.CompanyField.id, OrderDirection.ASC);
 		} catch (DatabaseErrorException e) {
 			expectedFailure2 = true;
 		}
@@ -87,7 +88,7 @@ public class CompanyDAOTest {
 	 */
 	@Test
 	public void testGetAllCompanies() throws DatabaseErrorException {
-		List<Company> companies = dba.getAllCompanies();
+		List<Company> companies = companyDAO.getAllCompanies();
 		assertNotNull(companies);
 	}
 
@@ -103,11 +104,11 @@ public class CompanyDAOTest {
 		Company company2 = null;
 		boolean excpectedException = false;
 
-		company1 = dba.getCompanybyId(1);
+		company1 = companyDAO.getCompanybyId(1);
 
 		assertNotNull(company1);
 		try {
-			company2 = dba.getCompanybyId(0);
+			company2 = companyDAO.getCompanybyId(0);
 		} catch (ObjectNotFoundException e) {
 			excpectedException = true;
 		}

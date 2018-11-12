@@ -1,7 +1,7 @@
 package com.excilys.cdb.dto;
 
 /**
- * @author JOnasz Leflour
+ * @author Jonasz Leflour
  *
  */
 public class DTOCompany {
