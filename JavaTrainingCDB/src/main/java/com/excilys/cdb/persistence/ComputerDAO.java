@@ -86,7 +86,6 @@ public class ComputerDAO {
 
 		try {
 			con = dataSource.getConnection();
-			con.setAutoCommit(false);
 			s = con.createStatement();
 			rs = s.executeQuery("SELECT id, name, introduced, discontinued, company_id FROM computer");
 
@@ -101,7 +100,6 @@ public class ComputerDAO {
 		} finally {
 			try {
 				if (con != null) {
-					con.commit();
 					con.close();
 				}
 				if (s != null) {
@@ -132,7 +130,6 @@ public class ComputerDAO {
 
 		try {
 			con = dataSource.getConnection();
-			con.setAutoCommit(false);
 			s = con.prepareStatement("SELECT id, name, introduced, discontinued, company_id FROM computer LIMIT ?, ?");
 			s.setLong(1, offset);
 			s.setLong(2, lenght);
@@ -149,7 +146,6 @@ public class ComputerDAO {
 		} finally {
 			try {
 				if (con != null) {
-					con.commit();
 					con.close();
 				}
 				if (s != null) {
@@ -180,7 +176,6 @@ public class ComputerDAO {
 
 		try {
 			con = dataSource.getConnection();
-			con.setAutoCommit(false);
 			s = con.prepareStatement(
 					"SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?) LIMIT ?, ?");
 			s.setString(1, "%" + name + "%");
@@ -199,7 +194,6 @@ public class ComputerDAO {
 		} finally {
 			try {
 				if (con != null) {
-					con.commit();
 					con.close();
 				}
 				if (s != null) {
@@ -277,7 +271,6 @@ public class ComputerDAO {
 		ResultSet rs = null;
 		try {
 			con = dataSource.getConnection();
-			con.setAutoCommit(false);
 
 			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id "
 					+ "FROM computer AS c " + "WHERE UPPER(c.name) LIKE UPPER(?) " + "ORDER BY c." + orderBy.toString()
@@ -302,7 +295,6 @@ public class ComputerDAO {
 		} finally {
 			try {
 				if (con != null) {
-					con.commit();
 					con.close();
 				}
 				if (s != null) {

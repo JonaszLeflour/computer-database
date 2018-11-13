@@ -14,7 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import com.excilys.cdb.controller.beans.DAOConfig;
+import com.excilys.cdb.config.DAOConfig;
 import com.excilys.cdb.model.*;
 import com.excilys.cdb.persistence.InvalidParameterException;
 
@@ -46,27 +46,8 @@ public class ComputerDAOTest {
 		computerDAO = null;
 		companyDAO = null;
 	}
-
+	
 	/**
-	 * GetDatabaseAccessor test : test if singleton
-	 * 
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 * @throws DatabaseErrorException
-	 * @throws ClassNotFoundException
-	 
-	@Test
-	public void testGetDatabaseAccessor()
-			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
-		
-		ComputerDAO dba2;
-		dba2 = ComputerDAO.getInstance();
-		assertEquals(dba2, computerDAO);
-	}*/
-
-	/**
-	 * Tests that the list object is not null
-	 * 
 	 * @throws DatabaseErrorException
 	 */
 	@Test
@@ -361,7 +342,7 @@ public class ComputerDAOTest {
 		emptyName = new Computer(new Computer.Builder().id(dbComputer.getId()));
 		emptyName.setName("");
 		incoherentDates = new Computer(
-				new Computer.Builder().id(dbComputer.getId()).introduced(now).discontinued(previously));
+				new Computer.Builder().name(dbComputer.getName()).id(dbComputer.getId()).introduced(now).discontinued(previously));
 		validComputer = new Computer(
 				new Computer.Builder().name(newName).id(dbComputer.getId()).introduced(previously).discontinued(now));
 

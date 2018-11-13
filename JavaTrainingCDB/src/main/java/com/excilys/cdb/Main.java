@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import com.excilys.cdb.controller.beans.DAOConfig;
+import com.excilys.cdb.config.DAOConfig;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.service.SimpleCompanyService;
 import com.excilys.cdb.service.SimpleComputerService;

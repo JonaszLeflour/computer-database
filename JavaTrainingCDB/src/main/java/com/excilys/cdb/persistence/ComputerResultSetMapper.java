@@ -54,7 +54,7 @@ public class ComputerResultSetMapper {
 				computer.setCompany(companyDAO.getCompanybyId(idCompany));
 			}
 		} catch (SQLException e) {
-			new EmptyResultSetException();
+			new EmptyResultSetException(e);
 		} catch (ObjectNotFoundException e) {
 			computer.setCompany(null);
 		}

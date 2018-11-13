@@ -1,4 +1,4 @@
-package com.excilys.cdb.controller.beans;
+package com.excilys.cdb.config;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,7 +55,7 @@ public class DAOConfig extends AnnotationConfigApplicationContext{
 	 * @throws ClassNotFoundException 
 	 */
 	@Bean
-	public static DataSourceTransactionManager manager() throws IOException, ClassNotFoundException {
+	public static DataSourceTransactionManager getManager() throws IOException, ClassNotFoundException {
 		DataSourceTransactionManager manager = new DataSourceTransactionManager();
 		manager.setDataSource(getDataSource());
 		return manager;
