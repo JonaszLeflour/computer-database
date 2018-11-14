@@ -19,7 +19,7 @@
 <body>
     <header class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="dashboard.html"> Application - Computer Database </a>
+            <a class="navbar-brand" href="dashboard"> Application - Computer Database </a>
         </div>
     </header>
 
@@ -63,10 +63,10 @@
             </div>
         </div>
     </section>
-    <script type="text/javascript" src='<c:url value="/js/jquery.min.js"/>'></script>
-    <script type="text/javascript" src='<c:url value="/js/bootstrap.min.js"/>'></script>
-    <script type="text/javascript" src='<c:url value="/js/dashboard.js"/>'></script>
-    <script type="text/javascript" src='<c:url value="/js/validation.js"/>'></script>
+    <script src="./js/jquery.min.js"/></script>
+	<script src="./js/bootstrap.min.js"/></script>
+	<script src="./js/dashboard.js"/></script>
+	<script src="./js/validation.js"/></script>
     <script type="text/javascript" >
 	    $.validator.addMethod("dateValid", function(value, element, params) {
 	    	if(value === '' || $(params).val() === ''){

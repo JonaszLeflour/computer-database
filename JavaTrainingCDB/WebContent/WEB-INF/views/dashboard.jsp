@@ -6,22 +6,9 @@
 <meta charset="utf-8">
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<link rel="stylesheet" media="screen" href="./css/bootstrap.min.css">
-<link rel="stylesheet" media="screen" href="./css/font-awesome.css">
-<link rel="stylesheet" media="screen" href="./css/main.css">
-
-<!--<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="/css/font-awesome.css">
 <link rel="stylesheet" type="text/css" href="/css/main.css">
-
-<link rel="stylesheet" type="text/css" href="/WEB-INF/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="/WEB-INF/css/font-awesome.css">
-<link rel="stylesheet" type="text/css" href="/WEB-INF/css/main.css">
-
-<link rel="stylesheet" type="text/css" href="<c:url value="/css/bootstrap.min.css" />">
-<link rel="stylesheet" type="text/css" href="<c:url value="/css/font-awesome.css" />">
-<link rel="stylesheet" type="text/css" href="<c:url value="/css/main.css" />"> -->
-
 
 </head>
 <body>

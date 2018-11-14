@@ -32,19 +32,6 @@
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<testSourceDirectory>src/test/java </testSourceDirectory>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-		</resources>
-		<testResources>
-			<testResource>
-				<directory>src/test/java</directory>
-			</testResource>
-			<testResource>
-                 <directory>src/main/webapp</directory>
-            </testResource>
-		</testResources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -60,7 +47,7 @@
 				<version>${maven-war-plugin.version}</version>
 				<configuration>
 					<archive>
-						<manifestFile>src/main/webapp/META-INF/MANIFEST.MF</manifestFile>
+						<manifestFile>WebContent/META-INF/MANIFEST.MF</manifestFile>
 					</archive>
 				</configuration>
 			</plugin>
