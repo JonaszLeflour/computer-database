@@ -1,38 +1,27 @@
 package com.excilys.cdb.config;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-
-import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 /**
  * @author Jonasz Leflour
  *
  */
-public class WebInit implements WebApplicationInitializer {
+@Configuration
+public class WebInit extends AbstractAnnotationConfigDispatcherServletInitializer {
 
 	@Override
-	public void onStartup(ServletContext servletContext) throws ServletException {
-		servletContext.setInitParameter("spring.profiles.default", "dev");
-		
-		AnnotationConfigWebApplicationContext appContext =
-			      new AnnotationConfigWebApplicationContext();
-		appContext.setDisplayName("JavaTrainingCDB");
-		appContext.register(DAOConfig.class);
-		appContext.refresh();
-		
-		
-		appContext.register(WebConfig.class);
-		servletContext.addListener(new ContextLoaderListener(appContext));
-	
-		ServletRegistration.Dynamic dispatcher =
-		        servletContext.addServlet("dispatcher", new DispatcherServlet(appContext));
-		dispatcher.setLoadOnStartup(1);
-	    dispatcher.addMapping("/");
-	}
+    protected Class<?>[] getRootConfigClasses() {
+        return new Class<?>[] { RootConfig.class };
+    }
+
+    @Override
+    protected Class<?>[] getServletConfigClasses() {
+        return new Class<?>[] { ServletConfig.class };
+    }
+
+    @Override
+    protected String[] getServletMappings() {
+		return new String[] {"/"};
+    }
 
 }

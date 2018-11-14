@@ -4,6 +4,9 @@
 	<title>Computer Database</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- Bootstrap -->
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/css/font-awesome.css">
+	<link rel="stylesheet" href="/css/main.css">
     <style>
 	<jsp:include page="/WEB-INF/css/bootstrap.min.css"/>
 	<jsp:include page="/WEB-INF/css/font-awesome.css"/>
@@ -13,7 +16,7 @@
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container">
-			<a class="navbar-brand" href="dashboard.html"> Application - Computer Database </a>
+			<a class="navbar-brand" href="dashboard"> Application - Computer Database </a>
 		</div>
 	</header>
 

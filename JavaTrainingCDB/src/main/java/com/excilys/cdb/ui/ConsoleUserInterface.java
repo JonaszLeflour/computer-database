@@ -4,6 +4,8 @@ import java.util.List;
 import java.time.LocalDate;
 import java.util.Scanner;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.DatabaseErrorException;
@@ -18,19 +20,10 @@ import com.excilys.cdb.service.ComputerService;
  */
 public final class ConsoleUserInterface implements UserInterface {
 	Scanner scan = new Scanner(System.in);
+	@Autowired
 	ComputerService computerService;
+	@Autowired
 	CompanyService companyService;
-	
-	/**
-	 * implementation of DataPresenter provided at creation
-	 * @param computerService 
-	 * @param companyService 
-	 * @param dp
-	 */
-	public ConsoleUserInterface(ComputerService computerService, CompanyService companyService) {
-		this.computerService = computerService;
-		this.companyService = companyService;
-	}
 
 	@Override
 	public void mainLoop(String[] args) throws DatabaseErrorException {

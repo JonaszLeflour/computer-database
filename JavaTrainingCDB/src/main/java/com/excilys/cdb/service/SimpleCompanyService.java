@@ -1,8 +1,8 @@
 package com.excilys.cdb.service;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.persistence.CompanyDAO;
@@ -15,20 +15,11 @@ import com.excilys.cdb.persistence.OrderDirection;
  * @author JonaszLeflour
  *
  */
+@Service
 public class SimpleCompanyService implements CompanyService {
-	;
-	private CompanyDAO companyDAO = null;
 	
-	/**
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @throws DatabaseErrorException
-	 * @throws ClassNotFoundException
-	 */
-	public SimpleCompanyService()
-			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
-		companyDAO = CompanyDAO.getInstance();
-	}
+	@Autowired
+	private CompanyDAO companyDAO;
 	
 	@Override
 	public List<Company> getCompanies() throws DatabaseErrorException {

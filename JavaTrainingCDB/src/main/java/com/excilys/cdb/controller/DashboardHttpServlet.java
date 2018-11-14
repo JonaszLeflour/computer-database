@@ -9,17 +9,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import com.excilys.cdb.dto.OrderedComputerRequestPager;
-import com.excilys.cdb.dto.ComputerRequestPager;
 import com.excilys.cdb.dto.InvalidPageNumberException;
-import com.excilys.cdb.dto.InvalidPageSizeException;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.InvalidParameterException;
 import com.excilys.cdb.persistence.ObjectNotFoundException;
 import com.excilys.cdb.service.ComputerService;
-import com.excilys.cdb.service.SimpleComputerService;
-import com.excilys.cdb.persistence.ComputerDAO.ComputerField;
-import com.excilys.cdb.persistence.OrderDirection;;
 
 /**
  * Servlet implementation class DashboardHttpServlet
@@ -27,24 +26,17 @@ import com.excilys.cdb.persistence.OrderDirection;;
 @WebServlet("/dashboard")
 public class DashboardHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-    private final long defaultPageSize = 10L;
     
-    private final ComputerField defaultOrderBy = ComputerField.id;
-    private final OrderDirection defaultDir = OrderDirection.DESC;
-    
-    private ComputerRequestPager pager;
-    private ComputerService dp;
+    @Autowired
+    private OrderedComputerRequestPager orderedComputerRequestPager;
+    @Autowired
+    private ComputerService simpleComputerService;
     
     @Override
     public void init() throws ServletException {
     	super.init();
-    	try {
-    		pager = new OrderedComputerRequestPager("", defaultPageSize, defaultOrderBy, defaultDir);
-    		dp = new SimpleComputerService();
-		} catch (ClassNotFoundException | IOException | DatabaseErrorException | InvalidPageSizeException e) {
-			throw new ServletException(e); 
-		}
-        
+    	WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+	    ctx.getAutowireCapableBeanFactory().autowireBean(this);
     }
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -54,9 +46,9 @@ public class DashboardHttpServlet extends HttpServlet {
 		
 		try {
 			if(request.getParameter("search") != null) {
-				pager = new OrderedComputerRequestPager(request.getParameter("search"), defaultPageSize, defaultOrderBy, defaultDir);
+				orderedComputerRequestPager.name(request.getParameter("search"));
 			}else if(request.getAttribute("reset") != null) {
-				pager = new OrderedComputerRequestPager("", defaultPageSize, defaultOrderBy, defaultDir);
+				orderedComputerRequestPager.name("");
 			}
 			RequestDispatcher dispatcher = getServletContext()
 	                .getRequestDispatcher("/WEB-INF/views/dashboard.jsp");
@@ -66,12 +58,12 @@ public class DashboardHttpServlet extends HttpServlet {
 			}else {
 				currentPage = 1;
 			}
-			request.setAttribute("nbcomputers",pager.getNbComputers());
-			request.setAttribute("page",pager.getPage(currentPage-1));
+			request.setAttribute("nbcomputers",orderedComputerRequestPager.getNbComputers());
+			request.setAttribute("page",orderedComputerRequestPager.getPage(currentPage-1));
 			request.setAttribute("currentPage",currentPage);
-			request.setAttribute("nbPages", pager.getNbPages());
+			request.setAttribute("nbPages", orderedComputerRequestPager.getNbPages());
 			dispatcher.forward(request, response);
-		} catch (DatabaseErrorException | ClassNotFoundException | InvalidPageSizeException | InvalidPageNumberException e) {
+		} catch (DatabaseErrorException | InvalidPageNumberException e) {
 			throw new ServletException(e);
 		}
         
@@ -86,7 +78,7 @@ public class DashboardHttpServlet extends HttpServlet {
 		for(String idString : deleteComputers) {
 			long id = Long.parseLong(idString);
 			try {
-				dp.deleteComputerById(id);
+				simpleComputerService.deleteComputerById(id);
 			} catch (DatabaseErrorException | ObjectNotFoundException | InvalidParameterException e) {
 				throw new ServletException(e);
 			}

@@ -14,7 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import com.excilys.cdb.config.DAOConfig;
+import com.excilys.cdb.config.RootConfig;
 import com.excilys.cdb.model.*;
 import com.excilys.cdb.persistence.InvalidParameterException;
 
@@ -24,7 +24,7 @@ import com.excilys.cdb.persistence.InvalidParameterException;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { DAOConfig.class})
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { RootConfig.class})
 public class ComputerDAOTest {
 	@Autowired
 	ComputerDAO computerDAO;

@@ -20,8 +20,11 @@ import com.zaxxer.hikari.HikariDataSource;
  * @author Jonasz Leflour Spring configuration
  */
 @Configuration
-@ComponentScan(basePackages ="com.excilys.cdb.persistence")
-public class DAOConfig extends AnnotationConfigApplicationContext{
+@ComponentScan(basePackages = {"com.excilys.cdb.persistence",
+		"com.excilys.cdb.service",
+		"com.excilys.cdb.controller",
+		"com.excilys.cdb.dto"})
+public class RootConfig extends AnnotationConfigApplicationContext{
 	static DataSource source = null;
 	
 	/**

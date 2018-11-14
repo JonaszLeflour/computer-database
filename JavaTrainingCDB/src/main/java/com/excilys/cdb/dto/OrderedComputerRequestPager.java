@@ -1,62 +1,81 @@
 package com.excilys.cdb.dto;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.*;
 import com.excilys.cdb.persistence.ComputerDAO.ComputerField;
 import com.excilys.cdb.persistence.OrderDirection;
 import com.excilys.cdb.service.ComputerService;
-import com.excilys.cdb.service.SimpleComputerService;
 
 /**
  * @author Jonasz Leflour
  *
  */
-public class OrderedComputerRequestPager implements ComputerRequestPager {
-	ComputerService dp;
-	String searchName;
-	long pageSize;
-	ComputerField orderBy;
-	OrderDirection direction;
-
+@Component
+public class OrderedComputerRequestPager {
+	@Autowired
+	private ComputerService simpleComputerService;
+	private String searchName = "";
+	private long pageSize = 10;
+	private ComputerField orderBy = ComputerField.id;
+	private OrderDirection direction = OrderDirection.DESC;
+	
+	/**
+	 * @param pageSize
+	 * @return instance of this
+	 * @throws InvalidPageSizeException 
+	 */
+	public OrderedComputerRequestPager pageSize(long pageSize) throws InvalidPageSizeException{
+		if(pageSize<=0) {
+			throw new InvalidPageSizeException("Must have a positive page size");
+		}
+		this.pageSize = pageSize;
+		return this;
+	}
+	
+	/**
+	 * @param orderBy
+	 * @return instance of this
+	 */
+	public OrderedComputerRequestPager orderBy(ComputerField orderBy) {
+		this.orderBy = orderBy;
+		return this;
+	}
+	
 	/**
 	 * @param name
-	 * @param pageSize
-	 * @param orderBy
-	 * @param direction
-	 * @throws DatabaseErrorException
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 * @throws FileNotFoundException
-	 * @throws InvalidPageSizeException
-	 * 
+	 * @return instance of this
 	 */
-	public OrderedComputerRequestPager(String name, long pageSize, ComputerField orderBy, OrderDirection direction)
-			throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException,
-			InvalidPageSizeException {
-
-		if (pageSize <= 0) {
-			throw new InvalidPageSizeException("Page size must be strictly positive");
-		}
-
-		dp = new SimpleComputerService();
+	public OrderedComputerRequestPager name(String name) {
 		this.searchName = name;
-		this.pageSize = pageSize;
-		this.orderBy = orderBy;
-		this.direction = direction;
+		return this;
 	}
-
-	@Override
+	
+	/**
+	 * @param direction
+	 * @return OrderedComputerRequestPager
+	 */
+	public OrderedComputerRequestPager direction(OrderDirection direction) {
+		this.direction = direction;
+		return this;
+	}
+	
+	/**
+	 * @param pageNumber
+	 * @return page of computers
+	 * @throws DatabaseErrorException
+	 * @throws InvalidPageNumberException
+	 */
 	public List<DTOComputer> getPage(long pageNumber) throws DatabaseErrorException, InvalidPageNumberException {
 		if (pageNumber < 0) {
 			throw new InvalidPageNumberException("Page number must be positive");
 		}
 		List<DTOComputer> list = new ArrayList<DTOComputer>();
-		for (Computer c : dp.getOrderedComputersByName(searchName, pageNumber * pageSize, pageSize, orderBy,
+		for (Computer c : simpleComputerService.getOrderedComputersByName(searchName, pageNumber * pageSize, pageSize, orderBy,
 				direction)) {
 			list.add(ComputerDTOMapper.toDTOComputer(c));
 		}
@@ -66,14 +85,20 @@ public class OrderedComputerRequestPager implements ComputerRequestPager {
 		return list;
 	}
 
-	@Override
+	/**
+	 * @return number of pages
+	 * @throws DatabaseErrorException
+	 */
 	public long getNbPages() throws DatabaseErrorException {
-		return (long) Math.ceil(dp.countComputersByName(searchName) / ((double) pageSize));
+		return (long) Math.ceil(simpleComputerService.countComputersByName(searchName) / ((double) pageSize));
 	}
 
-	@Override
+	/**
+	 * @return number of computers
+	 * @throws DatabaseErrorException
+	 */
 	public long getNbComputers() throws DatabaseErrorException {
-		return dp.countComputersByName(searchName);
+		return simpleComputerService.countComputersByName(searchName);
 	}
 
 }

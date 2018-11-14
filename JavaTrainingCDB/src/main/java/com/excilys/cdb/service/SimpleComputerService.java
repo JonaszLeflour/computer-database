@@ -1,9 +1,9 @@
 
 package com.excilys.cdb.service;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.persistence.OrderDirection;
@@ -18,19 +18,10 @@ import com.excilys.cdb.persistence.ObjectNotFoundException;
  * @version %I%
  * 
  */
+@Service
 public class SimpleComputerService implements ComputerService {
-	private ComputerDAO computerDAO = null;
-
-	/**
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @throws DatabaseErrorException
-	 * @throws ClassNotFoundException
-	 */
-	public SimpleComputerService()
-			throws FileNotFoundException, IOException, DatabaseErrorException, ClassNotFoundException {
-		computerDAO = ComputerDAO.getInstance();
-	}
+	@Autowired
+	ComputerDAO computerDAO;
 
 	@Override
 	public List<Computer> getComputers() throws DatabaseErrorException {

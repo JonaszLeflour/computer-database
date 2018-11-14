@@ -10,6 +10,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import com.excilys.cdb.dto.CompanyDTOMapper;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
@@ -17,8 +21,6 @@ import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.InvalidParameterException;
 import com.excilys.cdb.service.CompanyService;
 import com.excilys.cdb.service.ComputerService;
-import com.excilys.cdb.service.SimpleCompanyService;
-import com.excilys.cdb.service.SimpleComputerService;
 
 /**
  * Servlet implementation class AddComputerHttpServlet
@@ -26,19 +28,16 @@ import com.excilys.cdb.service.SimpleComputerService;
 @WebServlet("/addcomputer")
 public class AddComputerHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private ComputerService computerService;
-	private CompanyService companyService;
+	@Autowired
+	private ComputerService simpleComputerService;
+	@Autowired
+	private CompanyService simpleCompanyService;
 	
     @Override
     public void init() throws ServletException {
     	super.init();
-    	try {
-    		computerService = new SimpleComputerService();
-			companyService = new SimpleCompanyService();
-		} catch (ClassNotFoundException | IOException | DatabaseErrorException e) {
-			throw new ServletException(e.toString()); 
-		}
-        
+    	WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+	    ctx.getAutowireCapableBeanFactory().autowireBean(this);
     }
 	
 	/**
@@ -49,7 +48,7 @@ public class AddComputerHttpServlet extends HttpServlet {
 				.getRequestDispatcher("/WEB-INF/views/addComputer.jsp");
 		
 		try {
-			request.setAttribute("companies", CompanyDTOMapper.toDTOCompany(companyService.getCompanies()));
+			request.setAttribute("companies", CompanyDTOMapper.toDTOCompany(simpleCompanyService.getCompanies()));
 		} catch (DatabaseErrorException e) {
 			throw new ServletException(e);
 		}
@@ -80,7 +79,7 @@ public class AddComputerHttpServlet extends HttpServlet {
 			newComputer.setCompany(new Company(companyId,""));
 		}
 		try {
-			computerService.addComputer(newComputer);
+			simpleComputerService.addComputer(newComputer);
 			request.setAttribute("RequestStatus","Ok");
 		} catch (DatabaseErrorException e) {
 			request.setAttribute("RequestStatus",e.toString());

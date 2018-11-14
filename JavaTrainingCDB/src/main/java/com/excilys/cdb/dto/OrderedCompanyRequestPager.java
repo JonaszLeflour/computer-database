@@ -1,56 +1,75 @@
 package com.excilys.cdb.dto;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.persistence.DatabaseErrorException;
 import com.excilys.cdb.persistence.CompanyDAO.CompanyField;
 import com.excilys.cdb.persistence.OrderDirection;
 import com.excilys.cdb.service.CompanyService;
-import com.excilys.cdb.service.SimpleCompanyService;
 
 /**
  * @author Jonasz Leflour
  *
  */
-public class OrderedCompanyRequestPager implements CompanyRequestPager {
-	CompanyService service;
-	String searchName;
-	long pageSize;
-	CompanyField orderBy;
-	OrderDirection direction;
-
+@Component
+public class OrderedCompanyRequestPager{
+	@Autowired
+	private CompanyService service;
+	private String searchName;
+	private long pageSize;
+	private CompanyField orderBy;
+	private OrderDirection direction;
+	/**
+	 * @param pageSize
+	 * @return instance of this
+	 * @throws InvalidPageSizeException 
+	 */
+	public OrderedCompanyRequestPager pageSize(long pageSize) throws InvalidPageSizeException{
+		if(pageSize<=0) {
+			throw new InvalidPageSizeException("Must have a positive page size");
+		}
+		this.pageSize = pageSize;
+		return this;
+	}
+	
+	/**
+	 * @param orderBy
+	 * @return instance of this
+	 */
+	public OrderedCompanyRequestPager orderBy(CompanyField orderBy) {
+		this.orderBy = orderBy;
+		return this;
+	}
+	
 	/**
 	 * @param name
-	 * @param pageSize
-	 * @param orderBy
-	 * @param direction
-	 * @throws FileNotFoundException
-	 * @throws ClassNotFoundException
-	 * @throws IOException
-	 * @throws DatabaseErrorException
-	 * @throws InvalidPageSizeException
+	 * @return instance of this
 	 */
-	public OrderedCompanyRequestPager(String name, long pageSize, CompanyField orderBy, OrderDirection direction)
-			throws FileNotFoundException, ClassNotFoundException, IOException, DatabaseErrorException,
-			InvalidPageSizeException {
-
-		if (pageSize <= 0) {
-			throw new InvalidPageSizeException("Page size must be strictly positive");
-		}
-
-		service = new SimpleCompanyService();
+	public OrderedCompanyRequestPager name(String name) {
 		this.searchName = name;
-		this.pageSize = pageSize;
-		this.orderBy = orderBy;
+		return this;
+	}
+	
+	/**
+	 * @param direction
+	 * @return OrderedComputerRequestPager
+	 */
+	public OrderedCompanyRequestPager direction(OrderDirection direction) {
 		this.direction = direction;
+		return this;
 	}
 	
 	
-	@Override
+	/**
+	 * @param pageNumber
+	 * @return page of companies
+	 * @throws DatabaseErrorException
+	 * @throws InvalidPageNumberException
+	 */
 	public List<DTOCompany> getPage(long pageNumber) throws DatabaseErrorException, InvalidPageNumberException {
 		if (pageNumber < 0) {
 			throw new InvalidPageNumberException("Page number must be positive");
@@ -66,13 +85,19 @@ public class OrderedCompanyRequestPager implements CompanyRequestPager {
 		return list;
 	}
 
-	@Override
+	/**
+	 * @return number of pages
+	 * @throws DatabaseErrorException
+	 */
 	public long getNbPages() throws DatabaseErrorException {
 		return (long) Math.ceil(service.countCompaniesByName(searchName) / ((double) pageSize));
 	}
 
-	@Override
-	public long getNbComputers() throws DatabaseErrorException {
+	/**
+	 * @return number
+	 * @throws DatabaseErrorException
+	 */
+	public long getNbCompanies() throws DatabaseErrorException {
 		return service.countCompaniesByName(searchName);
 	}
 
