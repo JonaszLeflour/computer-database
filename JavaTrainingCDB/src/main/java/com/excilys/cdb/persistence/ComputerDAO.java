@@ -19,7 +19,12 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlParameterValue;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+
 import com.excilys.cdb.model.Computer;
 
 /**
@@ -178,7 +183,7 @@ public class ComputerDAO {
 				throw new DatabaseErrorException();
 			}
 		}
-		if (computer == null || computer.getId() == 0 || computer.getName() == null || computer.getName().isEmpty()) {
+		if (computer == null) {
 			throw new ObjectNotFoundException();
 		}
 		return computer;
@@ -271,54 +276,27 @@ public class ComputerDAO {
 				&& computer.getIntroduced().isAfter(computer.getDiscontinued())) {
 			throw new InvalidParameterException("Incoherent introduced and discontinued dates");
 		}
-		Connection con = null;
-		PreparedStatement s = null;
-		Savepoint beforeUpdate = null;
+		
+		String sql = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?)";
+		Object [] params ={ new SqlParameterValue(Types.VARCHAR, computer.getName()),
+				new SqlParameterValue(computer.getIntroduced()!=null ? Types.DATE : Types.NULL,computer.getIntroduced()),
+				new SqlParameterValue(computer.getDiscontinued()!=null ? Types.DATE :Types.NULL,computer.getDiscontinued()),
+				computer.getCompany()!=null ? new SqlParameterValue(Types.BIGINT,computer.getCompany().getId()) : new SqlParameterValue(Types.NULL,null)};
+		
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		
+		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
+		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
+		TransactionStatus status=platformTransactionManager.getTransaction(paramTransactionDefinition);
+		TransactionStatus afterDelete = null;
 		try {
-			con = dataSource.getConnection();
-			con.setAutoCommit(false);
-			beforeUpdate = con.setSavepoint();
-			s = con.prepareStatement(
-					"INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?)");
-			s.setString(1, computer.getName());
-			if (computer.getIntroduced() != null) {
-				s.setDate(2, Date.valueOf(computer.getIntroduced()));
-			} else {
-				s.setNull(2, Types.DATE);
-			}
-			if (computer.getDiscontinued() != null) {
-				s.setDate(3, Date.valueOf(computer.getDiscontinued()));
-			} else {
-				s.setNull(3, Types.DATE);
-			}
-			if (computer.getCompany() != null) {
-				s.setLong(4, computer.getCompany().getId());
-			} else {
-				s.setNull(4, Types.BIGINT);
-			}
-			s.executeUpdate();
-		} catch (SQLException e) {
-			if (beforeUpdate != null) {
-				try {
-					con.rollback(beforeUpdate);
-				} catch (SQLException e1) {
-					throw new DatabaseErrorException(e1);
-				}
-			}
+			jdbcTemplate.update(sql, params);
+			afterDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
+		}catch(Exception e) {
+			platformTransactionManager.rollback(status);
 			throw new DatabaseErrorException(e);
-		} finally {
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException(e);
-			}
 		}
+		platformTransactionManager.commit(afterDelete);
 	}
 
 	/**
@@ -336,8 +314,35 @@ public class ComputerDAO {
 		} else if (name.isEmpty()) {
 			throw new InvalidParameterException("Name provided is empty");
 		}
+		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
+		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
+		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
+		TransactionStatus afterDelete = null;		
+		
+		
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "DELETE FROM computer WHERE name = ?";
+		Object [] params = {new SqlParameterValue(Types.VARCHAR,"%" + name + "%")};
+		try {
+			jdbcTemplate.update(sql, params);
+			afterDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
+		}catch(Exception e) {
+			platformTransactionManager.rollback(status);
+			throw new DatabaseErrorException(e);
+		}
+		
+		platformTransactionManager.commit(afterDelete);
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
-		Connection con = null;
+		/*Connection con = null;
 		PreparedStatement s = null;
 		int ret = 0;
 		Savepoint beforeDelete = null;
@@ -372,7 +377,7 @@ public class ComputerDAO {
 		}
 		if (ret == 0) {
 			throw new ObjectNotFoundException();
-		}
+		}*/
 
 	}
 
@@ -390,7 +395,29 @@ public class ComputerDAO {
 			throw new InvalidParameterException("Id provided must be strictly positive");
 		}
 
-		Connection con = null;
+		
+		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
+		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
+		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
+		TransactionStatus afterDelete = null;		
+		
+		
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "DELETE FROM computer WHERE id = ?";
+		Object [] params = {new SqlParameterValue(Types.BIGINT,id)};
+		try {
+			jdbcTemplate.update(sql, params);
+			afterDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
+		}catch(Exception e) {
+			platformTransactionManager.rollback(status);
+			throw new DatabaseErrorException(e);
+		}
+		
+		platformTransactionManager.commit(afterDelete);
+		
+		
+		
+		/*Connection con = null;
 		PreparedStatement s = null;
 		int ret = 0;
 		Savepoint beforeDelete = null;
@@ -398,7 +425,7 @@ public class ComputerDAO {
 			con = dataSource.getConnection();
 			beforeDelete = con.setSavepoint();
 			con.setAutoCommit(false);
-			s = con.prepareStatement("DELETE FROM computer WHERE id = ?");
+			s = con.prepareStatement();
 			s.setLong(1, id);
 			ret = s.executeUpdate();
 		} catch (SQLException e) {
@@ -425,7 +452,7 @@ public class ComputerDAO {
 		}
 		if (ret == 0) {
 			throw new ObjectNotFoundException();
-		}
+		}*/
 
 	}
 
