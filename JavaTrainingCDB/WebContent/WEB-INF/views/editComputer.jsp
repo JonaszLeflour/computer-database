@@ -5,12 +5,9 @@
 <title>Computer Database</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap -->
-
-<style>
-<c:import url="/WEB-INF/css/bootstrap.min.css"/>
-<c:import url="/WEB-INF/css/font-awesome.css"/>
-<c:import url="/WEB-INF/css/main.css"/>
-</style>
+<link rel="stylesheet" media="screen" href="./css/bootstrap.min.css">
+<link rel="stylesheet" media="screen" href="./css/font-awesome.css">
+<link rel="stylesheet" media="screen" href="./css/main.css">
 </head>
 <body>
     <header class="navbar navbar-inverse navbar-fixed-top">
@@ -62,10 +59,10 @@
             </div>
         </div>
     </section>
-    <script type="text/javascript" src="/js/jquery.min.js"></script>
-    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/js/dashboard.js"></script>
-    <script type="text/javascript" src="/js/validation.js"></script>
+    <script type="text/javascript" src="./js/jquery.min.js"></script>
+    <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./js/dashboard.js"></script>
+    <script type="text/javascript" src="./js/validation.js"></script>
     <script type="text/javascript" >
 	    $.validator.addMethod("dateValid", function(value, element, params) {
 	    	if(value === '' || $(params).val() === ''){

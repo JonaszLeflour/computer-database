@@ -4,14 +4,9 @@
 	<title>Computer Database</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- Bootstrap -->
-	<link rel="stylesheet" href="/css/bootstrap.min.css">
-	<link rel="stylesheet" href="/css/font-awesome.css">
-	<link rel="stylesheet" href="/css/main.css">
-    <style>
-	<jsp:include page="/WEB-INF/css/bootstrap.min.css"/>
-	<jsp:include page="/WEB-INF/css/font-awesome.css"/>
-	<jsp:include page="/WEB-INF/css/main.css"/>
-	</style>
+	<link rel="stylesheet" media="screen" href="./css/bootstrap.min.css">
+	<link rel="stylesheet" media="screen" href="./css/font-awesome.css">
+	<link rel="stylesheet" media="screen" href="./css/main.css">
 </head>
 <body>
 	<header class="navbar navbar-inverse navbar-fixed-top">
@@ -30,9 +25,9 @@
 		</div>
 	</section>
 
-	<script><jsp:include page="/WEB-INF/js/jquery.min.js"/></script>
-	<script><jsp:include page="/WEB-INF/js/bootstrap.min.js"/></script>
-	<script><jsp:include page="/WEB-INF/js/dashboard.js"/></script>
+	<script type="text/javascript" src="./js/jquery.min.js"/></script>
+	<script type="text/javascript" src="./js/bootstrap.min.js"/></script>
+	<script type="text/javascript" src="./js/dashboard.js"/></script>
 
 </body>
 </html>
