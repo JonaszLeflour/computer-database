@@ -1,15 +1,11 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
 <title>Computer Database</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap -->
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
 <style>
 <c:import url="/WEB-INF/css/bootstrap.min.css"/>
 <c:import url="/WEB-INF/css/font-awesome.css"/>
@@ -66,10 +62,10 @@
             </div>
         </div>
     </section>
-    <script type="text/javascript" src='<c:url value="/js/jquery.min.js"/>'></script>
-    <script type="text/javascript" src='<c:url value="/js/bootstrap.min.js"/>'></script>
-    <script type="text/javascript" src='<c:url value="/js/dashboard.js"/>'></script>
-    <script type="text/javascript" src='<c:url value="/js/validation.js"/>'></script>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/dashboard.js"></script>
+    <script type="text/javascript" src="/js/validation.js"></script>
     <script type="text/javascript" >
 	    $.validator.addMethod("dateValid", function(value, element, params) {
 	    	if(value === '' || $(params).val() === ''){

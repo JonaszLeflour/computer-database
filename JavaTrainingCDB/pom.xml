@@ -29,30 +29,7 @@
 		<spring-boot-starter.version>2.1.0.RELEASE</spring-boot-starter.version>
 	</properties>
 
-	<build>
-		<sourceDirectory>src/main/java</sourceDirectory>
-		<testSourceDirectory>src/test/java </testSourceDirectory>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
-				<configuration>
-					<source>${maven-compiler-plugin.configuration.source}</source>
-					<target>${maven-compiler-plugin.configuration.target}</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>${maven-war-plugin.version}</version>
-				<configuration>
-					<archive>
-						<manifestFile>WebContent/META-INF/MANIFEST.MF</manifestFile>
-					</archive>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+	
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -175,8 +152,28 @@
 		    <artifactId>spring-boot-starter-web</artifactId>
 		    <version>${spring-boot-starter.version}</version>
 		</dependency>
-	
-		
-		
 	</dependencies>
+	
+	
+	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<source>${maven-compiler-plugin.configuration.source}</source>
+					<target>${maven-compiler-plugin.configuration.target}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>${maven-war-plugin.version}</version>
+				<configuration>
+					<webXml>WebContent/WEB-INF/web.xml</webXml>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

@@ -32,10 +32,10 @@ public class ServletConfig implements WebMvcConfigurer {
 	}
 	
 	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/css/**").addResourceLocations("/WEB-INF/css/");
-        registry.addResourceHandler("/js/**").addResourceLocations("/WEB-INF/js/");
-        registry.addResourceHandler("/fonts/**").addResourceLocations("/WEB-INF/fonts/");
+	public void addResourceHandlers(final ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/css/**").addResourceLocations("/css/");
+        registry.addResourceHandler("/js/**").addResourceLocations("/js/");
+        registry.addResourceHandler("/fonts/**").addResourceLocations("/fonts/");
      }
 
 }

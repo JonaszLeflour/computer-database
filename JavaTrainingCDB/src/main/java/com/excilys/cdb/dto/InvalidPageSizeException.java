@@ -10,7 +10,7 @@ public class InvalidPageSizeException extends Exception {
 	 * @param string
 	 */
 	public InvalidPageSizeException(String string) {
-		// TODO Auto-generated constructor stub
+		super(string);
 	}
 
 	/**
