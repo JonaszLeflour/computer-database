@@ -1,4 +1,4 @@
-package com.excilys.cdb.controller;
+package com.excilys.cdb.servlet;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ import com.excilys.cdb.service.ComputerService;
 @WebServlet("/dashboard")
 public class DashboardHttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-    
+	
     @Autowired
     private OrderedComputerRequestPager orderedComputerRequestPager;
     @Autowired

@@ -17,6 +17,8 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 import com.excilys.cdb.model.Computer;
 
@@ -123,42 +125,7 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public List<Computer> getAllComputers(long offset, long lenght) throws DatabaseErrorException {
-		List<Computer> computers = new ArrayList<>();
-		Connection con = null;
-		PreparedStatement s = null;
-		ResultSet rs = null;
-
-		try {
-			con = dataSource.getConnection();
-			s = con.prepareStatement("SELECT id, name, introduced, discontinued, company_id FROM computer LIMIT ?, ?");
-			s.setLong(1, offset);
-			s.setLong(2, lenght);
-			rs = s.executeQuery();
-
-			while (rs.next()) {
-				computers.add(computerResultSetMapper.createComputerWithResultSetRow(rs));
-			}
-
-		} catch (SQLException e) {
-			throw new DatabaseErrorException(e);
-		} catch (EmptyResultSetException e) {
-			return computers;
-		} finally {
-			try {
-				if (con != null) {
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException(e);
-			}
-		}
-		return computers;
+		return getComputersByName("", offset, lenght);
 	}
 
 	/**
@@ -169,44 +136,7 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public List<Computer> getComputersByName(String name, long offset, long lenght) throws DatabaseErrorException {
-		List<Computer> computers = new ArrayList<>();
-		Connection con = null;
-		PreparedStatement s = null;
-		ResultSet rs = null;
-
-		try {
-			con = dataSource.getConnection();
-			s = con.prepareStatement(
-					"SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?) LIMIT ?, ?");
-			s.setString(1, "%" + name + "%");
-			s.setLong(2, offset);
-			s.setLong(3, lenght);
-			rs = s.executeQuery();
-
-			while (rs.next()) {
-				computers.add(computerResultSetMapper.createComputerWithResultSetRow(rs));
-			}
-
-		} catch (SQLException e) {
-			throw new DatabaseErrorException(e);
-		} catch (EmptyResultSetException e) {
-			computers.clear();
-		} finally {
-			try {
-				if (con != null) {
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException(e);
-			}
-		}
-		return computers;
+		return getOrderedComputers(name, offset, lenght, ComputerField.id, OrderDirection.DESC);
 	}
 
 	/**
@@ -263,49 +193,21 @@ public class ComputerDAO {
 	 * @return ordered list of computers
 	 * @throws DatabaseErrorException
 	 */
-	public List<Computer> getOrderedComputers(String name, long offset, long lenght, ComputerField orderBy,
-			OrderDirection direction) throws DatabaseErrorException {
-		List<Computer> computers = new ArrayList<>();
-		Connection con = null;
-		PreparedStatement s = null;
-		ResultSet rs = null;
+	public List<Computer> getOrderedComputers(String name, long offset, long lenght, ComputerField orderBy, OrderDirection direction) throws DatabaseErrorException{
+		List<Computer> computers;
+		String sql = "SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id "
+				+ "FROM computer AS c " + "WHERE UPPER(c.name) LIKE UPPER(?) " + "ORDER BY c." + orderBy.toString()
+				+ " " + direction.toString() + " " + "LIMIT ?, ?";
+		
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		
+		Object [] params ={ new SqlParameterValue(Types.VARCHAR, name != null && !name.isEmpty() ? "%" + name + "%" : "%"),
+				new SqlParameterValue(Types.BIGINT,offset),
+				new SqlParameterValue(Types.BIGINT,lenght)};
 		try {
-			con = dataSource.getConnection();
-
-			s = con.prepareStatement("SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id "
-					+ "FROM computer AS c " + "WHERE UPPER(c.name) LIKE UPPER(?) " + "ORDER BY c." + orderBy.toString()
-					+ " " + direction.toString() + " " + "LIMIT ?, ?");
-			if (name != null && !name.isEmpty()) {
-				s.setString(1, "%" + name + "%");
-			} else {
-				s.setString(1, "%");
-			}
-			s.setLong(2, offset);
-			s.setLong(3, lenght);
-			rs = s.executeQuery();
-
-			while (rs.next()) {
-				computers.add(computerResultSetMapper.createComputerWithResultSetRow(rs));
-			}
-
-		} catch (SQLException e) {
+			computers= jdbcTemplate.query(sql, params, computerResultSetMapper.getRowMapper());
+		}catch(Exception e) {
 			throw new DatabaseErrorException(e);
-		} catch (EmptyResultSetException e) {
-			computers.clear();
-		} finally {
-			try {
-				if (con != null) {
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException(e);
-			}
 		}
 		return computers;
 	}
@@ -318,41 +220,14 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public List<Computer> getComputerByName(String name) throws DatabaseErrorException {
-		List<Computer> computers = new ArrayList<>();
-		Connection con = null;
-		PreparedStatement s = null;
-		ResultSet rs = null;
-
+		List<Computer> computers;
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)";
+		Object [] params = {new SqlParameterValue(Types.VARCHAR,"%" + name + "%")};
 		try {
-			con = dataSource.getConnection();
-			s = con.prepareStatement(
-					"SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
-			s.setString(1, "%" + name + "%");
-
-			rs = s.executeQuery();
-
-			while (rs.next()) {
-				computers.add(computerResultSetMapper.createComputerWithResultSetRow(rs));
-			}
-
-		} catch (SQLException e) {
+			computers= jdbcTemplate.query(sql, params, computerResultSetMapper.getRowMapper());
+		}catch(Exception e) {
 			throw new DatabaseErrorException(e);
-		} catch (EmptyResultSetException e) {
-			computers.clear();
-		} finally {
-			try {
-				if (con != null) {
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
 		}
 		return computers;
 	}
@@ -363,38 +238,16 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public long countComputersByName(String name) throws DatabaseErrorException {
-		Connection con = null;
-		PreparedStatement s = null;
-		ResultSet res = null;
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "SELECT COUNT(c.id) FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)";
+		Object [] params = {new SqlParameterValue(Types.VARCHAR,"%" + name + "%")};
+		long result;
 		try {
-			con = dataSource.getConnection();
-
-			s = con.prepareStatement("SELECT COUNT(c.id) FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)");
-			if (name != null && !name.isEmpty()) {
-				s.setString(1, "%" + name + "%");
-			} else {
-				s.setString(1, "%");
-			}
-			res = s.executeQuery();
-			res.next();
-			return res.getLong(1);
-		} catch (SQLException e) {
+			result = jdbcTemplate.queryForObject(sql, params, Long.class);
+		}catch(Exception e) {
 			throw new DatabaseErrorException(e);
-		} finally {
-			try {
-				if (con != null) {
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (res != null) {
-					res.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
 		}
+		return result;
 	}
 
 

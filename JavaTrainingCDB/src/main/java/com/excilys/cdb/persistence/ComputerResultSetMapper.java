@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import com.excilys.cdb.model.Computer;
@@ -60,5 +61,16 @@ public class ComputerResultSetMapper {
 		}
 		return computer;
 	}
-
+	RowMapper<Computer> getRowMapper(){
+		return new RowMapper<Computer>() {
+			public Computer mapRow(ResultSet result, int pRowNum) throws SQLException {
+				try {
+					return createComputerWithResultSetRow(result);
+				} catch (EmptyResultSetException | DatabaseErrorException e) {
+					throw new SQLException(e);
+				}
+			};
+		};
+	}
+		
 }

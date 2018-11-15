@@ -1,4 +1,4 @@
-package com.excilys.cdb.controller;
+package com.excilys.cdb.servlet;
 
 import java.io.IOException;
 
@@ -13,12 +13,12 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * Servlet implementation class ErrorHttpServlet
+ * Servlet implementation class Error403HttpServlet
  */
-@WebServlet("/404")
-public class Error404HttpServlet extends HttpServlet {
+@WebServlet("/403")
+public class Error403HttpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+    
 	@Override
 	public void init() throws ServletException {
 		super.init();
@@ -31,7 +31,7 @@ public class Error404HttpServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		RequestDispatcher dispatcher = getServletContext()
-                .getRequestDispatcher("/WEB-INF/views/404.jsp");
+                .getRequestDispatcher("/WEB-INF/views/403.jsp");
         dispatcher.forward(request, response);
 	}
 
