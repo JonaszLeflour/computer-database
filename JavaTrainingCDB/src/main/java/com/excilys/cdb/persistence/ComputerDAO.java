@@ -2,13 +2,7 @@ package com.excilys.cdb.persistence;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.sql.Statement;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,6 +11,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -42,11 +37,10 @@ public class ComputerDAO {
 	@SuppressWarnings("javadoc")
 	@Autowired
 	public DataSource dataSource;
-	
+
 	@Autowired
 	ComputerResultSetMapper computerResultSetMapper;
-	
-	
+
 	/**
 	 * @author Jonasz Leflour
 	 *
@@ -73,7 +67,7 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 * @throws ClassNotFoundException
 	 */
-	public static ComputerDAO getInstance(){
+	public static ComputerDAO getInstance() {
 		if (dba == null) {
 			dba = new ComputerDAO();
 		}
@@ -86,41 +80,7 @@ public class ComputerDAO {
 	 * @throws SQLException
 	 */
 	public List<Computer> getAllComputers() throws DatabaseErrorException {
-		List<Computer> computers = new ArrayList<>();
-		Connection con = null;
-		Statement s = null;
-		ResultSet rs = null;
-
-		try {
-			con = dataSource.getConnection();
-			s = con.createStatement();
-			rs = s.executeQuery("SELECT id, name, introduced, discontinued, company_id FROM computer");
-
-			while (rs.next()) {
-				computers.add(computerResultSetMapper.createComputerWithResultSetRow(rs));
-			}
-
-		} catch (SQLException e) {
-			throw new DatabaseErrorException(e);
-		} catch (EmptyResultSetException e) {
-			computers.clear();
-		} finally {
-			try {
-				if (con != null) {
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-
-			} catch (SQLException e) {
-				throw new DatabaseErrorException(e);
-			}
-		}
-		return computers;
+		return this.getComputerByName("");
 	}
 
 	/**
@@ -152,38 +112,19 @@ public class ComputerDAO {
 	 */
 	public Computer getComputerById(long id) throws ObjectNotFoundException, DatabaseErrorException {
 
+		String sql = "SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id=?";
 		Computer computer = null;
-		Connection con = null;
-		PreparedStatement s = null;
-		ResultSet rs = null;
-
-		try {// id name intro disc idcomp
-			con = dataSource.getConnection();
-			s = con.prepareStatement("SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id=?");
-			s.setLong(1, id);
-			rs = s.executeQuery();
-			rs.next();
-			computer = computerResultSetMapper.createComputerWithResultSetRow(rs);
-		} catch (SQLException e) {
-			throw new DatabaseErrorException(e);
-		} catch (EmptyResultSetException e) {
-			throw new ObjectNotFoundException("Couldn't find computer with id=" + id);
-		} finally {
-			try {
-				if (con != null) {
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		Object[] params = {new SqlParameterValue(Types.BIGINT, id)};
+		try {
+			computer = jdbcTemplate.queryForObject(sql, params, computerResultSetMapper.getRowMapper());
+		} catch (EmptyResultDataAccessException e) {
+			throw new ObjectNotFoundException();
 		}
-		if (computer == null) {
+		catch (Exception e) {
+			throw new DatabaseErrorException(e);
+		}
+		if(computer == null) {
 			throw new ObjectNotFoundException();
 		}
 		return computer;
@@ -198,26 +139,25 @@ public class ComputerDAO {
 	 * @return ordered list of computers
 	 * @throws DatabaseErrorException
 	 */
-	public List<Computer> getOrderedComputers(String name, long offset, long lenght, ComputerField orderBy, OrderDirection direction) throws DatabaseErrorException{
+	public List<Computer> getOrderedComputers(String name, long offset, long lenght, ComputerField orderBy,
+			OrderDirection direction) throws DatabaseErrorException {
 		List<Computer> computers;
-		String sql = "SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id "
-				+ "FROM computer AS c " + "WHERE UPPER(c.name) LIKE UPPER(?) " + "ORDER BY c." + orderBy.toString()
-				+ " " + direction.toString() + " " + "LIMIT ?, ?";
-		
+		String sql = "SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id " + "FROM computer AS c "
+				+ "WHERE UPPER(c.name) LIKE UPPER(?) " + "ORDER BY c." + orderBy.toString() + " " + direction.toString()
+				+ " " + "LIMIT ?, ?";
+
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		
-		Object [] params ={ new SqlParameterValue(Types.VARCHAR, name != null && !name.isEmpty() ? "%" + name + "%" : "%"),
-				new SqlParameterValue(Types.BIGINT,offset),
-				new SqlParameterValue(Types.BIGINT,lenght)};
+
+		Object[] params = {
+				new SqlParameterValue(Types.VARCHAR, name != null && !name.isEmpty() ? "%" + name + "%" : "%"),
+				new SqlParameterValue(Types.BIGINT, offset), new SqlParameterValue(Types.BIGINT, lenght) };
 		try {
-			computers= jdbcTemplate.query(sql, params, computerResultSetMapper.getRowMapper());
-		}catch(Exception e) {
+			computers = jdbcTemplate.query(sql, params, computerResultSetMapper.getRowMapper());
+		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
 		return computers;
 	}
-
-	
 
 	/**
 	 * @param name
@@ -228,10 +168,10 @@ public class ComputerDAO {
 		List<Computer> computers;
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		String sql = "SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)";
-		Object [] params = {new SqlParameterValue(Types.VARCHAR,"%" + name + "%")};
+		Object[] params = { new SqlParameterValue(Types.VARCHAR, "%" + name + "%") };
 		try {
-			computers= jdbcTemplate.query(sql, params, computerResultSetMapper.getRowMapper());
-		}catch(Exception e) {
+			computers = jdbcTemplate.query(sql, params, computerResultSetMapper.getRowMapper());
+		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
 		return computers;
@@ -245,17 +185,15 @@ public class ComputerDAO {
 	public long countComputersByName(String name) throws DatabaseErrorException {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		String sql = "SELECT COUNT(c.id) FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)";
-		Object [] params = {new SqlParameterValue(Types.VARCHAR,"%" + name + "%")};
+		Object[] params = { new SqlParameterValue(Types.VARCHAR, "%" + name + "%") };
 		long result;
 		try {
 			result = jdbcTemplate.queryForObject(sql, params, Long.class);
-		}catch(Exception e) {
+		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
 		return result;
 	}
-
-
 
 	/**
 	 * @param computer
@@ -276,23 +214,26 @@ public class ComputerDAO {
 				&& computer.getIntroduced().isAfter(computer.getDiscontinued())) {
 			throw new InvalidParameterException("Incoherent introduced and discontinued dates");
 		}
-		
+
 		String sql = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?)";
-		Object [] params ={ new SqlParameterValue(Types.VARCHAR, computer.getName()),
-				new SqlParameterValue(computer.getIntroduced()!=null ? Types.DATE : Types.NULL,computer.getIntroduced()),
-				new SqlParameterValue(computer.getDiscontinued()!=null ? Types.DATE :Types.NULL,computer.getDiscontinued()),
-				computer.getCompany()!=null ? new SqlParameterValue(Types.BIGINT,computer.getCompany().getId()) : new SqlParameterValue(Types.NULL,null)};
-		
+		Object[] params = { new SqlParameterValue(Types.VARCHAR, computer.getName()),
+				new SqlParameterValue(computer.getIntroduced() != null ? Types.DATE : Types.NULL,
+						computer.getIntroduced()),
+				new SqlParameterValue(computer.getDiscontinued() != null ? Types.DATE : Types.NULL,
+						computer.getDiscontinued()),
+				computer.getCompany() != null ? new SqlParameterValue(Types.BIGINT, computer.getCompany().getId())
+						: new SqlParameterValue(Types.NULL, null) };
+
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		
+
 		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
 		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
-		TransactionStatus status=platformTransactionManager.getTransaction(paramTransactionDefinition);
+		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
 		TransactionStatus afterDelete = null;
 		try {
 			jdbcTemplate.update(sql, params);
 			afterDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		}catch(Exception e) {
+		} catch (Exception e) {
 			platformTransactionManager.rollback(status);
 			throw new DatabaseErrorException(e);
 		}
@@ -311,73 +252,31 @@ public class ComputerDAO {
 			throws InvalidParameterException, ObjectNotFoundException, DatabaseErrorException {
 		if (name == null) {
 			throw new InvalidParameterException("Name provided is null");
-		} else if (name.isEmpty()) {
+		} if (name.isEmpty()) {
 			throw new InvalidParameterException("Name provided is empty");
 		}
+		if(getComputerByName(name).isEmpty()) {
+			throw new ObjectNotFoundException("No computer named "+name);
+		}
+		
+		
 		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
 		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
 		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		TransactionStatus afterDelete = null;		
-		
-		
+		TransactionStatus afterDelete = null;
+
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		String sql = "DELETE FROM computer WHERE name = ?";
-		Object [] params = {new SqlParameterValue(Types.VARCHAR,"%" + name + "%")};
+		Object[] params = { new SqlParameterValue(Types.VARCHAR, "%" + name + "%") };
 		try {
 			jdbcTemplate.update(sql, params);
 			afterDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		}catch(Exception e) {
+		} catch (Exception e) {
 			platformTransactionManager.rollback(status);
 			throw new DatabaseErrorException(e);
 		}
-		
-		platformTransactionManager.commit(afterDelete);
-		
-		
-		
-		
-		
-		
-		
-		
-		
 
-		/*Connection con = null;
-		PreparedStatement s = null;
-		int ret = 0;
-		Savepoint beforeDelete = null;
-		try {
-			con = dataSource.getConnection();
-			beforeDelete = con.setSavepoint();
-			con.setAutoCommit(false);
-			s = con.prepareStatement("DELETE FROM computer WHERE name = ?");
-			s.setString(1, name);
-			ret = s.executeUpdate();
-		} catch (SQLException e) {
-			if (beforeDelete != null) {
-				try {
-					con.rollback(beforeDelete);
-				} catch (SQLException e1) {
-					throw new DatabaseErrorException(e1);
-				}
-			}
-			throw new DatabaseErrorException();
-		} finally {
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
-		}
-		if (ret == 0) {
-			throw new ObjectNotFoundException();
-		}*/
+		platformTransactionManager.commit(afterDelete);
 
 	}
 
@@ -395,64 +294,23 @@ public class ComputerDAO {
 			throw new InvalidParameterException("Id provided must be strictly positive");
 		}
 
-		
 		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
 		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
 		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		TransactionStatus afterDelete = null;		
-		
-		
+		TransactionStatus afterDelete = null;
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
 		String sql = "DELETE FROM computer WHERE id = ?";
-		Object [] params = {new SqlParameterValue(Types.BIGINT,id)};
+		Object[] params = { new SqlParameterValue(Types.BIGINT, id) };
 		try {
 			jdbcTemplate.update(sql, params);
 			afterDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		}catch(Exception e) {
+		} catch (Exception e) {
 			platformTransactionManager.rollback(status);
 			throw new DatabaseErrorException(e);
 		}
-		
+
 		platformTransactionManager.commit(afterDelete);
-		
-		
-		
-		/*Connection con = null;
-		PreparedStatement s = null;
-		int ret = 0;
-		Savepoint beforeDelete = null;
-		try {
-			con = dataSource.getConnection();
-			beforeDelete = con.setSavepoint();
-			con.setAutoCommit(false);
-			s = con.prepareStatement();
-			s.setLong(1, id);
-			ret = s.executeUpdate();
-		} catch (SQLException e) {
-			if (beforeDelete != null) {
-				try {
-					con.rollback(beforeDelete);
-				} catch (SQLException e1) {
-					throw new DatabaseErrorException(e1);
-				}
-			}
-			throw new DatabaseErrorException();
-		} finally {
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
-		}
-		if (ret == 0) {
-			throw new ObjectNotFoundException();
-		}*/
 
 	}
 
@@ -465,6 +323,8 @@ public class ComputerDAO {
 	 */
 	public void updateComputer(Computer computer)
 			throws InvalidParameterException, ObjectNotFoundException, DatabaseErrorException {
+		
+		//!\\ TODO: move to validator class
 		if (computer == null) {
 			throw new InvalidParameterException("Computer object is null");
 		} else if (computer.getName() != null && computer.getName().isEmpty()) {
@@ -489,96 +349,57 @@ public class ComputerDAO {
 				throw new InvalidParameterException("Invalid dates");
 			}
 		}
+		
+		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
+		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
+		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
+		TransactionStatus afterUpdate = null;
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		List<Object> params = new ArrayList<Object>();
+		String sql = "UPDATE computer SET";
 
-		Connection con = null;
-		PreparedStatement s = null;
-		boolean hasParameters = false;
-		Savepoint beforeUpdate = null;
-		try {
-			con = dataSource.getConnection();
-			con.setAutoCommit(false);
-			beforeUpdate = con.setSavepoint();
-			String sql = "UPDATE computer SET";
-			if (computer.getName() != null) {
-				sql += "  name=? ";
-				hasParameters = true;
-			}
-			if (computer.getIntroduced() != null) {
-				if (hasParameters) {
-					sql += ",";
-				}
-				sql += " introduced=?";
-				hasParameters = true;
-
-			}
-			if (computer.getDiscontinued() != null) {
-				if (hasParameters) {
-					sql += ",";
-				}
-				sql += " discontinued=?";
-				hasParameters = true;
-			}
-			if (computer.getCompany() != null) {
-				if (hasParameters) {
-					sql += ",";
-				}
-				sql += " company_id=?";
-				hasParameters = true;
-			}
-
-			if (!hasParameters) {
-				con.close();
-				throw new InvalidParameterException("No updated parameters provided");
-			}
-			sql += " WHERE id=?";
-
-			s = con.prepareStatement(sql);
-			int i = 1;
-			if (computer.getName() != null) {
-				s.setString(i, computer.getName());
-				i++;
-			}
-
-			if (computer.getIntroduced() != null) {
-				s.setDate(i, Date.valueOf(computer.getIntroduced()));
-				i++;
-			}
-			if (computer.getDiscontinued() != null) {
-				s.setDate(i, Date.valueOf(computer.getDiscontinued()));
-				i++;
-			}
-
-			if (computer.getCompany() != null) {
-				s.setLong(i, computer.getCompany().getId());
-				i++;
-			}
-
-			s.setLong(i, computer.getId());
-
-			s.executeUpdate();
-		} catch (SQLException e) {
-			if (beforeUpdate != null) {
-				try {
-					con.rollback(beforeUpdate);
-					con.close();
-				} catch (SQLException e1) {
-					throw new DatabaseErrorException(e1);
-				}
-			}
-			throw new DatabaseErrorException();
-		} finally {
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
+		if (computer.getName() != null) {
+			sql += "  name=? ";
+			params.add(new SqlParameterValue(Types.VARCHAR, computer.getName()));
 		}
+		if (computer.getIntroduced() != null) {
+			if (!params.isEmpty()) {
+				sql += ",";
+			}
+			sql += " introduced=?";
+			params.add(new SqlParameterValue(Types.DATE, computer.getIntroduced()));
+
+		}
+		if (computer.getDiscontinued() != null) {
+			if (!params.isEmpty()) {
+				sql += ",";
+			}
+			sql += " discontinued=?";
+			params.add(new SqlParameterValue(Types.DATE, computer.getDiscontinued()));
+		}
+		if (computer.getCompany() != null) {
+			if (!params.isEmpty()) {
+				sql += ",";
+			}
+			sql += " company_id=?";
+			params.add(new SqlParameterValue(Types.BIGINT, computer.getCompany().getId()));
+		}
+
+		if (params.isEmpty()) {
+			throw new InvalidParameterException("No updated parameters provided");
+		}
+		sql += " WHERE id=?";
+		params.add(new SqlParameterValue(Types.BIGINT, computer.getId()));
+
+		try {
+			jdbcTemplate.update(sql, params.toArray());
+			afterUpdate = platformTransactionManager.getTransaction(paramTransactionDefinition);
+		} catch (Exception e) {
+			platformTransactionManager.rollback(status);
+			throw new DatabaseErrorException(e);
+		}
+
+		platformTransactionManager.commit(afterUpdate);
 	}
 
 }
