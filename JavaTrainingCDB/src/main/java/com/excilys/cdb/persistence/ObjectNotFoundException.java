@@ -1,5 +1,7 @@
 package com.excilys.cdb.persistence;
 
+import org.springframework.dao.EmptyResultDataAccessException;
+
 /**
  * @author Jonasz Leflour
  *
@@ -20,6 +22,13 @@ public class ObjectNotFoundException extends Exception {
 		super();
 	}
 	
+	/**
+	 * @param e
+	 */
+	public ObjectNotFoundException(EmptyResultDataAccessException e) {
+		super(e);
+	}
+
 	/**
 	 * 
 	 */

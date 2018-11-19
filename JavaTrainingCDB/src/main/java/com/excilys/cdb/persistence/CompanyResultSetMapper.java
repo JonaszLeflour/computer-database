@@ -3,6 +3,7 @@ package com.excilys.cdb.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import com.excilys.cdb.model.Company;
@@ -32,5 +33,17 @@ public class CompanyResultSetMapper {
 		} catch (SQLException e) {
 			throw new EmptyResultSetException();
 		}
+	}
+	
+	RowMapper<Company> getRowMapper(){
+		return new RowMapper<Company>() {
+			public Company mapRow(ResultSet result, int pRowNum) throws SQLException {
+				try {
+					return createCompanyWithResultSetRow(result);
+				} catch (EmptyResultSetException e) {
+					throw new SQLException(e);
+				}
+			};
+		};
 	}
 }

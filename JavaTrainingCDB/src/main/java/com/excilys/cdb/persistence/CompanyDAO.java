@@ -2,21 +2,24 @@ package com.excilys.cdb.persistence;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.SqlParameterValue;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Repository;
-import com.excilys.cdb.model.Company;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import com.excilys.cdb.model.Company;
 
 /**
  * @author Jonasz Leflour
@@ -25,11 +28,11 @@ import com.excilys.cdb.model.Company;
 @Repository
 public class CompanyDAO {
 	private static CompanyDAO dba = null;
-	
+
 	@SuppressWarnings("javadoc")
 	@Autowired
 	public DataSource dataSource;
-	
+
 	@Autowired
 	CompanyResultSetMapper companyResultSetMapper;
 
@@ -50,14 +53,13 @@ public class CompanyDAO {
 	 * @throws DatabaseErrorException
 	 * @throws ClassNotFoundException
 	 */
-	public static CompanyDAO getInstance(){
+	public static CompanyDAO getInstance() {
 		if (dba == null) {
 			dba = new CompanyDAO();
 		}
 		return dba;
 	}
-	
-	
+
 	/**
 	 * @param name
 	 * @param offset
@@ -70,96 +72,42 @@ public class CompanyDAO {
 	public List<Company> getOrderedCompanies(String name, long offset, long lenght, CompanyDAO.CompanyField orderBy,
 			OrderDirection direction) throws DatabaseErrorException {
 		List<Company> companies = new ArrayList<>();
-		Connection con = null;
-		PreparedStatement s = null;
-		ResultSet rs = null;
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "SELECT c.id, c.name " + "FROM company AS c " + "WHERE UPPER(c.name) LIKE UPPER(?) "
+				+ "ORDER BY c." + orderBy.toString() + " " + direction.toString() + " " + "LIMIT ?, ?";
+		Object[] params = { new SqlParameterValue(Types.VARCHAR, "%" + name + "%"),
+				new SqlParameterValue(Types.BIGINT, offset), new SqlParameterValue(Types.BIGINT, lenght) };
 		try {
-			con = dataSource.getConnection();
-			con.setAutoCommit(false);
-
-			s = con.prepareStatement(
-					"SELECT c.id, c.name " + "FROM company AS c " + "WHERE UPPER(c.name) LIKE UPPER(?) " + "ORDER BY c."
-							+ orderBy.toString() + " " + direction.toString() + " " + "LIMIT ?, ?");
-			if (name != null && !name.isEmpty()) {
-				s.setString(1, "%" + name + "%");
-			} else {
-				s.setString(1, "%");
-			}
-			s.setLong(2, offset);
-			s.setLong(3, lenght);
-			rs = s.executeQuery();
-
-			while (rs.next()) {
-				companies.add(companyResultSetMapper.createCompanyWithResultSetRow(rs));
-			}
-
-		} catch (SQLException e) {
-			throw new DatabaseErrorException(e);
-		} catch (EmptyResultSetException e) {
+			companies = jdbcTemplate.query(sql, params, companyResultSetMapper.getRowMapper());
+		} catch (EmptyResultDataAccessException e) {
 			companies.clear();
-		} finally {
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException(e);
-			}
+		} catch (Exception e) {
+			throw new DatabaseErrorException(e);
 		}
 		return companies;
 	}
-	
+
 	/**
 	 * @return all companies from the database as a ResultSet
 	 * @throws DatabaseErrorException
 	 * @throws SQLException
 	 */
 	public List<Company> getAllCompanies() throws DatabaseErrorException {
+
 		List<Company> companies = new ArrayList<>();
-		Connection con = null;
-		Statement s = null;
-		ResultSet rs = null;
-
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "SELECT id, name FROM company";
+		Object[] params = {};
 		try {
-			con = dataSource.getConnection();
-			con.setAutoCommit(false);
-			s = con.createStatement();
-			rs = s.executeQuery("SELECT id, name FROM company");
-
-			while (rs.next()) {
-				companies.add(companyResultSetMapper.createCompanyWithResultSetRow(rs));
-			}
-
-		} catch (SQLException e) {
-			throw new DatabaseErrorException();
-		} catch (EmptyResultSetException e) {
+			companies = jdbcTemplate.query(sql, params, companyResultSetMapper.getRowMapper());
+		} catch (EmptyResultDataAccessException e) {
 			companies.clear();
-		} finally {
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
+		} catch (Exception e) {
+			throw new DatabaseErrorException(e);
 		}
 		return companies;
 	}
-	
+
 	/**
 	 * @param id id of company
 	 * @return single row of the company table with the specified id, if exists
@@ -168,131 +116,63 @@ public class CompanyDAO {
 	 */
 	public Company getCompanybyId(long id) throws ObjectNotFoundException, DatabaseErrorException {
 		Company company = null;
-		Connection con = null;
-		Statement s = null;
-		ResultSet rs = null;
-
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "SELECT id, name FROM company WHERE id=?";
+		Object[] params = { new SqlParameterValue(Types.BIGINT, id) };
 		try {
-			con = dataSource.getConnection();
-			con.setAutoCommit(false);
-			s = con.createStatement();
-			rs = s.executeQuery("SELECT id, name FROM company WHERE id=" + id);
-			rs.next();
-			company = companyResultSetMapper.createCompanyWithResultSetRow(rs);
-		} catch (SQLException e) {
-			throw new ObjectNotFoundException();
-		} catch (EmptyResultSetException e) {
-			throw new ObjectNotFoundException();
-		} finally {
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (rs != null) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException(e);
-			}
+			company = jdbcTemplate.queryForObject(sql, params, companyResultSetMapper.getRowMapper());
+		} catch (EmptyResultDataAccessException e) {
+			throw new ObjectNotFoundException(e);
+		} catch (Exception e) {
+			throw new DatabaseErrorException(e);
 		}
 		return company;
 	}
-	
+
 	/**
 	 * @param id
 	 * @throws DatabaseErrorException
 	 * @throws ObjectNotFoundException
 	 */
 	public void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException {
-		int status1 = 0, status2 = 0;
-		Connection con = null;
-		PreparedStatement s1 = null, s2 = null;
-		Savepoint beforeDelete = null;
+		getCompanybyId(id);
+
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		Object[] params = { new SqlParameterValue(Types.BIGINT, id) };
+		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
+		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
+		TransactionStatus beforeDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
+		TransactionStatus afterDelete = null;
+
+		String sql1 = "DELETE FROM computer WHERE company_id = ?";
+		String sql2 = "DELETE FROM company WHERE id = ?";
+
 		try {
-			con = dataSource.getConnection();
-			beforeDelete = con.setSavepoint();
-			con.setAutoCommit(false);
-			s1 = con.prepareStatement("DELETE FROM computer WHERE company_id = ?");
-			s1.setLong(1, id);
-			status1 = s1.executeUpdate();
-
-			s2 = con.prepareStatement("DELETE FROM company WHERE id = ?");
-			s2.setLong(1, id);
-			status2 = s2.executeUpdate();
-
-		} catch (SQLException e) {
-			if (beforeDelete != null) {
-				try {
-					con.rollback(beforeDelete);
-				} catch (SQLException e1) {
-					throw new DatabaseErrorException(e1);
-				}
-			}
-			throw new DatabaseErrorException();
-		} finally {
-
-			try {
-				if (con != null) {
-					con.commit();
-					con.close();
-				}
-				if (s1 != null) {
-					s1.close();
-				}
-				if (s2 != null) {
-					s2.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
-			if (status1 == 0 || status2 == 0) {
-				throw new ObjectNotFoundException();
-			}
+			jdbcTemplate.update(sql1, params);
+			jdbcTemplate.update(sql2, params);
+			afterDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
+		} catch (Exception e) {
+			platformTransactionManager.rollback(beforeDelete);
+			throw new DatabaseErrorException(e);
 		}
-		
+		platformTransactionManager.commit(afterDelete);
 	}
-	
+
 	/**
 	 * @param name
 	 * @return number of companies matching name in database
 	 * @throws DatabaseErrorException
 	 */
 	public long countCompaniesByName(String name) throws DatabaseErrorException {
-		Connection con = null;
-		PreparedStatement s = null;
-		ResultSet res = null;
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "SELECT COUNT(c.id) FROM company AS c WHERE UPPER(c.name) LIKE UPPER(?)";
+		Object[] params = { new SqlParameterValue(Types.VARCHAR, "%" + name + "%") };
+		long result;
 		try {
-			con = dataSource.getConnection();
-
-			s = con.prepareStatement("SELECT COUNT(c.id) FROM company AS c WHERE UPPER(c.name) LIKE UPPER(?)");
-			if (name != null && !name.isEmpty()) {
-				s.setString(1, "%" + name + "%");
-			} else {
-				s.setString(1, "%");
-			}
-			res = s.executeQuery();
-			res.next();
-			return res.getLong(1);
-		} catch (SQLException e) {
+			result = jdbcTemplate.queryForObject(sql, params, Long.class);
+		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
-		} finally {
-			try {
-				if (con != null) {
-					con.close();
-				}
-				if (s != null) {
-					s.close();
-				}
-				if (res != null) {
-					res.close();
-				}
-			} catch (SQLException e) {
-				throw new DatabaseErrorException();
-			}
 		}
+		return result;
 	}
 }

@@ -115,16 +115,15 @@ public class ComputerDAO {
 		String sql = "SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id=?";
 		Computer computer = null;
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		Object[] params = {new SqlParameterValue(Types.BIGINT, id)};
+		Object[] params = { new SqlParameterValue(Types.BIGINT, id) };
 		try {
 			computer = jdbcTemplate.queryForObject(sql, params, computerResultSetMapper.getRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			throw new ObjectNotFoundException();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
-		if(computer == null) {
+		if (computer == null) {
 			throw new ObjectNotFoundException();
 		}
 		return computer;
@@ -225,7 +224,6 @@ public class ComputerDAO {
 						: new SqlParameterValue(Types.NULL, null) };
 
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
 		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
 		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
 		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
@@ -252,14 +250,14 @@ public class ComputerDAO {
 			throws InvalidParameterException, ObjectNotFoundException, DatabaseErrorException {
 		if (name == null) {
 			throw new InvalidParameterException("Name provided is null");
-		} if (name.isEmpty()) {
+		}
+		if (name.isEmpty()) {
 			throw new InvalidParameterException("Name provided is empty");
 		}
-		if(getComputerByName(name).isEmpty()) {
-			throw new ObjectNotFoundException("No computer named "+name);
+		if (getComputerByName(name).isEmpty()) {
+			throw new ObjectNotFoundException("No computer named " + name);
 		}
-		
-		
+
 		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
 		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
 		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
@@ -323,8 +321,8 @@ public class ComputerDAO {
 	 */
 	public void updateComputer(Computer computer)
 			throws InvalidParameterException, ObjectNotFoundException, DatabaseErrorException {
-		
-		//!\\ TODO: move to validator class
+
+		// !\\ TODO: move to validator class
 		if (computer == null) {
 			throw new InvalidParameterException("Computer object is null");
 		} else if (computer.getName() != null && computer.getName().isEmpty()) {
@@ -349,7 +347,7 @@ public class ComputerDAO {
 				throw new InvalidParameterException("Invalid dates");
 			}
 		}
-		
+
 		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
 		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
 		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
