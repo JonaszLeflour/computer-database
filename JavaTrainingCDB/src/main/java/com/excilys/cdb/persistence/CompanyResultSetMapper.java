@@ -21,7 +21,7 @@ public class CompanyResultSetMapper {
 	 */
 	public Company createCompanyWithResultSetRow(ResultSet rs) throws EmptyResultSetException {
 		try {
-			int id = rs.getInt(1);
+			long id = rs.getInt(1);
 			if (rs.wasNull()) {
 				throw new EmptyResultSetException();
 			}
@@ -29,7 +29,9 @@ public class CompanyResultSetMapper {
 			if (rs.wasNull()) {
 				throw new EmptyResultSetException();
 			}
-			return new Company(id, name);
+			return new Company(Company.getBuilder()
+					.id(id)
+					.name(name));
 		} catch (SQLException e) {
 			throw new EmptyResultSetException();
 		}

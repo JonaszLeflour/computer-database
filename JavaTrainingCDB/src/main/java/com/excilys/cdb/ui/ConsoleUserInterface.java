@@ -325,7 +325,7 @@ public final class ConsoleUserInterface implements UserInterface {
 		System.out.println("Enter company id : ");
 		val = scan.nextLine();
 		if (!val.isEmpty()) {
-			computerBuilder.company(new Company(Integer.parseInt(val),""));
+			computerBuilder.company(new Company(Company.getBuilder().id(Long.parseLong(val))));
 		}
 		
 		Computer computer = new Computer(computerBuilder);
@@ -374,7 +374,7 @@ public final class ConsoleUserInterface implements UserInterface {
 		System.out.println("Enter company id (blank for no update) : ");
 		val = scan.nextLine();
 		if (!val.isEmpty()) {
-			computerBuilder.company(new Company(Integer.parseInt(val),""));
+			computerBuilder.company(new Company(Company.getBuilder().id(Long.parseLong(val))));
 		}
 		
 		Computer computer = new Computer(computerBuilder);

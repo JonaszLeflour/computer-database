@@ -1,7 +1,5 @@
 package com.excilys.cdb.persistence;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -9,6 +7,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,15 +26,15 @@ import com.excilys.cdb.model.Company;
  */
 @Repository
 public class CompanyDAO {
-	private static CompanyDAO dba = null;
-
-	@SuppressWarnings("javadoc")
 	@Autowired
-	public DataSource dataSource;
+	private DataSource dataSource;
+	
+	@Autowired
+	private SessionFactory sessionFactory;
 
 	@Autowired
 	CompanyResultSetMapper companyResultSetMapper;
-
+	
 	/**
 	 * @author Jonasz Leflour
 	 *
@@ -44,20 +43,6 @@ public class CompanyDAO {
 		@SuppressWarnings("javadoc")
 		id, @SuppressWarnings("javadoc")
 		name;
-	}
-
-	/**
-	 * @return Singleton of DatabaseAccessor
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 * @throws DatabaseErrorException
-	 * @throws ClassNotFoundException
-	 */
-	public static CompanyDAO getInstance() {
-		if (dba == null) {
-			dba = new CompanyDAO();
-		}
-		return dba;
 	}
 
 	/**
@@ -84,6 +69,9 @@ public class CompanyDAO {
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
+		
+		
+		
 		return companies;
 	}
 

@@ -48,8 +48,9 @@ public class ComputerDTOMapper{
 		c.setName(dtoC.getName());
 		c.setIntroduced(LocalDate.parse(dtoC.getIntroduced()));
 		c.setDiscontinued(LocalDate.parse(dtoC.getDiscontinued()));
-		c.setCompany(new Company(Long.parseLong(dtoC.getCompanyId()),dtoC.getCompany()));
-		
+		c.setCompany(new Company(Company.getBuilder()
+				.id(Long.parseLong(dtoC.getCompanyId()))
+				.name(dtoC.getCompany())));
 		return c;
 	}
 	

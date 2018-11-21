@@ -1,27 +1,29 @@
 package com.excilys.cdb.model;
 import java.io.Serializable;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 
 /**
  * @author Jonasz Leflour
  * @version %I%
  * 
  */
+@Entity
 public class Company implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	//not null unique
+	@Id
 	private long id;
 	
 	private String name;
 
+	
 	/**
-	 * @param id company id in database
-	 * @param name company name
+	 * 
 	 */
-	public Company(long id, String name) {
-		this.id = id;
-		this.name = name;
+	public Company() {
 	}
 	
 	public String toString() {
@@ -76,27 +78,15 @@ public class Company implements Serializable {
 	 *
 	 */
 	public static class Builder{
-		private Long id;
+		private long id;
 		private String name;
-		/**
-		 * @return id
-		 */
-		public Long getId() {
-			return id;
-		}
 		/**
 		 * @param id
 		 * @return reference to this builder
 		 */
-		public Builder id(Long id) {
+		public Builder id(long id) {
 			this.id = id;
 			return this;
-		}
-		/**
-		 * @return name
-		 */
-		public String getName() {
-			return name;
 		}
 		/**
 		 * @param name

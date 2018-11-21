@@ -1,7 +1,5 @@
 package com.excilys.cdb.persistence;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.time.LocalDate;
@@ -10,6 +8,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.jpa.HibernateQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,6 +21,8 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.excilys.cdb.model.Computer;
+import com.excilys.cdb.model.QComputer;
+import com.querydsl.jpa.hibernate.HibernateQueryFactory;
 
 /**
  * 
@@ -33,13 +35,15 @@ import com.excilys.cdb.model.Computer;
  */
 @Repository
 public class ComputerDAO {
-	private static ComputerDAO dba = null;
-	@SuppressWarnings("javadoc")
 	@Autowired
-	public DataSource dataSource;
+	private DataSource dataSource;
 
 	@Autowired
-	ComputerResultSetMapper computerResultSetMapper;
+	private SessionFactory sessionFactory;
+	
+	
+	@Autowired
+	private ComputerResultSetMapper computerResultSetMapper;
 
 	/**
 	 * @author Jonasz Leflour
@@ -61,25 +65,15 @@ public class ComputerDAO {
 	 */
 
 	/**
-	 * @return Singleton of DatabaseAccessor
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 * @throws DatabaseErrorException
-	 * @throws ClassNotFoundException
-	 */
-	public static ComputerDAO getInstance() {
-		if (dba == null) {
-			dba = new ComputerDAO();
-		}
-		return dba;
-	}
-
-	/**
 	 * @return all computers from the database as a ResultSet
 	 * @throws DatabaseErrorException
 	 * @throws SQLException
 	 */
 	public List<Computer> getAllComputers() throws DatabaseErrorException {
+		/*QComputer computer = QComputer.computer;
+		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.getCurrentSession());
+		HibernateQuery query = (HibernateQuery) factory.selectFrom(computer);*/
+		
 		return this.getComputerByName("");
 	}
 
@@ -111,7 +105,9 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public Computer getComputerById(long id) throws ObjectNotFoundException, DatabaseErrorException {
-
+		
+		
+		
 		String sql = "SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id=?";
 		Computer computer = null;
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);

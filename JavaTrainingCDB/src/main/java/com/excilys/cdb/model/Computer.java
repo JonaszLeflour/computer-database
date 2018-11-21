@@ -3,22 +3,23 @@ package com.excilys.cdb.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
 /** 
  * 
  * @author Jonasz Leflour
  * @version %I%
  */
+@Entity
 public class Computer implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	@Id
 	private long id;
-	
 	private String name;
-	
 	private LocalDate introduced;
-	
 	private LocalDate discontinued;
-
 	private Company company;
 	
 	/**
