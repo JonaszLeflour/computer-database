@@ -24,7 +24,7 @@ import com.excilys.cdb.persistence.InvalidParameterException;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { RootConfig.class})
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = {RootConfig.class})
 public class ComputerDAOTest {
 	@Autowired
 	ComputerDAO computerDAO;

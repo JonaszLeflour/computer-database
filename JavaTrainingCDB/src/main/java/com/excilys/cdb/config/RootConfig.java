@@ -9,11 +9,11 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.Metadata;
+//import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Environment;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -28,10 +28,10 @@ import com.zaxxer.hikari.HikariDataSource;
  */
 @Configuration
 @ComponentScan(basePackages = { "com.excilys.cdb.persistence", "com.excilys.cdb.service", "com.excilys.cdb.controller",
-		"com.excilys.cdb.dto" })
+		"com.excilys.cdb.dto", "com.excilys.cdb.model" })
 public class RootConfig extends AnnotationConfigApplicationContext {
+	@Autowired
 	private static DataSource source = null;
-	private static StandardServiceRegistry registry = null;
 	private static SessionFactory sessionFactory = null;
 
 	private static Properties readProperties(String configFileName) throws ClassNotFoundException, IOException {
@@ -76,28 +76,33 @@ public class RootConfig extends AnnotationConfigApplicationContext {
 		return manager;
 	}
 
+	/**
+	 * @return session factory
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
 	@Bean
-	static SessionFactory getSessionFactory() throws ClassNotFoundException, IOException {
+	public static SessionFactory getSessionFactory() throws ClassNotFoundException, IOException {
+		//!\\TODO: fix sessionfactory creation errors
 		if (sessionFactory == null) {
-			// Create registry builder
 			StandardServiceRegistryBuilder registryBuilder = new StandardServiceRegistryBuilder();
-
-			// Hibernate settings equivalent to hibernate.cfg.xml's properties
 			Map<String, String> settings = new HashMap<>();
 			Properties prop = readProperties("config.properties");
-
-			settings.put(Environment.DRIVER, "org.postgresql.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
 			settings.put(Environment.URL, prop.getProperty("database"));
 			settings.put(Environment.USER, prop.getProperty("user"));
 			settings.put(Environment.PASS, prop.getProperty("password"));
-			settings.put(Environment.DIALECT, "org.hibernate.dialect.PostgreSQL9Dialect");
-
+			settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
 			registryBuilder.applySettings(settings);
-			registry = registryBuilder.build();
-			MetadataSources sources = new MetadataSources(registry);
-			Metadata metadata = sources.getMetadataBuilder().build();
-			sessionFactory = metadata.getSessionFactoryBuilder().build();
-
+			sessionFactory = new MetadataSources(registryBuilder.build())
+						.addPackage(Package.getPackage("com.excilys.cdb.model"))
+						.addAnnotatedClass(com.excilys.cdb.model.Computer.class)
+						.addAnnotatedClass(com.excilys.cdb.model.Company.class)
+						.addAnnotatedClass(com.excilys.cdb.model.QComputer.class)
+						.addAnnotatedClass(com.excilys.cdb.model.QCompany.class)
+					.buildMetadata()
+					.buildSessionFactory();
 		}
 		return sessionFactory;
 	}

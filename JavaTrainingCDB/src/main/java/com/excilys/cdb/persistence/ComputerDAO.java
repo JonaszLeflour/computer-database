@@ -9,7 +9,6 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.jpa.HibernateQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -70,11 +69,11 @@ public class ComputerDAO {
 	 * @throws SQLException
 	 */
 	public List<Computer> getAllComputers() throws DatabaseErrorException {
-		/*QComputer computer = QComputer.computer;
-		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.getCurrentSession());
-		HibernateQuery query = (HibernateQuery) factory.selectFrom(computer);*/
 		
-		return this.getComputerByName("");
+		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
+		return factory.selectFrom(QComputer.computer).fetch();
+		//return this.getComputerByName("");
+		//return factory.select(QComputer.computer).from(QComputer.computer).fetch();
 	}
 
 	/**

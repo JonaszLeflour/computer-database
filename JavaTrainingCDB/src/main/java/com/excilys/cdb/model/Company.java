@@ -1,8 +1,13 @@
 package com.excilys.cdb.model;
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+
 
 
 /**
@@ -10,13 +15,19 @@ import javax.persistence.Id;
  * @version %I%
  * 
  */
+//@Config(entityAccessors=true)
 @Entity
+@Table(name = "company", schema = "computer-database-db")
 public class Company implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@Column(name="id", nullable=false)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	
 	private long id;
 	
+	@Column(name="name")
 	private String name;
 
 	
