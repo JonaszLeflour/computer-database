@@ -21,6 +21,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.QComputer;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.hibernate.HibernateQueryFactory;
 
 /**
@@ -39,8 +40,7 @@ public class ComputerDAO {
 
 	@Autowired
 	private SessionFactory sessionFactory;
-	
-	
+
 	@Autowired
 	private ComputerResultSetMapper computerResultSetMapper;
 
@@ -69,11 +69,9 @@ public class ComputerDAO {
 	 * @throws SQLException
 	 */
 	public List<Computer> getAllComputers() throws DatabaseErrorException {
-		
+
 		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
 		return factory.selectFrom(QComputer.computer).fetch();
-		//return this.getComputerByName("");
-		//return factory.select(QComputer.computer).from(QComputer.computer).fetch();
 	}
 
 	/**
@@ -83,7 +81,14 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public List<Computer> getAllComputers(long offset, long lenght) throws DatabaseErrorException {
-		return getComputersByName("", offset, lenght);
+		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
+
+		try {
+			return factory.selectFrom(QComputer.computer).offset(offset).limit(lenght).fetch();
+		} catch (Exception e) {
+			throw new DatabaseErrorException(e);
+		}
+
 	}
 
 	/**
@@ -94,7 +99,15 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public List<Computer> getComputersByName(String name, long offset, long lenght) throws DatabaseErrorException {
-		return getOrderedComputers(name, offset, lenght, ComputerField.id, OrderDirection.DESC);
+		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
+		try {
+			return factory.selectFrom(QComputer.computer)
+					.where(QComputer.computer.name.like(Expressions.asString("%").concat(name).concat("%")))
+					.offset(offset).limit(lenght).orderBy(QComputer.computer.id.desc())
+					.fetch();
+		} catch (Exception e) {
+			throw new DatabaseErrorException(e);
+		}
 	}
 
 	/**
@@ -104,9 +117,7 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public Computer getComputerById(long id) throws ObjectNotFoundException, DatabaseErrorException {
-		
-		
-		
+
 		String sql = "SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id=?";
 		Computer computer = null;
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
