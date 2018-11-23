@@ -337,7 +337,9 @@ public class ComputerDAOTest {
 		dbComputer = computerDAO.getComputerByName(origName).get(0);
 		assertNotNull(dbComputer);
 
-		nullName = new Computer(new Computer.Builder().id(dbComputer.getId()).introduced(previously));
+		nullName = new Computer(Computer.getBuilder()
+					.id(dbComputer.getId())
+					.introduced(previously));
 		nullName.setName(null);
 		emptyName = new Computer(new Computer.Builder().id(dbComputer.getId()));
 		emptyName.setName("");
@@ -346,15 +348,18 @@ public class ComputerDAOTest {
 		validComputer = new Computer(
 				new Computer.Builder().name(newName).id(dbComputer.getId()).introduced(previously).discontinued(now));
 
+		System.out.println(nullName.getId());
+		System.out.println(computerDAO.getComputerById(nullName.getId()));
+		// ok with no name : no update
+		computerDAO.updateComputer(nullName);
+		
 		try {
 			computerDAO.updateComputer(nullComputer);
 		} catch (InvalidParameterException e) {
 			expectedFailure1 = true;
 		}
 		assertTrue(expectedFailure1);
-
-		// ok with no name : no update
-		computerDAO.updateComputer(nullName);
+		
 
 		try {
 			computerDAO.updateComputer(emptyName);

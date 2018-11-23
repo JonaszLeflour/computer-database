@@ -10,7 +10,6 @@ import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -22,6 +21,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.QComputer;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.hibernate.HibernateQuery;
 import com.querydsl.jpa.hibernate.HibernateQueryFactory;
 
 /**
@@ -41,8 +41,8 @@ public class ComputerDAO {
 	@Autowired
 	private SessionFactory sessionFactory;
 
-	@Autowired
-	private ComputerResultSetMapper computerResultSetMapper;
+	//@Autowired
+	//private ComputerResultSetMapper computerResultSetMapper;
 
 	/**
 	 * @author Jonasz Leflour
@@ -103,8 +103,7 @@ public class ComputerDAO {
 		try {
 			return factory.selectFrom(QComputer.computer)
 					.where(QComputer.computer.name.like(Expressions.asString("%").concat(name).concat("%")))
-					.offset(offset).limit(lenght).orderBy(QComputer.computer.id.desc())
-					.fetch();
+					.offset(offset).limit(lenght).orderBy(QComputer.computer.id.desc()).fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
@@ -118,21 +117,56 @@ public class ComputerDAO {
 	 */
 	public Computer getComputerById(long id) throws ObjectNotFoundException, DatabaseErrorException {
 
-		String sql = "SELECT id, name, introduced, discontinued, company_id FROM computer WHERE id=?";
-		Computer computer = null;
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		Object[] params = { new SqlParameterValue(Types.BIGINT, id) };
+		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
 		try {
-			computer = jdbcTemplate.queryForObject(sql, params, computerResultSetMapper.getRowMapper());
-		} catch (EmptyResultDataAccessException e) {
-			throw new ObjectNotFoundException();
+			return factory.selectFrom(QComputer.computer).where(QComputer.computer.id.eq(id))
+					.orderBy(QComputer.computer.id.desc()).fetch().get(0);
+		} catch (IndexOutOfBoundsException e) {
+			throw new ObjectNotFoundException(e);
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
-		if (computer == null) {
-			throw new ObjectNotFoundException();
+	}
+
+	private HibernateQuery<Computer> order(HibernateQuery<Computer> query, QComputer computer, ComputerField orderBy,
+			OrderDirection direction) {
+		switch (orderBy) {
+		case id:
+			if (direction.equals(OrderDirection.ASC)) {
+				query.orderBy(computer.id.asc());
+			} else {
+				query.orderBy(computer.id.desc());
+			}
+			break;
+
+		case name:
+			if (direction.equals(OrderDirection.ASC)) {
+				query.orderBy(computer.name.asc());
+			} else {
+				query.orderBy(computer.name.desc());
+			}
+			break;
+
+		case introduced:
+			if (direction.equals(OrderDirection.ASC)) {
+				query.orderBy(computer.introduced.asc());
+			} else {
+				query.orderBy(computer.introduced.desc());
+			}
+			break;
+
+		case discontinued:
+			if (direction.equals(OrderDirection.ASC)) {
+				query.orderBy(computer.discontinued.asc());
+			} else {
+				query.orderBy(computer.discontinued.desc());
+			}
+			break;
+
+		default:
+			break;
 		}
-		return computer;
+		return query;
 	}
 
 	/**
@@ -146,22 +180,18 @@ public class ComputerDAO {
 	 */
 	public List<Computer> getOrderedComputers(String name, long offset, long lenght, ComputerField orderBy,
 			OrderDirection direction) throws DatabaseErrorException {
-		List<Computer> computers;
-		String sql = "SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id " + "FROM computer AS c "
-				+ "WHERE UPPER(c.name) LIKE UPPER(?) " + "ORDER BY c." + orderBy.toString() + " " + direction.toString()
-				+ " " + "LIMIT ?, ?";
-
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-		Object[] params = {
-				new SqlParameterValue(Types.VARCHAR, name != null && !name.isEmpty() ? "%" + name + "%" : "%"),
-				new SqlParameterValue(Types.BIGINT, offset), new SqlParameterValue(Types.BIGINT, lenght) };
+		QComputer computer = QComputer.computer;
+		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
 		try {
-			computers = jdbcTemplate.query(sql, params, computerResultSetMapper.getRowMapper());
+			HibernateQuery<Computer> query = factory.selectFrom(computer)
+					.where(computer.name.like(Expressions.asString("%").concat(name).concat("%"))).offset(offset)
+					.limit(lenght);
+			order(query, computer, orderBy, direction);
+
+			return query.fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
-		return computers;
 	}
 
 	/**
@@ -170,16 +200,14 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public List<Computer> getComputerByName(String name) throws DatabaseErrorException {
-		List<Computer> computers;
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		String sql = "SELECT c.id, c.name, c.introduced, c.discontinued, c.company_id FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)";
-		Object[] params = { new SqlParameterValue(Types.VARCHAR, "%" + name + "%") };
+		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
 		try {
-			computers = jdbcTemplate.query(sql, params, computerResultSetMapper.getRowMapper());
+			return factory.selectFrom(QComputer.computer)
+					.where(QComputer.computer.name.like(Expressions.asString("%").concat(name).concat("%")))
+					.orderBy(QComputer.computer.id.desc()).fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
-		return computers;
 	}
 
 	/**
@@ -188,16 +216,14 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public long countComputersByName(String name) throws DatabaseErrorException {
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		String sql = "SELECT COUNT(c.id) FROM computer AS c WHERE UPPER(c.name) LIKE UPPER(?)";
-		Object[] params = { new SqlParameterValue(Types.VARCHAR, "%" + name + "%") };
-		long result;
+		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
 		try {
-			result = jdbcTemplate.queryForObject(sql, params, Long.class);
+			return factory.selectFrom(QComputer.computer)
+					.where(QComputer.computer.name.like(Expressions.asString("%").concat(name).concat("%")))
+					.fetchCount();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
-		return result;
 	}
 
 	/**
@@ -206,6 +232,17 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public void createComputer(Computer computer) throws InvalidParameterException, DatabaseErrorException {
+		// HibernateQueryFactory factory = new
+		// HibernateQueryFactory(sessionFactory.openSession());
+
+		/*
+		 * try { return factory.update(QComputer.computer).
+		 * .where(QComputer.computer.id.eq(id)).orderBy(QComputer.computer.id.desc())
+		 * .fetch() .get(0); }catch(IndexOutOfBoundsException e) { throw new
+		 * ObjectNotFoundException(e); } catch (Exception e) { throw new
+		 * DatabaseErrorException(e); }
+		 */
+
 		if (computer == null) {
 			throw new InvalidParameterException("Computer is null");
 
