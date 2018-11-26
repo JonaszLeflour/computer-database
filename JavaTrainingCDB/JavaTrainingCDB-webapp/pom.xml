@@ -2,14 +2,14 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.excilys</groupId>
-	<artifactId>computer-database</artifactId>
-	<packaging>pom</packaging>
+	<groupId>com.excilys.webapp</groupId>
+	<artifactId>JavaTrainingCDB-webapp</artifactId>
+	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>computer-database</name>
+	<name>JavaTrainingCDB-webapp</name>
 	<description>JEE training project</description>
-
 	<properties>
+		<javatrainingcdb.version>0.0.1-SNAPSHOT</javatrainingcdb.version>
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
 		<maven-apt-plugin.version>1.1.3</maven-apt-plugin.version>
 		<maven-compiler-plugin.configuration.source>1.8</maven-compiler-plugin.configuration.source>
@@ -33,15 +33,19 @@
 		<joda-time.version>2.10.1</joda-time.version>
 	</properties>
 
-	<modules>
-		<module>JavaTrainingCDB-core</module>
-		<module>JavaTrainingCDB-service</module>
-		<module>JavaTrainingCDB-cli</module>
-		<module>JavaTrainingCDB-webapp</module>
-	</modules>
-
+	<parent>
+        	<groupId>com.excilys</groupId>
+        	<artifactId>JavaTrainingCDB</artifactId>
+        	<version>${javatrainingcdb.version}</version>
+    	</parent>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.excilys.service</groupId>
+			<artifactId>JavaTrainingCDB-service</artifactId>
+			<version>${javatrainingcdb.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -228,6 +232,14 @@
 				<configuration>
 					<source>${maven-compiler-plugin.configuration.source}</source>
 					<target>${maven-compiler-plugin.configuration.target}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>${maven-war-plugin.version}</version>
+				<configuration>
+					<webXml>WebContent/WEB-INF/web.xml</webXml>
 				</configuration>
 			</plugin>
 			<plugin>
