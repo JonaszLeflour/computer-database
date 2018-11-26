@@ -43,22 +43,22 @@ public class CompanyDAO {
 		name;
 	}
 
-	private HibernateQuery<Company> order(HibernateQuery<Company> query, QCompany computer, CompanyField orderBy,
+	private HibernateQuery<Company> order(HibernateQuery<Company> query, QCompany company, CompanyField orderBy,
 			OrderDirection direction) {
 		switch (orderBy) {
 		case id:
 			if (direction.equals(OrderDirection.ASC)) {
-				query.orderBy(computer.id.asc());
+				query.orderBy(company.id.asc());
 			} else {
-				query.orderBy(computer.id.desc());
+				query.orderBy(company.id.desc());
 			}
 			break;
 
 		case name:
 			if (direction.equals(OrderDirection.ASC)) {
-				query.orderBy(computer.name.asc());
+				query.orderBy(company.name.asc());
 			} else {
-				query.orderBy(computer.name.desc());
+				query.orderBy(company.name.desc());
 			}
 			break;
 
