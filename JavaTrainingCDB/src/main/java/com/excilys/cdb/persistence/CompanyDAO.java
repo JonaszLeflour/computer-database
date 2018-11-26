@@ -1,22 +1,21 @@
 package com.excilys.cdb.persistence;
 
 import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.excilys.cdb.model.Company;
+import com.excilys.cdb.model.QCompany;
+import com.excilys.cdb.model.QComputer;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.hibernate.HibernateQuery;
+import com.querydsl.jpa.hibernate.HibernateQueryFactory;
 
 /**
  * @author Jonasz Leflour
@@ -24,15 +23,16 @@ import com.excilys.cdb.model.Company;
  */
 @Repository
 public class CompanyDAO {
+	@SuppressWarnings("unused")
 	@Autowired
 	private DataSource dataSource;
-	
-	//@Autowired
-	//private SessionFactory sessionFactory;
 
 	@Autowired
 	CompanyResultSetMapper companyResultSetMapper;
-	
+
+	@Autowired
+	private SessionFactory sessionFactory;
+
 	/**
 	 * @author Jonasz Leflour
 	 *
@@ -41,6 +41,31 @@ public class CompanyDAO {
 		@SuppressWarnings("javadoc")
 		id, @SuppressWarnings("javadoc")
 		name;
+	}
+
+	private HibernateQuery<Company> order(HibernateQuery<Company> query, QCompany computer, CompanyField orderBy,
+			OrderDirection direction) {
+		switch (orderBy) {
+		case id:
+			if (direction.equals(OrderDirection.ASC)) {
+				query.orderBy(computer.id.asc());
+			} else {
+				query.orderBy(computer.id.desc());
+			}
+			break;
+
+		case name:
+			if (direction.equals(OrderDirection.ASC)) {
+				query.orderBy(computer.name.asc());
+			} else {
+				query.orderBy(computer.name.desc());
+			}
+			break;
+
+		default:
+			break;
+		}
+		return query;
 	}
 
 	/**
@@ -54,23 +79,23 @@ public class CompanyDAO {
 	 */
 	public List<Company> getOrderedCompanies(String name, long offset, long lenght, CompanyDAO.CompanyField orderBy,
 			OrderDirection direction) throws DatabaseErrorException {
-		List<Company> companies = new ArrayList<>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		String sql = "SELECT c.id, c.name " + "FROM company AS c " + "WHERE UPPER(c.name) LIKE UPPER(?) "
-				+ "ORDER BY c." + orderBy.toString() + " " + direction.toString() + " " + "LIMIT ?, ?";
-		Object[] params = { new SqlParameterValue(Types.VARCHAR, "%" + name + "%"),
-				new SqlParameterValue(Types.BIGINT, offset), new SqlParameterValue(Types.BIGINT, lenght) };
+
+		QCompany company = QCompany.company;
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
-			companies = jdbcTemplate.query(sql, params, companyResultSetMapper.getRowMapper());
-		} catch (EmptyResultDataAccessException e) {
-			companies.clear();
+			HibernateQuery<Company> query = factory.selectFrom(company)
+					.where(company.name.toUpperCase()
+							.like(Expressions.asString("%").concat(name.toUpperCase()).concat("%")))
+					.offset(offset).limit(lenght);
+			order(query, company, orderBy, direction);
+
+			return query.fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
+		} finally {
+			s.close();
 		}
-		
-		
-		
-		return companies;
 	}
 
 	/**
@@ -79,19 +104,16 @@ public class CompanyDAO {
 	 * @throws SQLException
 	 */
 	public List<Company> getAllCompanies() throws DatabaseErrorException {
-
-		List<Company> companies = new ArrayList<>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		String sql = "SELECT id, name FROM company";
-		Object[] params = {};
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
+		QCompany company = QCompany.company;
 		try {
-			companies = jdbcTemplate.query(sql, params, companyResultSetMapper.getRowMapper());
-		} catch (EmptyResultDataAccessException e) {
-			companies.clear();
+			return factory.selectFrom(company).fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
+		} finally {
+			s.close();
 		}
-		return companies;
 	}
 
 	/**
@@ -101,47 +123,57 @@ public class CompanyDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public Company getCompanybyId(long id) throws ObjectNotFoundException, DatabaseErrorException {
-		Company company = null;
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		String sql = "SELECT id, name FROM company WHERE id=?";
-		Object[] params = { new SqlParameterValue(Types.BIGINT, id) };
+		QCompany company = QCompany.company;
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
-			company = jdbcTemplate.queryForObject(sql, params, companyResultSetMapper.getRowMapper());
-		} catch (EmptyResultDataAccessException e) {
+			return factory.selectFrom(company).where(company.id.eq(id)).orderBy(company.id.desc()).fetch().get(0);
+		} catch (IndexOutOfBoundsException e) {
 			throw new ObjectNotFoundException(e);
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
+		} finally {
+			s.close();
 		}
-		return company;
 	}
 
 	/**
 	 * @param id
 	 * @throws DatabaseErrorException
 	 * @throws ObjectNotFoundException
+	 * @throws InvalidParameterException
 	 */
-	public void deleteCompanyById(long id) throws DatabaseErrorException, ObjectNotFoundException {
+	public void deleteCompanyById(long id)
+			throws DatabaseErrorException, ObjectNotFoundException, InvalidParameterException {
 		getCompanybyId(id);
+		QCompany company = QCompany.company;
+		QComputer computer = QComputer.computer;
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		Object[] params = { new SqlParameterValue(Types.BIGINT, id) };
-		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
-		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
-		TransactionStatus beforeDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		TransactionStatus afterDelete = null;
-
-		String sql1 = "DELETE FROM computer WHERE company_id = ?";
-		String sql2 = "DELETE FROM company WHERE id = ?";
-
+		long deleted = 0, deletedComputers = 0;
+		s.beginTransaction();
 		try {
-			jdbcTemplate.update(sql1, params);
-			jdbcTemplate.update(sql2, params);
-			afterDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
+			deletedComputers = factory.delete(computer).where(computer.company().id.eq(id)).execute();
 		} catch (Exception e) {
-			platformTransactionManager.rollback(beforeDelete);
+			s.close();
 			throw new DatabaseErrorException(e);
 		}
-		platformTransactionManager.commit(afterDelete);
+		try {
+			deleted = factory.delete(company).where(company.id.eq(id)).execute();
+
+		} catch (Exception e) {
+			throw new DatabaseErrorException(e);
+		} finally {
+			if (deleted == 0 && deletedComputers == 0) {
+				s.close();
+				throw new ObjectNotFoundException();
+			} else {
+				s.getTransaction().commit();
+				s.close();
+			}
+		}
+		return;
 	}
 
 	/**
@@ -150,15 +182,18 @@ public class CompanyDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public long countCompaniesByName(String name) throws DatabaseErrorException {
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		String sql = "SELECT COUNT(c.id) FROM company AS c WHERE UPPER(c.name) LIKE UPPER(?)";
-		Object[] params = { new SqlParameterValue(Types.VARCHAR, "%" + name + "%") };
-		long result;
+		QCompany company = QCompany.company;
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
-			result = jdbcTemplate.queryForObject(sql, params, Long.class);
+			HibernateQuery<Company> query = factory.selectFrom(company).where(
+					company.name.toUpperCase().like(Expressions.asString("%").concat(name.toUpperCase()).concat("%")));
+
+			return query.fetchCount();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
+		} finally {
+			s.close();
 		}
-		return result;
 	}
 }

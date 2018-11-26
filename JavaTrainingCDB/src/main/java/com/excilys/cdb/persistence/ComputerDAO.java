@@ -36,8 +36,8 @@ public class ComputerDAO {
 	@Autowired
 	private SessionFactory sessionFactory;
 
-	//@Autowired
-	//private ComputerResultSetMapper computerResultSetMapper;
+	// @Autowired
+	// private ComputerResultSetMapper computerResultSetMapper;
 
 	/**
 	 * @author Jonasz Leflour
@@ -70,12 +70,12 @@ public class ComputerDAO {
 		QComputer computer = QComputer.computer;
 		try {
 			return factory.selectFrom(computer).fetch();
-		}catch(Exception e){
+		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
-		}finally {
+		} finally {
 			s.close();
 		}
-		
+
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class ComputerDAO {
 			return factory.selectFrom(computer).offset(offset).limit(lenght).fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
-		}finally {
+		} finally {
 			s.close();
 		}
 
@@ -111,11 +111,12 @@ public class ComputerDAO {
 		QComputer computer = QComputer.computer;
 		try {
 			return factory.selectFrom(QComputer.computer)
-					.where(computer.name.like(Expressions.asString("%").concat(name).concat("%")))
+					.where(computer.name.toUpperCase()
+							.like(Expressions.asString("%").concat(name.toUpperCase()).concat("%")))
 					.offset(offset).limit(lenght).orderBy(computer.id.desc()).fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
-		}finally {
+		} finally {
 			s.close();
 		}
 	}
@@ -131,13 +132,12 @@ public class ComputerDAO {
 		Session s = sessionFactory.openSession();
 		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
-			return factory.selectFrom(computer).where(QComputer.computer.id.eq(id))
-					.orderBy(computer.id.desc()).fetch().get(0);
+			return factory.selectFrom(computer).where(computer.id.eq(id)).orderBy(computer.id.desc()).fetch().get(0);
 		} catch (IndexOutOfBoundsException e) {
 			throw new ObjectNotFoundException(e);
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
-		}finally {
+		} finally {
 			s.close();
 		}
 	}
@@ -199,14 +199,15 @@ public class ComputerDAO {
 		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
 			HibernateQuery<Computer> query = factory.selectFrom(computer)
-					.where(computer.name.like(Expressions.asString("%").concat(name).concat("%"))).offset(offset)
-					.limit(lenght);
+					.where(computer.name.toUpperCase()
+							.like(Expressions.asString("%").concat(name.toUpperCase()).concat("%")))
+					.offset(offset).limit(lenght);
 			order(query, computer, orderBy, direction);
 
 			return query.fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
-		}finally {
+		} finally {
 			s.close();
 		}
 	}
@@ -222,11 +223,12 @@ public class ComputerDAO {
 		QComputer computer = QComputer.computer;
 		try {
 			return factory.selectFrom(computer)
-					.where(computer.name.like(Expressions.asString("%").concat(name).concat("%")))
+					.where(computer.name.toUpperCase()
+							.like(Expressions.asString("%").concat(name.toUpperCase()).concat("%")))
 					.orderBy(computer.id.desc()).fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
-		}finally {
+		} finally {
 			s.close();
 		}
 	}
@@ -241,12 +243,12 @@ public class ComputerDAO {
 		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		QComputer computer = QComputer.computer;
 		try {
-			return factory.selectFrom(computer)
-					.where(computer.name.like(Expressions.asString("%").concat(name).concat("%")))
+			return factory.selectFrom(computer).where(
+					computer.name.toUpperCase().like(Expressions.asString("%").concat(name.toUpperCase()).concat("%")))
 					.fetchCount();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
-		}finally {
+		} finally {
 			s.close();
 		}
 	}
@@ -256,7 +258,7 @@ public class ComputerDAO {
 	 * @throws InvalidParameterException
 	 * @throws DatabaseErrorException
 	 */
-	//insert unsuported by querydsl. Must use hibernate directly
+	// insert unsuported by querydsl. Must use hibernate directly
 	public void createComputer(Computer computer) throws InvalidParameterException, DatabaseErrorException {
 		if (computer == null) {
 			throw new InvalidParameterException("Computer is null");
@@ -271,16 +273,15 @@ public class ComputerDAO {
 				&& computer.getIntroduced().isAfter(computer.getDiscontinued())) {
 			throw new InvalidParameterException("Incoherent introduced and discontinued dates");
 		}
-		
+
 		Session session = sessionFactory.openSession();
 		session.beginTransaction();
-		try{
+		try {
 			session.save(computer);
 			session.getTransaction().commit();
-		}catch(Exception e) {
+		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
-		}
-		finally {
+		} finally {
 			session.close();
 		}
 	}
@@ -301,22 +302,22 @@ public class ComputerDAO {
 		if (name.isEmpty()) {
 			throw new InvalidParameterException("Name provided is empty");
 		}
-		
+
 		Session s = sessionFactory.openSession();
 		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
-		
+
 		long deleted = 0;
 		try {
-			HibernateDeleteClause deleteClause = factory.delete(QComputer.computer)
-					.where(QComputer.computer.name.like(Expressions.asString("%").concat(name).concat("%")));
+			HibernateDeleteClause deleteClause = factory.delete(QComputer.computer).where(QComputer.computer.name
+					.toUpperCase().like(Expressions.asString("%").concat(name.toUpperCase()).concat("%")));
 			deleted = deleteClause.execute();
-		}catch (Exception e) {
+		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
-		}finally {
+		} finally {
 			s.close();
 		}
-		
-		if(deleted == 0) {
+
+		if (deleted == 0) {
 			throw new ObjectNotFoundException("No computer named " + name);
 		}
 
@@ -335,17 +336,15 @@ public class ComputerDAO {
 		if (id <= 0) {
 			throw new InvalidParameterException("Id provided must be strictly positive");
 		}
-		
-		
 		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
 		long deleted = 0;
 		try {
 			deleted = factory.delete(QComputer.computer).where(QComputer.computer.id.eq(id)).execute();
-		}catch (Exception e) {
+		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
-		
-		if(deleted == 0) {
+
+		if (deleted == 0) {
 			throw new ObjectNotFoundException();
 		}
 
@@ -386,19 +385,17 @@ public class ComputerDAO {
 				throw new InvalidParameterException("Invalid dates");
 			}
 		}
-		
-		
+
 		Session session = sessionFactory.openSession();
 		session.beginTransaction();
-	       
-	      //Save employee
+
+		// Save employee
 		try {
 			session.update(computer);
 			session.getTransaction().commit();
-		}catch(Exception e){
+		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
-		}
-		finally {
+		} finally {
 			session.close();
 		}
 	}
