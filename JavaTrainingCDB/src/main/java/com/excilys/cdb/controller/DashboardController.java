@@ -42,7 +42,7 @@ public class DashboardController {
     	orderedComputerRequestPager.name(search);
     	
     	try {
-			orderedComputerRequestPager.getPage(Long.parseLong(page));
+			orderedComputerRequestPager.getPage(Long.parseLong(page)-1);
 		} catch (NumberFormatException | DatabaseErrorException | InvalidPageNumberException e) {
 			throw new InvalidParameterException(e);
 		}
