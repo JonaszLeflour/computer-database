@@ -1,26 +1,20 @@
 package com.excilys.cdb.persistence;
 
 import java.sql.SQLException;
-import java.sql.Types;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.excilys.cdb.model.Computer;
 import com.excilys.cdb.model.QComputer;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import com.querydsl.jpa.hibernate.HibernateQueryFactory;
 
@@ -35,6 +29,7 @@ import com.querydsl.jpa.hibernate.HibernateQueryFactory;
  */
 @Repository
 public class ComputerDAO {
+	@SuppressWarnings("unused")
 	@Autowired
 	private DataSource dataSource;
 
@@ -70,8 +65,17 @@ public class ComputerDAO {
 	 */
 	public List<Computer> getAllComputers() throws DatabaseErrorException {
 
-		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
-		return factory.selectFrom(QComputer.computer).fetch();
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
+		QComputer computer = QComputer.computer;
+		try {
+			return factory.selectFrom(computer).fetch();
+		}catch(Exception e){
+			throw new DatabaseErrorException(e);
+		}finally {
+			s.close();
+		}
+		
 	}
 
 	/**
@@ -81,12 +85,15 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public List<Computer> getAllComputers(long offset, long lenght) throws DatabaseErrorException {
-		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
-
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
+		QComputer computer = QComputer.computer;
 		try {
-			return factory.selectFrom(QComputer.computer).offset(offset).limit(lenght).fetch();
+			return factory.selectFrom(computer).offset(offset).limit(lenght).fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
+		}finally {
+			s.close();
 		}
 
 	}
@@ -99,13 +106,17 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public List<Computer> getComputersByName(String name, long offset, long lenght) throws DatabaseErrorException {
-		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
+		QComputer computer = QComputer.computer;
 		try {
 			return factory.selectFrom(QComputer.computer)
-					.where(QComputer.computer.name.like(Expressions.asString("%").concat(name).concat("%")))
-					.offset(offset).limit(lenght).orderBy(QComputer.computer.id.desc()).fetch();
+					.where(computer.name.like(Expressions.asString("%").concat(name).concat("%")))
+					.offset(offset).limit(lenght).orderBy(computer.id.desc()).fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
+		}finally {
+			s.close();
 		}
 	}
 
@@ -116,15 +127,18 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public Computer getComputerById(long id) throws ObjectNotFoundException, DatabaseErrorException {
-
-		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
+		QComputer computer = QComputer.computer;
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
-			return factory.selectFrom(QComputer.computer).where(QComputer.computer.id.eq(id))
-					.orderBy(QComputer.computer.id.desc()).fetch().get(0);
+			return factory.selectFrom(computer).where(QComputer.computer.id.eq(id))
+					.orderBy(computer.id.desc()).fetch().get(0);
 		} catch (IndexOutOfBoundsException e) {
 			throw new ObjectNotFoundException(e);
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
+		}finally {
+			s.close();
 		}
 	}
 
@@ -181,7 +195,8 @@ public class ComputerDAO {
 	public List<Computer> getOrderedComputers(String name, long offset, long lenght, ComputerField orderBy,
 			OrderDirection direction) throws DatabaseErrorException {
 		QComputer computer = QComputer.computer;
-		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
 			HibernateQuery<Computer> query = factory.selectFrom(computer)
 					.where(computer.name.like(Expressions.asString("%").concat(name).concat("%"))).offset(offset)
@@ -191,6 +206,8 @@ public class ComputerDAO {
 			return query.fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
+		}finally {
+			s.close();
 		}
 	}
 
@@ -200,13 +217,17 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public List<Computer> getComputerByName(String name) throws DatabaseErrorException {
-		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
+		QComputer computer = QComputer.computer;
 		try {
-			return factory.selectFrom(QComputer.computer)
-					.where(QComputer.computer.name.like(Expressions.asString("%").concat(name).concat("%")))
-					.orderBy(QComputer.computer.id.desc()).fetch();
+			return factory.selectFrom(computer)
+					.where(computer.name.like(Expressions.asString("%").concat(name).concat("%")))
+					.orderBy(computer.id.desc()).fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
+		}finally {
+			s.close();
 		}
 	}
 
@@ -216,13 +237,17 @@ public class ComputerDAO {
 	 * @throws DatabaseErrorException
 	 */
 	public long countComputersByName(String name) throws DatabaseErrorException {
-		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
+		QComputer computer = QComputer.computer;
 		try {
-			return factory.selectFrom(QComputer.computer)
-					.where(QComputer.computer.name.like(Expressions.asString("%").concat(name).concat("%")))
+			return factory.selectFrom(computer)
+					.where(computer.name.like(Expressions.asString("%").concat(name).concat("%")))
 					.fetchCount();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
+		}finally {
+			s.close();
 		}
 	}
 
@@ -231,6 +256,7 @@ public class ComputerDAO {
 	 * @throws InvalidParameterException
 	 * @throws DatabaseErrorException
 	 */
+	//insert unsuported by querydsl. Must use hibernate directly
 	public void createComputer(Computer computer) throws InvalidParameterException, DatabaseErrorException {
 		// HibernateQueryFactory factory = new
 		// HibernateQueryFactory(sessionFactory.openSession());
@@ -242,6 +268,8 @@ public class ComputerDAO {
 		 * ObjectNotFoundException(e); } catch (Exception e) { throw new
 		 * DatabaseErrorException(e); }
 		 */
+		
+	
 
 		if (computer == null) {
 			throw new InvalidParameterException("Computer is null");
@@ -256,8 +284,32 @@ public class ComputerDAO {
 				&& computer.getIntroduced().isAfter(computer.getDiscontinued())) {
 			throw new InvalidParameterException("Incoherent introduced and discontinued dates");
 		}
+		
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		try{
+			session.save(computer);
+			session.getTransaction().commit();
+		}catch(Exception e) {
+			throw new DatabaseErrorException(e);
+		}
+		finally {
+			session.close();
+		}
+		
+		
+		
 
-		String sql = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?)";
+		
+		
+		
+		
+		
+		
+		
+		
+
+		/*String sql = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?)";
 		Object[] params = { new SqlParameterValue(Types.VARCHAR, computer.getName()),
 				new SqlParameterValue(computer.getIntroduced() != null ? Types.DATE : Types.NULL,
 						computer.getIntroduced()),
@@ -278,7 +330,7 @@ public class ComputerDAO {
 			platformTransactionManager.rollback(status);
 			throw new DatabaseErrorException(e);
 		}
-		platformTransactionManager.commit(afterDelete);
+		platformTransactionManager.commit(afterDelete);*/
 	}
 
 	/**
@@ -297,11 +349,30 @@ public class ComputerDAO {
 		if (name.isEmpty()) {
 			throw new InvalidParameterException("Name provided is empty");
 		}
-		if (getComputerByName(name).isEmpty()) {
+		
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
+		
+		long deleted = 0;
+		try {
+			HibernateDeleteClause deleteClause = factory.delete(QComputer.computer)
+					.where(QComputer.computer.name.like(Expressions.asString("%").concat(name).concat("%")));
+			deleted = deleteClause.execute();
+		}catch (Exception e) {
+			throw new DatabaseErrorException(e);
+		}finally {
+			s.close();
+		}
+		
+		if(deleted == 0) {
 			throw new ObjectNotFoundException("No computer named " + name);
 		}
+		
+		
+		
+		
 
-		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
+		/*PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
 		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
 		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
 		TransactionStatus afterDelete = null;
@@ -317,7 +388,7 @@ public class ComputerDAO {
 			throw new DatabaseErrorException(e);
 		}
 
-		platformTransactionManager.commit(afterDelete);
+		platformTransactionManager.commit(afterDelete);*/
 
 	}
 
@@ -334,24 +405,19 @@ public class ComputerDAO {
 		if (id <= 0) {
 			throw new InvalidParameterException("Id provided must be strictly positive");
 		}
-
-		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
-		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
-		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		TransactionStatus afterDelete = null;
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-		String sql = "DELETE FROM computer WHERE id = ?";
-		Object[] params = { new SqlParameterValue(Types.BIGINT, id) };
+		
+		
+		HibernateQueryFactory factory = new HibernateQueryFactory(sessionFactory.openSession());
+		long deleted = 0;
 		try {
-			jdbcTemplate.update(sql, params);
-			afterDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		} catch (Exception e) {
-			platformTransactionManager.rollback(status);
+			deleted = factory.delete(QComputer.computer).where(QComputer.computer.id.eq(id)).execute();
+		}catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		}
-
-		platformTransactionManager.commit(afterDelete);
+		
+		if(deleted == 0) {
+			throw new ObjectNotFoundException();
+		}
 
 	}
 
@@ -390,8 +456,27 @@ public class ComputerDAO {
 				throw new InvalidParameterException("Invalid dates");
 			}
 		}
+		
+		
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+	       
+	      //Save employee
+		try {
+			session.save(computer);
+			session.getTransaction().commit();
+		}catch(Exception e){
+			throw new DatabaseErrorException(e);
+		}
+		finally {
+			session.close();
+		}
+		
+		
+		
+		
 
-		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
+		/* PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
 		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
 		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
 		TransactionStatus afterUpdate = null;
@@ -440,7 +525,7 @@ public class ComputerDAO {
 			throw new DatabaseErrorException(e);
 		}
 
-		platformTransactionManager.commit(afterUpdate);
+		platformTransactionManager.commit(afterUpdate);*/
 	}
 
 }

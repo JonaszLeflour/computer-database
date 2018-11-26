@@ -193,7 +193,7 @@ public class ComputerDAOTest {
 		LocalDate now = LocalDate.now();
 		LocalDate previously = LocalDate.now().minusWeeks(2);
 
-		String validName = "Test Valid Name.";
+		String validName = "Test Valid Name 2";
 		String invalidName = "";
 
 		try {
@@ -318,7 +318,7 @@ public class ComputerDAOTest {
 		boolean expectedFailure2 = false;
 		boolean expectedFailure3 = false;
 
-		String origName = "Valid Computer";
+		String origName = "original name";
 		String newName = "new name";
 
 		LocalDate now = LocalDate.now();
@@ -348,8 +348,6 @@ public class ComputerDAOTest {
 		validComputer = new Computer(
 				new Computer.Builder().name(newName).id(dbComputer.getId()).introduced(previously).discontinued(now));
 
-		System.out.println(nullName.getId());
-		System.out.println(computerDAO.getComputerById(nullName.getId()));
 		// ok with no name : no update
 		computerDAO.updateComputer(nullName);
 		
@@ -377,9 +375,9 @@ public class ComputerDAOTest {
 		computerDAO.updateComputer(validComputer);
 		returnedComputer = computerDAO.getComputerById(dbComputer.getId());
 
-		assertEquals(returnedComputer.getName(), validComputer.getName());
-		assertEquals(returnedComputer.getIntroduced(), validComputer.getIntroduced());
-		assertEquals(returnedComputer.getDiscontinued(), validComputer.getDiscontinued());
+		assertEquals(validComputer.getName(),returnedComputer.getName());
+		assertEquals(validComputer.getIntroduced(),returnedComputer.getIntroduced());
+		assertEquals(validComputer.getDiscontinued(), returnedComputer.getDiscontinued());
 
 		computerDAO.deleteComputerById(validComputer.getId());
 
