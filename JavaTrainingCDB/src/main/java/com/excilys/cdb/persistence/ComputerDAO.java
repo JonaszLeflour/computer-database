@@ -4,8 +4,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +27,6 @@ import com.querydsl.jpa.hibernate.HibernateQueryFactory;
  */
 @Repository
 public class ComputerDAO {
-	@SuppressWarnings("unused")
-	@Autowired
-	private DataSource dataSource;
-
 	@Autowired
 	private SessionFactory sessionFactory;
 

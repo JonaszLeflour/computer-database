@@ -3,8 +3,6 @@ package com.excilys.cdb.persistence;
 import java.sql.SQLException;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +21,6 @@ import com.querydsl.jpa.hibernate.HibernateQueryFactory;
  */
 @Repository
 public class CompanyDAO {
-	@SuppressWarnings("unused")
-	@Autowired
-	private DataSource dataSource;
 
 	@Autowired
 	CompanyResultSetMapper companyResultSetMapper;

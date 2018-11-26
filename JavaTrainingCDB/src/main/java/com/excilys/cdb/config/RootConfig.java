@@ -6,22 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.sql.DataSource;
-
 import org.hibernate.SessionFactory;
 //import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Environment;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * @author Jonasz Leflour Spring configuration
@@ -30,8 +23,6 @@ import com.zaxxer.hikari.HikariDataSource;
 @ComponentScan(basePackages = { "com.excilys.cdb.persistence", "com.excilys.cdb.service", "com.excilys.cdb.controller",
 		"com.excilys.cdb.dto", "com.excilys.cdb.model" })
 public class RootConfig extends AnnotationConfigApplicationContext {
-	@Autowired
-	private static DataSource source = null;
 	private static SessionFactory sessionFactory = null;
 
 	private static Properties readProperties(String configFileName) throws ClassNotFoundException, IOException {
@@ -41,39 +32,6 @@ public class RootConfig extends AnnotationConfigApplicationContext {
 		Properties prop = new Properties();
 		prop.load(input);
 		return prop;
-	}
-
-	/**
-	 * @return data source
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	@Bean
-	public static DataSource getDataSource() throws IOException, ClassNotFoundException {
-		if (source != null) {
-			return source;
-		}
-		Properties prop = readProperties("config.properties");
-		HikariConfig config = new HikariConfig();
-
-		config.setJdbcUrl(prop.getProperty("database"));
-		config.setUsername(prop.getProperty("user"));
-		config.setPassword(prop.getProperty("password"));
-
-		source = new HikariDataSource(config);
-		return source;
-	}
-
-	/**
-	 * @return datasource transaction manager for HikariDB datasource
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	@Bean
-	public static DataSourceTransactionManager getManager() throws IOException, ClassNotFoundException {
-		DataSourceTransactionManager manager = new DataSourceTransactionManager();
-		manager.setDataSource(getDataSource());
-		return manager;
 	}
 
 	/**
