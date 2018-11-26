@@ -97,6 +97,7 @@ public class RootConfig extends AnnotationConfigApplicationContext {
 			registryBuilder.applySettings(settings);
 			sessionFactory = new MetadataSources(registryBuilder.build())
 						.addPackage(Package.getPackage("com.excilys.cdb.model"))
+						.addAnnotatedClass(org.hibernate.internal.SessionImpl.class)
 						.addAnnotatedClass(com.excilys.cdb.model.Computer.class)
 						.addAnnotatedClass(com.excilys.cdb.model.Company.class)
 						.addAnnotatedClass(com.excilys.cdb.model.QComputer.class)

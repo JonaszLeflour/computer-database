@@ -258,19 +258,6 @@ public class ComputerDAO {
 	 */
 	//insert unsuported by querydsl. Must use hibernate directly
 	public void createComputer(Computer computer) throws InvalidParameterException, DatabaseErrorException {
-		// HibernateQueryFactory factory = new
-		// HibernateQueryFactory(sessionFactory.openSession());
-
-		/*
-		 * try { return factory.update(QComputer.computer).
-		 * .where(QComputer.computer.id.eq(id)).orderBy(QComputer.computer.id.desc())
-		 * .fetch() .get(0); }catch(IndexOutOfBoundsException e) { throw new
-		 * ObjectNotFoundException(e); } catch (Exception e) { throw new
-		 * DatabaseErrorException(e); }
-		 */
-		
-	
-
 		if (computer == null) {
 			throw new InvalidParameterException("Computer is null");
 
@@ -296,41 +283,6 @@ public class ComputerDAO {
 		finally {
 			session.close();
 		}
-		
-		
-		
-
-		
-		
-		
-		
-		
-		
-		
-		
-
-		/*String sql = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?)";
-		Object[] params = { new SqlParameterValue(Types.VARCHAR, computer.getName()),
-				new SqlParameterValue(computer.getIntroduced() != null ? Types.DATE : Types.NULL,
-						computer.getIntroduced()),
-				new SqlParameterValue(computer.getDiscontinued() != null ? Types.DATE : Types.NULL,
-						computer.getDiscontinued()),
-				computer.getCompany() != null ? new SqlParameterValue(Types.BIGINT, computer.getCompany().getId())
-						: new SqlParameterValue(Types.NULL, null) };
-
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
-		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
-		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		TransactionStatus afterDelete = null;
-		try {
-			jdbcTemplate.update(sql, params);
-			afterDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		} catch (Exception e) {
-			platformTransactionManager.rollback(status);
-			throw new DatabaseErrorException(e);
-		}
-		platformTransactionManager.commit(afterDelete);*/
 	}
 
 	/**
@@ -367,28 +319,6 @@ public class ComputerDAO {
 		if(deleted == 0) {
 			throw new ObjectNotFoundException("No computer named " + name);
 		}
-		
-		
-		
-		
-
-		/*PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
-		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
-		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		TransactionStatus afterDelete = null;
-
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		String sql = "DELETE FROM computer WHERE name = ?";
-		Object[] params = { new SqlParameterValue(Types.VARCHAR, "%" + name + "%") };
-		try {
-			jdbcTemplate.update(sql, params);
-			afterDelete = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		} catch (Exception e) {
-			platformTransactionManager.rollback(status);
-			throw new DatabaseErrorException(e);
-		}
-
-		platformTransactionManager.commit(afterDelete);*/
 
 	}
 
@@ -438,7 +368,7 @@ public class ComputerDAO {
 			throw new InvalidParameterException("Computer name cannot be empty");
 		}
 
-		if (computer.getId() == 0) {
+		if (computer.getId() <= 0) {
 			throw new InvalidParameterException("Computer id isn't provided");
 		}
 		Computer oldComputer = null;
@@ -463,7 +393,7 @@ public class ComputerDAO {
 	       
 	      //Save employee
 		try {
-			session.save(computer);
+			session.update(computer);
 			session.getTransaction().commit();
 		}catch(Exception e){
 			throw new DatabaseErrorException(e);
@@ -471,61 +401,6 @@ public class ComputerDAO {
 		finally {
 			session.close();
 		}
-		
-		
-		
-		
-
-		/* PlatformTransactionManager platformTransactionManager = new DataSourceTransactionManager(dataSource);
-		DefaultTransactionDefinition paramTransactionDefinition = new DefaultTransactionDefinition();
-		TransactionStatus status = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		TransactionStatus afterUpdate = null;
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		List<Object> params = new ArrayList<Object>();
-		String sql = "UPDATE computer SET";
-
-		if (computer.getName() != null) {
-			sql += "  name=? ";
-			params.add(new SqlParameterValue(Types.VARCHAR, computer.getName()));
-		}
-		if (computer.getIntroduced() != null) {
-			if (!params.isEmpty()) {
-				sql += ",";
-			}
-			sql += " introduced=?";
-			params.add(new SqlParameterValue(Types.DATE, computer.getIntroduced()));
-
-		}
-		if (computer.getDiscontinued() != null) {
-			if (!params.isEmpty()) {
-				sql += ",";
-			}
-			sql += " discontinued=?";
-			params.add(new SqlParameterValue(Types.DATE, computer.getDiscontinued()));
-		}
-		if (computer.getCompany() != null) {
-			if (!params.isEmpty()) {
-				sql += ",";
-			}
-			sql += " company_id=?";
-			params.add(new SqlParameterValue(Types.BIGINT, computer.getCompany().getId()));
-		}
-
-		if (params.isEmpty()) {
-			throw new InvalidParameterException("No updated parameters provided");
-		}
-		sql += " WHERE id=?";
-		params.add(new SqlParameterValue(Types.BIGINT, computer.getId()));
-
-		try {
-			jdbcTemplate.update(sql, params.toArray());
-			afterUpdate = platformTransactionManager.getTransaction(paramTransactionDefinition);
-		} catch (Exception e) {
-			platformTransactionManager.rollback(status);
-			throw new DatabaseErrorException(e);
-		}
-
-		platformTransactionManager.commit(afterUpdate);*/
 	}
 
 }
