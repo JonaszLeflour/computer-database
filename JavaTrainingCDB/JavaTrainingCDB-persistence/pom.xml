@@ -9,7 +9,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>JavaTrainingCDB-persistence</artifactId>
-
+	<packaging>jar</packaging>
 	<name>JavaTrainingCDB-persistence</name>
 	<!-- FIXME change it to the project's website -->
 	<url>http://www.example.com</url>
