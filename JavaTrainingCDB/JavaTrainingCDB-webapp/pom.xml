@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>JavaTrainingCDB-webapp</artifactId>
-	
+
 	<name>JavaTrainingCDB-webapp</name>
 	<!-- FIXME change it to the project's website -->
 	<url>http://www.example.com</url>
@@ -15,7 +15,7 @@
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<cdb.version>0.0.1-SNAPSHOT</cdb.version>
 	</properties>
-	
+
 	<parent>
 		<artifactId>JavaTrainingCDB</artifactId>
 		<groupId>com.excilys</groupId>
@@ -33,14 +33,9 @@
 			<artifactId>JavaTrainingCDB-service</artifactId>
 			<version>${cdb.version}</version>
 		</dependency>
-	
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
+
+
 
 	<build>
 		<pluginManagement><!-- lock down plugins versions to avoid using Maven 
@@ -83,7 +78,7 @@
 						<target>${maven-compiler-plugin.configuration.target}</target>
 					</configuration>
 				</plugin>
-				
+
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${maven-compiler-plugin.version}</version>
@@ -100,7 +95,7 @@
 						<webXml>WebContent/WEB-INF/web.xml</webXml>
 					</configuration>
 				</plugin>
-				
+
 				<plugin>
 					<groupId>com.mysema.maven</groupId>
 					<artifactId>apt-maven-plugin</artifactId>
