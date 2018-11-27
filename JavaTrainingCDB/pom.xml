@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys</groupId>
-	<artifactId>computer-database</artifactId>
+	<artifactId>JavaTrainingCDB</artifactId>
 	<packaging>pom</packaging>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>computer-database</name>
@@ -38,6 +38,8 @@
 		<module>JavaTrainingCDB-service</module>
 		<module>JavaTrainingCDB-cli</module>
 		<module>JavaTrainingCDB-webapp</module>
+		<module>JavaTrainingCDB-persistence</module>
+		<module>JavaTrainingCDB-binding</module>
 	</modules>
 
 

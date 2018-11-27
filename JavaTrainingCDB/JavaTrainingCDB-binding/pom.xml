@@ -2,13 +2,12 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.excilys.cli</groupId>
-	<artifactId>JavaTrainingCDB-cli</artifactId>
+	<groupId>com.excilys</groupId>
+	<artifactId>JavaTrainingCDB-binding</artifactId>
 	<packaging>jar</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>JavaTrainingCDB-cli</name>
+	<name>JavaTrainingCDB-service</name>
 	<description>JEE training project</description>
-
 	<properties>
 		<javatrainingcdb.version>0.0.1-SNAPSHOT</javatrainingcdb.version>
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
@@ -32,6 +31,7 @@
 		<querydsl.version>4.2.1</querydsl.version>
 		<hibernate.version>5.1.8.Final</hibernate.version>
 		<joda-time.version>2.10.1</joda-time.version>
+
 	</properties>
 
 	<parent>
@@ -40,13 +40,14 @@
 		<version>${javatrainingcdb.version}</version>
 	</parent>
 
+
 	<dependencies>
 		<dependency>
 			<groupId>com.excilys</groupId>
-			<artifactId>JavaTrainingCDB-service</artifactId>
+			<artifactId>JavaTrainingCDB-core</artifactId>
 			<version>${javatrainingcdb.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
