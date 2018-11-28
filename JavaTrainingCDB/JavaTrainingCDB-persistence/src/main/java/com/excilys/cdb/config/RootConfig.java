@@ -57,8 +57,10 @@ public class RootConfig extends AnnotationConfigApplicationContext {
 						.addPackage(Package.getPackage("com.excilys.cdb.model"))
 						.addAnnotatedClass(com.excilys.cdb.model.Computer.class)
 						.addAnnotatedClass(com.excilys.cdb.model.Company.class)
+						.addAnnotatedClass(com.excilys.cdb.model.User.class)
 						.addAnnotatedClass(com.excilys.cdb.model.QComputer.class)
 						.addAnnotatedClass(com.excilys.cdb.model.QCompany.class)
+						.addAnnotatedClass(com.excilys.cdb.model.QUser.class)
 					.buildMetadata()
 					.buildSessionFactory();
 		}

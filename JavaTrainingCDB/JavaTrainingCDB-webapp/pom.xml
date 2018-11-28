@@ -7,7 +7,7 @@
 
 	<name>JavaTrainingCDB-webapp</name>
 	<!-- FIXME change it to the project's website -->
-	<url>http://www.example.com</url>
+	<url>https://github.com/JonaszLeflour/computer-database</url>
 	<packaging>war</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
