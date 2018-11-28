@@ -38,11 +38,11 @@ public class ComputerDAO {
 	 *
 	 */
 	public static enum ComputerField {
-		@SuppressWarnings("javadoc")
-		id, @SuppressWarnings("javadoc")
-		name, @SuppressWarnings("javadoc")
-		introduced, @SuppressWarnings("javadoc")
-		discontinued, @SuppressWarnings("javadoc")
+		
+		id,
+		name,
+		introduced,
+		discontinued,
 		company_id;
 	};
 
