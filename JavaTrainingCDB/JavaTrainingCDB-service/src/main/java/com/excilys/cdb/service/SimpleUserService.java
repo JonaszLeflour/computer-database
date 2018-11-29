@@ -1,6 +1,10 @@
 package com.excilys.cdb.service;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.excilys.cdb.model.User;
 import com.excilys.cdb.persistence.DatabaseErrorException;
@@ -10,7 +14,8 @@ import com.excilys.cdb.persistence.InvalidUsernameException;
 import com.excilys.cdb.persistence.ObjectNotFoundException;
 import com.excilys.cdb.persistence.UserDAO;
 
-public class SimpleUserService implements UserService {
+@Service
+public class SimpleUserService implements UserService, UserDetailsService{
 	UserDAO userDAO;
 	PasswordEncoder passwordEncoder;
 	
@@ -18,8 +23,6 @@ public class SimpleUserService implements UserService {
 		this.passwordEncoder = passwordEncoder;
 		this.userDAO = userDAO;
 	}
-	
-	
 	
 	@Override
 	public void registerUser(User user) throws DatabaseErrorException, InvalidParameterException, InvalidUsernameException, InvalidPasswordException{
@@ -33,7 +36,19 @@ public class SimpleUserService implements UserService {
 			throw new WrongPasswordException();
 		}
 		return user;
-		
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		try {
+			User user = userDAO.getUserByName(username);
+			return org.springframework.security.core.userdetails.User
+					.withUsername(user.getName())
+					.password(user.getPassword())
+					.roles(user.getRole().getName()).build();
+		} catch (Exception e) {
+			throw new UsernameNotFoundException(e.toString());
+		}
 	}
 
 }
