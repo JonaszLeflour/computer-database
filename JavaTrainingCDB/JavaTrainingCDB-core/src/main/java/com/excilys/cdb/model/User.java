@@ -28,7 +28,7 @@ public class User implements Serializable {
 	@Column(name = "password", nullable = false)
 	private String password;
 	@ManyToOne
-	@JoinColumn(name = "id_role", nullable = false)
+    @JoinColumn(name = "id_role")
 	private Role role;
 
 	public long getId() {

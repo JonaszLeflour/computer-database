@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Configuration;
 		"com.excilys.cdb.dto", "com.excilys.cdb.model" })
 public class RootConfig extends AnnotationConfigApplicationContext {
 	private static SessionFactory sessionFactory = null;
-
 	private static Properties readProperties(String configFileName) throws ClassNotFoundException, IOException {
 		Class.forName("com.mysql.cj.jdbc.Driver");
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -34,6 +33,8 @@ public class RootConfig extends AnnotationConfigApplicationContext {
 		return prop;
 	}
 
+	
+	
 	/**
 	 * @return session factory
 	 * @throws ClassNotFoundException
@@ -58,9 +59,11 @@ public class RootConfig extends AnnotationConfigApplicationContext {
 						.addAnnotatedClass(com.excilys.cdb.model.Computer.class)
 						.addAnnotatedClass(com.excilys.cdb.model.Company.class)
 						.addAnnotatedClass(com.excilys.cdb.model.User.class)
+						.addAnnotatedClass(com.excilys.cdb.model.Role.class)
 						.addAnnotatedClass(com.excilys.cdb.model.QComputer.class)
 						.addAnnotatedClass(com.excilys.cdb.model.QCompany.class)
 						.addAnnotatedClass(com.excilys.cdb.model.QUser.class)
+						.addAnnotatedClass(com.excilys.cdb.model.QRole.class)
 					.buildMetadata()
 					.buildSessionFactory();
 		}

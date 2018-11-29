@@ -4,7 +4,11 @@ import java.util.List;
 import java.time.LocalDate;
 import java.util.Scanner;
 
+//import javax.servlet.ServletConfig;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
@@ -24,7 +28,8 @@ public final class ConsoleUserInterface implements UserInterface {
 	ComputerService computerService;
 	@Autowired
 	CompanyService companyService;
-
+	PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+	
 	@Override
 	public void mainLoop(String[] args) throws DatabaseErrorException {
 		boolean looping = true;
@@ -38,6 +43,7 @@ public final class ConsoleUserInterface implements UserInterface {
 			System.out.println("5 - Add computer");
 			System.out.println("6 - Delete computer (id)");
 			System.out.println("7 - Delete company (id)");
+			System.out.println("8 - Generate password");
 			System.out.println("0 - Exit");
 
 			String choice = scan.nextLine();
@@ -63,6 +69,9 @@ public final class ConsoleUserInterface implements UserInterface {
 			case "7":
 				deleteCompany();
 				break;
+			case "8":
+				generatePassword();
+				break;
 			case "0":
 				looping = false;
 				break;
@@ -72,6 +81,15 @@ public final class ConsoleUserInterface implements UserInterface {
 			}
 		}
 		System.out.println("Bye");
+	}
+
+	private void generatePassword() {
+		System.out.println("Enter password : ");
+		String plainTextPassword = scan.nextLine();
+		String encodedPassword = passwordEncoder.encode(plainTextPassword);
+		System.out.println("Hashed password : ");
+		System.out.println(encodedPassword);
+		
 	}
 
 	private void listComputers() throws DatabaseErrorException {

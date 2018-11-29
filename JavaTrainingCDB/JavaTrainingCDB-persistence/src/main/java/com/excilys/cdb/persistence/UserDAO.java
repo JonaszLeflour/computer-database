@@ -1,5 +1,7 @@
 package com.excilys.cdb.persistence;
 
+import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
@@ -31,7 +33,21 @@ public class UserDAO {
 		}
 	}
 	
-	public void registerUser(User user) throws DatabaseErrorException {
+	public List<User> getUsers() throws DatabaseErrorException {
+		QUser user = QUser.user;
+		Session s = sessionFactory.openSession();
+		HibernateQueryFactory factory = new HibernateQueryFactory(s);
+		try {
+			return factory.select(user).fetch();
+		} catch (Exception e) {
+			throw new DatabaseErrorException(e);
+		} finally {
+			s.close();
+		}
+	}
+	
+	public void registerUser(User user) throws DatabaseErrorException, InvalidParameterException, InvalidUsernameException, InvalidPasswordException {
+		UserValidator.isValid(user);	
 		Session session = sessionFactory.openSession();
 		session.beginTransaction();
 		try {

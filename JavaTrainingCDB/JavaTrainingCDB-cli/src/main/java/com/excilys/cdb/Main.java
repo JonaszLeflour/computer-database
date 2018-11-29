@@ -16,7 +16,7 @@ import com.excilys.cdb.ui.ConsoleUserInterface;
  */
 public class Main {
 	static Logger logger = LoggerFactory.getLogger(Main.class);
-	ApplicationContext ctx = new AnnotationConfigApplicationContext(RootConfig.class);
+	//static ApplicationContext ctx = new AnnotationConfigApplicationContext(RootConfig.class);
 	/**
 	 * Creates user interface object
 	 * @param args
