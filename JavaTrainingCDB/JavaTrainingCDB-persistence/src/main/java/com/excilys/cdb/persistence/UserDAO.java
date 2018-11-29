@@ -13,6 +13,7 @@ import com.querydsl.jpa.hibernate.HibernateQueryFactory;
 
 @Repository
 public class UserDAO {
+	
 	@Autowired
 	private SessionFactory sessionFactory;
 	
@@ -21,7 +22,7 @@ public class UserDAO {
 		Session s = sessionFactory.openSession();
 		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
-			return factory.select(user).where(user.name.eq(name)).fetch().get(0);
+			return factory.selectFrom(user).where(user.name.eq(name)).fetch().get(0);
 		} catch (IndexOutOfBoundsException e) {
 			throw new ObjectNotFoundException(e);
 		} catch (Exception e) {
@@ -36,7 +37,7 @@ public class UserDAO {
 		Session s = sessionFactory.openSession();
 		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
-			return factory.select(user).fetch();
+			return factory.selectFrom(user).fetch();
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		} finally {
