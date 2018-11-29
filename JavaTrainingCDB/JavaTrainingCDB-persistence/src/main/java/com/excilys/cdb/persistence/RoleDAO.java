@@ -23,7 +23,7 @@ private SessionFactory sessionFactory;
 		Session s = sessionFactory.openSession();
 		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
-			return factory.select(role).fetch();
+			return factory.selectFrom(role).fetch();
 		} catch (IndexOutOfBoundsException e) {
 			throw new ObjectNotFoundException(e);
 		} catch (Exception e) {
@@ -38,7 +38,7 @@ private SessionFactory sessionFactory;
 		Session s = sessionFactory.openSession();
 		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
-			return factory.select(role).where(role.name.eq(name)).fetch().get(0);
+			return factory.selectFrom(role).where(role.name.eq(name)).fetch().get(0);
 		} catch (IndexOutOfBoundsException e) {
 			throw new ObjectNotFoundException(e);
 		} catch (Exception e) {
@@ -53,7 +53,7 @@ private SessionFactory sessionFactory;
 		Session s = sessionFactory.openSession();
 		HibernateQueryFactory factory = new HibernateQueryFactory(s);
 		try {
-			return factory.select(role).where(role.id.eq(id)).fetch().get(0);
+			return factory.selectFrom(role).where(role.id.eq(id)).fetch().get(0);
 		} catch (IndexOutOfBoundsException e) {
 			throw new ObjectNotFoundException(e);
 		} catch (Exception e) {

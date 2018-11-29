@@ -67,7 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		/*Role role1 = roleDAO.getRoleById(1);
+		Role role1 = roleDAO.getRoleById(1);
 		http.authorizeRequests()
 			.antMatchers("/login").permitAll()
 			.antMatchers("/dashboard").hasRole(role1.getName())
@@ -76,7 +76,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.and().formLogin()
 			.defaultSuccessUrl("/dashboard", true).and().logout()
 			.logoutSuccessUrl("/login").permitAll()
-			.and().csrf().disable();*/
+			.and().csrf().disable();
+		
+		/*http.authorizeRequests()
+		.antMatchers("/login").permitAll()
+		.antMatchers("/dashboard").hasRole("admin")
+		.antMatchers("/editComputer").hasRole("admin")
+		.antMatchers("/addComputer").hasRole("admin")
+		.and().formLogin()
+		.defaultSuccessUrl("/dashboard", true).and().logout()
+		.logoutSuccessUrl("/login").permitAll()
+		.and().csrf().disable();
 		
 		http.authorizeRequests()
 		.antMatchers("/login").permitAll();
@@ -93,7 +103,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		 
 		 http.authorizeRequests() .and().formLogin().defaultSuccessUrl("/dashboard",
 		 true) .and().logout().logoutSuccessUrl("/login").permitAll()
-		 .and().csrf().disable();
+		 .and().csrf().disable();*/
 		 
 
 	}
