@@ -6,7 +6,6 @@
 	<artifactId>JavaTrainingCDB-webapp</artifactId>
 
 	<name>JavaTrainingCDB-webapp</name>
-	<!-- FIXME change it to the project's website -->
 	<url>https://github.com/JonaszLeflour/computer-database</url>
 	<packaging>war</packaging>
 	<properties>

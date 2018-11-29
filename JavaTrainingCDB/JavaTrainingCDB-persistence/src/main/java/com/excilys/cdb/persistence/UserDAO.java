@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.excilys.cdb.model.QUser;
@@ -12,11 +13,8 @@ import com.querydsl.jpa.hibernate.HibernateQueryFactory;
 
 @Repository
 public class UserDAO {
+	@Autowired
 	private SessionFactory sessionFactory;
-	
-	public UserDAO(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
 	
 	public User getUserByName(String name) throws ObjectNotFoundException, DatabaseErrorException {
 		QUser user = QUser.user;
