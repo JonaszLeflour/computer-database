@@ -24,7 +24,7 @@ public class UserDAO {
 		try {
 			return factory.selectFrom(user).where(user.name.eq(name)).fetch().get(0);
 		} catch (IndexOutOfBoundsException e) {
-			throw new ObjectNotFoundException(e);
+			throw new ObjectNotFoundException("No user with name="+name);
 		} catch (Exception e) {
 			throw new DatabaseErrorException(e);
 		} finally {

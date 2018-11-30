@@ -1,5 +1,6 @@
 package com.excilys.cdb.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,13 +17,10 @@ import com.excilys.cdb.persistence.UserDAO;
 
 @Service
 public class SimpleUserService implements UserService, UserDetailsService{
+	@Autowired
 	UserDAO userDAO;
+	@Autowired
 	PasswordEncoder passwordEncoder;
-	
-	public SimpleUserService(UserDAO userDAO, PasswordEncoder passwordEncoder) {
-		this.passwordEncoder = passwordEncoder;
-		this.userDAO = userDAO;
-	}
 	
 	@Override
 	public void registerUser(User user) throws DatabaseErrorException, InvalidParameterException, InvalidUsernameException, InvalidPasswordException{
@@ -32,7 +30,7 @@ public class SimpleUserService implements UserService, UserDetailsService{
 	@Override
 	public User connectToUser(String username, String rawPassword) throws ObjectNotFoundException, DatabaseErrorException, WrongPasswordException{
 		User user = userDAO.getUserByName(username);
-		if(passwordEncoder.matches(rawPassword, user.getPassword())) {
+		if(!passwordEncoder.matches(rawPassword, user.getPassword())) {
 			throw new WrongPasswordException();
 		}
 		return user;
