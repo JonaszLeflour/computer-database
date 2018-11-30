@@ -6,6 +6,7 @@ package com.excilys.cdb.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 //import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -29,6 +30,7 @@ import com.excilys.cdb.service.UserService;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@ComponentScan(basePackages= {"com.excilys.cdb.config"})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private UserDetailsService userDetailsService;
@@ -56,6 +58,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		 * getName()); }
 		 */
 	}
+	
+	
 
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
@@ -67,44 +71,40 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		Role role1 = roleDAO.getRoleById(1);
-		http.authorizeRequests()
-			.antMatchers("/login").permitAll()
-			.antMatchers("/dashboard").hasRole(role1.getName())
-			.antMatchers("/editComputer").hasRole(role1.getName())
-			.antMatchers("/addComputer").hasRole(role1.getName())
-			.and().formLogin()
-			.defaultSuccessUrl("/dashboard", true).and().logout()
-			.logoutSuccessUrl("/login").permitAll()
-			.and().csrf().disable();
-		
-		/*http.authorizeRequests()
-		.antMatchers("/login").permitAll()
-		.antMatchers("/dashboard").hasRole("admin")
-		.antMatchers("/editComputer").hasRole("admin")
-		.antMatchers("/addComputer").hasRole("admin")
-		.and().formLogin()
-		.defaultSuccessUrl("/dashboard", true).and().logout()
-		.logoutSuccessUrl("/login").permitAll()
-		.and().csrf().disable();
-		
-		http.authorizeRequests()
-		.antMatchers("/login").permitAll();
-		
-		 for(Role role : roleDAO.getRoles()) { if(role.isSelect()) {
-		 http.authorizeRequests().antMatchers("/dashboard").hasRole(role.getName()); }
-		 if(role.isEdit()) {
-		 http.authorizeRequests().antMatchers("/editComputer").hasRole(role.getName())
-		 ; } if(role.isInsert()) {
-		 http.authorizeRequests().antMatchers("/addComputer").hasRole(role.getName());
-		 }
-		 
-		 }
-		 
-		 http.authorizeRequests() .and().formLogin().defaultSuccessUrl("/dashboard",
-		 true) .and().logout().logoutSuccessUrl("/login").permitAll()
-		 .and().csrf().disable();*/
-		 
+		/*
+		 * Role role1 = roleDAO.getRoleById(1); http.authorizeRequests()
+		 * .antMatchers("/login").permitAll()
+		 * .antMatchers("/dashboard").hasRole(role1.getName())
+		 * .antMatchers("/editComputer").hasRole(role1.getName())
+		 * .antMatchers("/addComputer").hasRole(role1.getName()) .and().formLogin()
+		 * .defaultSuccessUrl("/dashboard", true).and().logout()
+		 * .logoutSuccessUrl("/login").permitAll() .and().csrf().disable();
+		 * 
+		 * http.authorizeRequests() .antMatchers("/login").permitAll()
+		 * .antMatchers("/dashboard").hasRole("admin")
+		 * .antMatchers("/editComputer").hasRole("admin")
+		 * .antMatchers("/addComputer").hasRole("admin") .and().formLogin()
+		 * .defaultSuccessUrl("/dashboard", true).and().logout()
+		 * .logoutSuccessUrl("/login").permitAll() .and().csrf().disable();
+		 */
+
+		http.authorizeRequests().antMatchers("/login").permitAll();
+
+		for (Role role : roleDAO.getRoles()) {
+			if (role.isSelect()) {
+				http.authorizeRequests().antMatchers("/dashboard").hasRole(role.getName());
+			}
+			if (role.isEdit()) {
+				http.authorizeRequests().antMatchers("/editComputer").hasRole(role.getName());
+			}
+			if (role.isInsert()) {
+				http.authorizeRequests().antMatchers("/addComputer").hasRole(role.getName());
+			}
+
+		}
+
+		http.authorizeRequests().and().formLogin().defaultSuccessUrl("/dashboard", true).and().logout()
+				.logoutSuccessUrl("/login").permitAll().and().csrf().disable();
 
 	}
 
