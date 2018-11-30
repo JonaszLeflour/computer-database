@@ -14,33 +14,42 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.excilys.cdb.config.RootConfig;
-import com.excilys.cdb.model.User;
+import com.excilys.cdb.model.Role;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = {RootConfig.class})
-public class UserDAOTest {
+public class RoleDAOTest {
 	@Autowired
-	UserDAO userDAO;
+	RoleDAO roleDAO;
 	
 	@Test
-	public void testGetAllUsers() throws DatabaseErrorException {
-		List<User> users = userDAO.getUsers();
-		assertNotNull(users);
-		assertTrue(users.size()>0);
+	public void testGetAllUsers() throws DatabaseErrorException, ObjectNotFoundException {
+		List<Role> roles = roleDAO.getRoles();
+		assertNotNull(roles);
+		assertTrue(roles.size()>0);
 	}
 	
 	@Test
-	public void testGetUserByName() throws DatabaseErrorException, ObjectNotFoundException {
+	public void testGetRoleByName() throws DatabaseErrorException, ObjectNotFoundException {
 		boolean expectedFailure = false;
-		User admin = userDAO.getUserByName("admin");
-		User user = userDAO.getUserByName("user");
+		Role admin = roleDAO.getRoleByName("admin");
+		Role guest = roleDAO.getRoleByName("guest");
 		assertEquals("admin",admin.getName());
+		assertEquals("guest",guest.getName());
 		
-		assertEquals("user",user.getName());
+		assertTrue(admin.isSelect());
+		assertTrue(admin.isEdit());
+		assertTrue(admin.isDelete());
+		assertTrue(admin.isInsert());
+		
+		assertTrue(guest.isSelect());
+		assertTrue(!guest.isEdit());
+		assertTrue(!guest.isDelete());
+		assertTrue(!guest.isInsert());
 		
 		try {
-			//TODO: find an username that isn't in the database procedurally
-			userDAO.getUserByName("this username isn't in the database");
+			//TODO: find a role that isn't in the database procedurally
+			roleDAO.getRoleByName("this role isn't in the database");
 		}catch(ObjectNotFoundException e) {
 			expectedFailure = true;
 		}

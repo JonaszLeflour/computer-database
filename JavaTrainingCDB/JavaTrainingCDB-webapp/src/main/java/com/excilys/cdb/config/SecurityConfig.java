@@ -100,9 +100,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			if (role.isInsert()) {
 				http.authorizeRequests().antMatchers("/addComputer").hasRole(role.getName());
 			}
-
 		}
-
 		http.authorizeRequests().and().formLogin().defaultSuccessUrl("/dashboard", true).and().logout()
 				.logoutSuccessUrl("/login").permitAll().and().csrf().disable();
 
