@@ -71,22 +71,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		/*
-		 * Role role1 = roleDAO.getRoleById(1); http.authorizeRequests()
-		 * .antMatchers("/login").permitAll()
-		 * .antMatchers("/dashboard").hasRole(role1.getName())
-		 * .antMatchers("/editComputer").hasRole(role1.getName())
-		 * .antMatchers("/addComputer").hasRole(role1.getName()) .and().formLogin()
-		 * .defaultSuccessUrl("/dashboard", true).and().logout()
-		 * .logoutSuccessUrl("/login").permitAll() .and().csrf().disable();
-		 * 
-		 * http.authorizeRequests() .antMatchers("/login").permitAll()
-		 * .antMatchers("/dashboard").hasRole("admin")
-		 * .antMatchers("/editComputer").hasRole("admin")
-		 * .antMatchers("/addComputer").hasRole("admin") .and().formLogin()
-		 * .defaultSuccessUrl("/dashboard", true).and().logout()
-		 * .logoutSuccessUrl("/login").permitAll() .and().csrf().disable();
-		 */
+		
+		 Role role1 = roleDAO.getRoleByName("admin"); 
+		 Role role2 = roleDAO.getRoleByName("guest"); 
+		 http.authorizeRequests()
+		 .antMatchers("/login").permitAll()
+		 .antMatchers("/dashboard").hasAnyRole(role1.getName(), role2.getName())
+		 .antMatchers("/editcomputer").hasRole(role1.getName())
+		 .antMatchers("/addcomputer").hasRole(role1.getName())
+		 .and().formLogin()
+		 .defaultSuccessUrl("/dashboard", true)
+		 .and().logout()
+		 .logoutUrl("/logout")
+		 .logoutSuccessUrl("/login").permitAll() .and().csrf().disable();
+		 
+		 /*http.authorizeRequests() .antMatchers("/login").permitAll()
+		 .antMatchers("/dashboard").hasRole("admin")
+		 .antMatchers("/editComputer").hasRole("admin")
+		 .antMatchers("/addComputer").hasRole("admin") .and().formLogin()
+		 .defaultSuccessUrl("/dashboard", true).and().logout()
+		 .logoutSuccessUrl("/login").permitAll() .and().csrf().disable();
+		 
 
 		http.authorizeRequests().antMatchers("/login").permitAll();
 
@@ -102,7 +107,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			}
 		}
 		http.authorizeRequests().and().formLogin().defaultSuccessUrl("/dashboard", true).and().logout()
-				.logoutSuccessUrl("/login").permitAll().and().csrf().disable();
+				.logoutSuccessUrl("/login").permitAll().and().csrf().disable();*/
 
 	}
 
