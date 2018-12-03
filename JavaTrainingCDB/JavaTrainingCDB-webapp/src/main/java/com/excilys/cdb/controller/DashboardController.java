@@ -3,9 +3,8 @@ package com.excilys.cdb.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.excilys.cdb.dto.InvalidPageNumberException;
@@ -20,7 +19,6 @@ import com.excilys.cdb.service.ComputerService;
  *
  */
 @Controller
-@RequestMapping("dashboard")
 public class DashboardController {
     @Autowired
     private OrderedComputerRequestPager orderedComputerRequestPager;
@@ -34,7 +32,7 @@ public class DashboardController {
      * @return dashboard
      * @throws InvalidParameterException 
      */
-    @GetMapping
+    @RequestMapping(value = "/dashboard", method = RequestMethod.GET)
     public String getRequest(ModelMap map,
     		@RequestParam(required=false, value="search",defaultValue="")String search,
     		@RequestParam(required=false, value="page", defaultValue="1")String page) throws InvalidParameterException {
@@ -65,7 +63,7 @@ public class DashboardController {
      * @return dashboard
      * @throws InvalidParameterException 
      */
-    @PostMapping
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public String postRequest(ModelMap map,
     		@RequestParam(required=false, value="search",defaultValue="")String search,
     		@RequestParam(required=false, value="page", defaultValue="1")String page,
@@ -78,7 +76,7 @@ public class DashboardController {
 				throw new InvalidParameterException(e);
 			}
 		}
-		return getRequest(map,search,page);
+		return "redirect:dashboard";
     	
     }
 }
