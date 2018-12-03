@@ -1,4 +1,4 @@
-package webservice;
+package com.excilys.cdb.webservice;
 
 import java.util.List;
 import java.util.Optional;
